@@ -257,7 +257,13 @@ export function startRoute(root: HTMLElement): () => void {
       }
     });
 
-    ScrollTrigger.refresh(); };
+    ScrollTrigger.refresh();
+    // recalcula posiciones cuando terminan de cargar las imágenes (una sola vez, con debounce)
+    let rt = 0;
+    const onImg = () => { clearTimeout(rt); rt = window.setTimeout(() => ScrollTrigger.refresh(), 120); };
+    $$<HTMLImageElement>('img').forEach((img) => { if (!img.complete) { img.addEventListener('load', onImg, { once: true }); off.push(() => img.removeEventListener('load', onImg)); } });
+    off.push(() => clearTimeout(rt));
+  };
 
     type RIC = (cb: () => void, o?: { timeout: number }) => number;
     const ric = (window as Window & { requestIdleCallback?: RIC }).requestIdleCallback;

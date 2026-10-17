@@ -1,9 +1,9 @@
-/** Servicios: detalle de las 6 especialidades + proceso, stack y packs. */
+/** Servicios: detalle de las 6 especialidades + proceso (#proceso), stack (#stack) y franja de precios → /packs. */
 import Page from '@/components/Page';
 import PageHero from '@/components/PageHero';
 import Process from '@/components/sections/Process';
 import Stack from '@/components/sections/Stack';
-import Packs from '@/components/sections/Packs';
+import PacksTeaser from '@/components/sections/PacksTeaser';
 import Final from '@/components/sections/Final';
 import { AIcon, Btn, JsonLd } from '@/components/ui';
 import { SERVICES } from '@/content/site';
@@ -39,7 +39,8 @@ export default function Servicios() {
       </section>
       <Process n={1} />
       <Stack n={2} />
-      <Packs n={3} />
+      {/* los packs completos viven en /packs; aquí la franja de precios */}
+      <PacksTeaser n={3} />
       <Final n={4} />
       <JsonLd data={servicesJsonLd} />
     </Page>

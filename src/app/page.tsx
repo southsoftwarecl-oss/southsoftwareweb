@@ -1,31 +1,29 @@
-/** Home — todas las secciones del preview 10, en el mismo orden. */
+/**
+ * Home (v2, compacto): Hero → Proof → Servicios (teaser) → Historia fijada →
+ * Proyectos destacados → Franja de precios → CTA/contacto. Proceso, Stack y
+ * "Por qué" viven en /servicios y /nosotros; los packs completos en /packs.
+ */
 import Page from '@/components/Page';
 import Hero from '@/components/sections/Hero';
 import Proof from '@/components/sections/Proof';
 import Services from '@/components/sections/Services';
 import Story from '@/components/sections/Story';
-import Cases from '@/components/sections/Cases';
-import Process from '@/components/sections/Process';
-import Stack from '@/components/sections/Stack';
-import Packs from '@/components/sections/Packs';
-import Why from '@/components/sections/Why';
-import Testimonials from '@/components/sections/Testimonials';
+import { FeaturedCases } from '@/components/sections/Cases';
+import PacksTeaser from '@/components/sections/PacksTeaser';
 import Final from '@/components/sections/Final';
+import LegacyHash from '@/components/LegacyHash';
 
 export default function Home() {
   return (
     <Page>
+      <LegacyHash />
       <Hero />
       <Proof />
-      <Services n={1} />
+      <Services n={1} teaser />
       <Story />
-      <Cases n={2} />
-      <Process n={3} />
-      <Stack n={4} />
-      <Packs n={5} />
-      <Why n={6} />
-      <Testimonials n={7} />
-      <Final n={8} />
+      <FeaturedCases n={2} />
+      <PacksTeaser n={3} />
+      <Final n={4} />
     </Page>
   );
 }

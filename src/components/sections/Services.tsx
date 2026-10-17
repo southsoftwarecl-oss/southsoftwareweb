@@ -1,16 +1,20 @@
-/** Tarjetas de servicio que se expanden al hover, con íconos SVG que se dibujan. */
+/**
+ * Tarjetas de servicio que se expanden al hover, con íconos SVG que se dibujan.
+ * `teaser`: versión compacta del home (3×2 en desktop, carrusel con scroll-snap en móvil)
+ * con enlace a /servicios.
+ */
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { SERVICES } from '@/content/site';
-import { AIcon, SecHead } from '../ui';
+import { AIcon, Btn, SecHead } from '../ui';
 
-export default function Services({ n = 1, title, linkToDetail = true }: { n?: number; title?: ReactNode; linkToDetail?: boolean }) {
+export default function Services({ n = 1, title, linkToDetail = true, teaser = false }: { n?: number; title?: ReactNode; linkToDetail?: boolean; teaser?: boolean }) {
   return (
-    <section className="sec" id="servicios">
+    <section className={`sec${teaser ? ' sec-teaser' : ''}`} id="servicios">
       <div className="wrap">
         <SecHead n={n} eyebrow="Servicios" title={title ?? <>Miles de detalles.<br /><span className="dim">Una sola visión.</span></>}
           lead="Diseñamos, programamos, protegemos y medimos. Todo bajo el mismo techo, con un solo interlocutor." />
-        <div className="svc" data-stagger>
+        <div className={`svc${teaser ? ' svc-teaser' : ''}`} data-stagger>
           {SERVICES.map((s, i) => {
             const body = (<>
               <div className="num"><span>0{i + 1}</span><span>{s.tags[0]}</span></div>
@@ -24,6 +28,7 @@ export default function Services({ n = 1, title, linkToDetail = true }: { n?: nu
               : <article className="item" key={s.slug} data-cursor="Explorar">{body}</article>;
           })}
         </div>
+        {teaser && <div className="see-all" data-reveal><Btn href="/servicios" variant="ghost">Ver todos los servicios</Btn></div>}
       </div>
     </section>
   );

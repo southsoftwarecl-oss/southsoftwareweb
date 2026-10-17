@@ -36,7 +36,7 @@ export const NAV = [
   { href: '/servicios', label: 'Servicios' },
   { href: '/proyectos', label: 'Proyectos' },
   { href: '/nosotros', label: 'Nosotros' },
-  { href: '/#packs', label: 'Packs' },
+  { href: '/packs', label: 'Packs' },
   { href: '/contacto', label: 'Contacto' },
 ];
 
@@ -72,6 +72,9 @@ export const SERVICES: {
 ];
 
 /** Packs: precios exactos (CLP, valores brutos). */
+/** Packs que se muestran en la franja de precios del home (por nombre, deben existir en PACKS). */
+export const HOME_PACKS = ['Emprende', 'Pyme', 'E-commerce'] as const;
+
 export const PACKS: { name: string; setup: string; monthly: string; featured?: boolean; includes: string[] }[] = [
   { name: 'Emprende', setup: '$149.990', monthly: '$19.990', includes: ['Landing de 1 página adaptada a celular', 'Botón de WhatsApp, mapa y formulario', 'Dominio .cl a tu nombre', 'Hosting, SSL y soporte por WhatsApp'] },
   { name: 'Pyme', setup: '$349.990', monthly: '$34.990', featured: true, includes: ['Sitio de hasta 6 secciones', 'SEO local Puerto Montt / Los Lagos', '2 correos corporativos', 'Respaldo semanal y reporte mensual'] },

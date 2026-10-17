@@ -2,12 +2,12 @@
 import { FOUNDERS, PACKS, WA_URL } from '@/content/site';
 import { Btn, SecHead } from '../ui';
 
-export default function Packs({ n = 5 }: { n?: number }) {
+export default function Packs({ n = 5, head = true }: { n?: number; head?: boolean }) {
   return (
-    <section className="sec" id="packs">
+    <section className="sec" id="packs" style={head ? undefined : { paddingTop: 40 }} aria-label={head ? undefined : 'Packs y precios'}>
       <div className="wrap">
-        <SecHead n={n} eyebrow="Packs y precios" title={<>Precio claro.<br /><span className="dim">Desde el primer día.</span></>}
-          lead="Un pago inicial para construir y una mensualidad que cubre hosting, dominio, respaldos, cambios y soporte. Valores brutos con boleta de honorarios." />
+        {head && <SecHead n={n} eyebrow="Packs y precios" title={<>Precio claro.<br /><span className="dim">Desde el primer día.</span></>}
+          lead="Un pago inicial para construir y una mensualidad que cubre hosting, dominio, respaldos, cambios y soporte. Valores brutos con boleta de honorarios." />}
         <div className="packs" data-stagger>
           {PACKS.map((p) => (
             <article className={`pack${p.featured ? ' feat' : ''}`} key={p.name}>

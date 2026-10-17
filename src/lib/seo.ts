@@ -50,3 +50,23 @@ export const servicesJsonLd = {
     },
   ],
 };
+
+/** /packs: catálogo de ofertas (Service + Offer) con los precios publicados en PACKS. */
+export const packsJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  '@id': `${SITE_URL}/packs#service`,
+  name: 'Packs de desarrollo web y software',
+  serviceType: 'Desarrollo de sitios web, apps y software',
+  provider: { '@id': `${SITE_URL}/#org` },
+  areaServed: { '@type': 'Country', name: 'Chile' },
+  url: `${SITE_URL}/packs`,
+  hasOfferCatalog: {
+    '@type': 'OfferCatalog', name: 'Packs South Software',
+    itemListElement: PACKS.map((p) => ({
+      '@type': 'Offer', name: `Pack ${p.name}`, priceCurrency: 'CLP', url: `${SITE_URL}/packs`,
+      priceSpecification: { '@type': 'PriceSpecification', price: clp(p.setup), priceCurrency: 'CLP', ...(p.setup.startsWith('desde') ? { minPrice: clp(p.setup) } : {}) },
+      description: p.includes.join('. '), seller: { '@id': `${SITE_URL}/#org` },
+    })),
+  },
+};
