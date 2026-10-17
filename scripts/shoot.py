@@ -37,7 +37,7 @@ async def main():
                 pg.on('pageerror', lambda e: errs.append(str(e)))
                 await pg.goto(BASE + r, wait_until='load')
                 if not mobile: await pg.mouse.move(900, 380)
-                await pg.wait_for_timeout(4200)
+                await pg.wait_for_timeout(7500 if mobile else 4200)  # móvil: el 3D se carga diferido
                 await pg.screenshot(path=f'{OUT}/{s}-{name}-hero.png')
                 if '--full' in os.environ.get('SHOOT', ''):
                     img = await full(pg, r, vp['width'], vp['height'])

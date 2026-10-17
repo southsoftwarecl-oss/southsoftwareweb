@@ -8,6 +8,7 @@ import { AnimatePresence, LazyMotion, domAnimation, m } from 'framer-motion';
 import { NAV } from '@/content/site';
 
 const EASE = [0.16, 1, 0.3, 1] as const;
+const EASE_IN = [0.7, 0, 0.84, 0] as const; // 'south-in' para salidas
 
 export default function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
   return (
@@ -15,7 +16,7 @@ export default function MobileMenu({ open, onClose }: { open: boolean; onClose: 
       <AnimatePresence>
         {open && (
           <m.div id="menu-movil" className="mmenu" role="dialog" aria-modal="true" aria-label="Menú"
-            initial={{ clipPath: 'inset(0 0 100% 0)' }} animate={{ clipPath: 'inset(0 0 0% 0)' }} exit={{ clipPath: 'inset(0 0 100% 0)' }}
+            initial={{ clipPath: 'inset(0 0 100% 0)' }} animate={{ clipPath: 'inset(0 0 0% 0)' }} exit={{ clipPath: 'inset(0 0 100% 0)', transition: { duration: 0.5, ease: EASE_IN } }}
             transition={{ duration: 0.7, ease: EASE }}>
             <nav aria-label="Menú móvil">
               {[{ href: '/', label: 'Inicio' }, ...NAV].map((l, i) => (

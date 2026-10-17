@@ -37,7 +37,7 @@ export function startGlobal(): () => void {
     // Lenis (smooth scroll) — detenido mientras corre el preloader
     let tick: ((t: number) => void) | null = null;
     if (!RT.static) {
-      lenis = new Lenis({ lerp: 0.09, smoothWheel: true, wheelMultiplier: 1 });
+      lenis = new Lenis({ lerp: 0.12, wheelMultiplier: 1.1, touchMultiplier: 1.2, smoothWheel: true, syncTouch: false });
       lenis.on('scroll', ScrollTrigger.update);
       tick = (t: number) => lenis?.raf(t * 1000);
       gsap.ticker.add(tick);
@@ -81,11 +81,16 @@ export function startGlobal(): () => void {
       on(document, 'pointerover', ((e: PointerEvent) => {
         const t = e.target as Element;
         const ctx = t.closest?.('[data-cursor]') as HTMLElement | null;
+        const link = !ctx && !!t.closest?.('a,button,select,input,textarea');
+        // lente del hero: sin etiqueta ni relleno (no aplica sobre links/botones)
+        const lens = !ctx && !link && !!t.closest?.('[data-cursor-lens]');
         r.classList.toggle('big', !!ctx);
         if (ctx) label.textContent = ctx.dataset.cursor || '';
-        r.classList.toggle('link', !ctx && !!t.closest?.('a,button,select,input,textarea'));
+        r.classList.toggle('link', link);
+        r.classList.toggle('lens', lens);
+        document.body.classList.toggle('cursor-lens', lens);
       }) as EventListener, { passive: true });
-      off.push(() => { d.remove(); r.remove(); document.body.classList.remove('cursor-on'); });
+      off.push(() => { d.remove(); r.remove(); document.body.classList.remove('cursor-on', 'cursor-lens'); });
     }
 
     // Nav que se esconde al bajar + botón flotante de WhatsApp
@@ -149,7 +154,7 @@ export function startRoute(root: HTMLElement): () => void {
         const parts = type === 'chars' ? st.chars : type === 'lines' ? st.lines : st.words;
         const v = { yPercent: 0, duration: 1.2, stagger: type === 'chars' ? 0.022 : 0.06, ease: 'south' };
         gsap.set(parts, { yPercent: 115 });
-        if (inHero) off.push(onIntro(() => gsap.to(parts, { ...v, delay: parseFloat(el.dataset.delay || '0') })));
+        if (inHero) off.push(onIntro(() => gsap.to(parts, { ...v, ease: el.closest('.hero') ? 'mercury' : 'south', delay: parseFloat(el.dataset.delay || '0') })));
         else gsap.to(parts, { ...v, scrollTrigger: { trigger: el, start: 'top 86%' } });
       });
     });
@@ -246,7 +251,7 @@ export function startRoute(root: HTMLElement): () => void {
           const img = m.querySelector('img'); const o = { s: 0 };
           if (img) listen(m, 'pointerenter', () => {
             img.style.filter = `url(#${id})`;
-            gsap.fromTo(o, { s: 0 }, { s: 38, duration: 0.35, ease: 'power2.out', yoyo: true, repeat: 1, onUpdate: () => dm.setAttribute('scale', String(o.s)), onComplete: () => { img.style.filter = ''; } });
+            gsap.fromTo(o, { s: 0 }, { s: 18, duration: 0.35, ease: 'power2.out', yoyo: true, repeat: 1, onUpdate: () => dm.setAttribute('scale', String(o.s)), onComplete: () => { img.style.filter = ''; } });
           });
         });
       }
