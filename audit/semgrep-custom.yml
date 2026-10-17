@@ -1,0 +1,19 @@
+rules:
+  - id: react-dangerously-set-inner-html
+    languages: [typescript]
+    severity: WARNING
+    message: dangerouslySetInnerHTML — verificar que el contenido sea constante o escapado
+    pattern: <$EL dangerouslySetInnerHTML={...} />
+  - id: dom-inner-html
+    languages: [typescript]
+    severity: WARNING
+    message: asignación a innerHTML
+    pattern: $X.innerHTML = $Y
+  - id: env-secret-in-client
+    languages: [typescript]
+    severity: ERROR
+    message: variable de entorno secreta referenciada en archivo cliente
+    patterns:
+      - pattern: process.env.$K
+      - metavariable-regex: { metavariable: $K, regex: '^(RESEND|TURNSTILE_SECRET|CONTACT_TO)' }
+    paths: { include: ['src/components/**'] }

@@ -70,7 +70,7 @@ export function startGlobal(): () => void {
     // Cursor contextual (solo puntero fino y con movimiento)
     if (!RT.static && matchMedia('(hover:hover)').matches) {
       const d = document.createElement('div'); d.className = 'cursor';
-      const r = document.createElement('div'); r.className = 'cursor-ring'; r.innerHTML = '<span></span>';
+      const r = document.createElement('div'); r.className = 'cursor-ring'; r.append(document.createElement('span'));
       document.body.append(d, r);
       const label = r.querySelector('span')!;
       const xd = gsap.quickTo(d, 'x', { duration: 0.15, ease: 'power3' }), yd = gsap.quickTo(d, 'y', { duration: 0.15, ease: 'power3' });
