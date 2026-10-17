@@ -44,3 +44,6 @@ next-env.d.ts
 /playwright-report
 /test-results
 /lighthouse
+
+# plantilla de variables (sí se versiona)
+!.env.example
