@@ -7,20 +7,24 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { AnimatePresence, motion } from 'framer-motion';
+import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { NAV } from '@/content/site';
 import { Btn } from './ui';
 
-const EASE = [0.16, 1, 0.3, 1] as const;
+const MobileMenu = dynamic(() => import('./MobileMenu'), { ssr: false });
 
 export default function Nav() {
   const pathname = usePathname();
-  const [open, setOpen] = useState(false);
-  useEffect(() => { setOpen(false); }, [pathname]);
+  // El menú queda asociado a la ruta en que se abrió: al navegar se cierra solo
+  const [openAt, setOpenAt] = useState<string | null>(null);
+  const open = openAt === pathname;
+  const [loaded, setLoaded] = useState(false);
+  const setOpen = (v: boolean | ((o: boolean) => boolean)) =>
+    setOpenAt((typeof v === 'function' ? v(open) : v) ? pathname : null);
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpenAt(null); };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [open]);
@@ -40,27 +44,13 @@ export default function Nav() {
         </nav>
         <div className="nav-r">
           <Btn href={ctaHref} variant="light" icon={false}>Agenda una reunión</Btn>
-          <button type="button" className="menu-btn" aria-expanded={open} aria-controls="menu-movil" aria-label={open ? 'Cerrar menú' : 'Abrir menú'} onClick={() => setOpen((v) => !v)}>
+          <button type="button" className="menu-btn" aria-expanded={open} aria-controls="menu-movil" aria-label={open ? 'Cerrar menú' : 'Abrir menú'} onClick={() => { setLoaded(true); setOpen((v) => !v); }}>
             <i /><i />
           </button>
         </div>
       </div>
-      <AnimatePresence>
-        {open && (
-          <motion.div id="menu-movil" className="mmenu" role="dialog" aria-modal="true" aria-label="Menú"
-            initial={{ clipPath: 'inset(0 0 100% 0)' }} animate={{ clipPath: 'inset(0 0 0% 0)' }} exit={{ clipPath: 'inset(0 0 100% 0)' }}
-            transition={{ duration: 0.7, ease: EASE }}>
-            <nav aria-label="Menú móvil">
-              {[{ href: '/', label: 'Inicio' }, ...NAV].map((l, i) => (
-                <motion.div key={l.href} initial={{ y: '110%' }} animate={{ y: 0 }} transition={{ delay: 0.15 + i * 0.06, duration: 0.9, ease: EASE }} className="mm-row">
-                  <Link href={l.href} onClick={() => setOpen(false)}><span className="mono">0{i + 1}</span>{l.label}</Link>
-                </motion.div>
-              ))}
-            </nav>
-            <p className="mono mm-foot">Puerto Montt · Chile</p>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* se monta tras el primer toque (carga diferida de Framer Motion) */}
+      {loaded && <MobileMenu open={open} onClose={() => setOpen(false)} />}
     </header>
   );
 }

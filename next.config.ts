@@ -42,6 +42,8 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   poweredByHeader: false,
+  // Source maps públicos: facilitan auditoría y depuración (Lighthouse: valid-source-maps)
+  productionBrowserSourceMaps: true,
   reactStrictMode: true,
   images: { formats: ['image/avif', 'image/webp'] },
   turbopack: {

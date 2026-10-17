@@ -23,10 +23,13 @@ export default function Cases({ n = 2, title, as = 'h2' }: { n?: number; title?:
         <div className="cases">
           {CASES.map((c, i) => (
             <article className="case" key={c.slug}>
-              <Link className="media" href={`/proyectos/${c.slug}`} data-cursor="Ver caso" aria-label={`Ver caso ${c.name}`}><CaseMedia c={c} /></Link>
+              <Link className="media" href={`/proyectos/${c.slug}`} data-cursor="Ver caso" aria-label={`${c.url}: ver caso ${c.name}`}><CaseMedia c={c} /></Link>
               <div className="info" data-reveal>
                 <span className="idx">0{i + 1} / 0{CASES.length} — {c.meta}</span>
-                <h3><Link href={`/proyectos/${c.slug}`}>{c.name}</Link></h3>
+                {/* en /proyectos el título de sección es h1 → los casos bajan a h2 */}
+                {as === 'h1'
+                  ? <h2 className="cn"><Link href={`/proyectos/${c.slug}`}>{c.name}</Link></h2>
+                  : <h3><Link href={`/proyectos/${c.slug}`}>{c.name}</Link></h3>}
                 <p>{c.summary}</p>
                 <div className="kv">
                   <div><small>Stack</small><span>{c.stack.join(' · ')}</span></div>

@@ -5,6 +5,9 @@
 import { z } from 'zod';
 import { BUDGETS, PROJECT_TYPES } from '@/content/site';
 
+// Sin JIT: zod no intenta `new Function` (lo bloquea nuestra CSP sin 'unsafe-eval').
+z.config({ jitless: true });
+
 const clean = (max: number) =>
   z.string().trim().max(max, `Máximo ${max} caracteres`)
     // elimina caracteres de control (excepto saltos de línea/tab en el mensaje)

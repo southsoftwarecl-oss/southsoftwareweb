@@ -150,7 +150,7 @@ section{position:relative}.sec{padding:160px 0}
 .case:hover .media img{transform:scale(1.02)}
 .case .info{grid-column:9/13}
 .case .idx{font-family:var(--font-mono);font-size:12px;color:var(--dim)}
-.case h3{font-family:var(--font-display);font-weight:500;font-size:clamp(36px,3.6vw,56px);letter-spacing:-.045em;line-height:1;margin:18px 0 16px}
+.case h3,.case h2.cn{font-family:var(--font-display);font-weight:500;font-size:clamp(36px,3.6vw,56px);letter-spacing:-.045em;line-height:1;margin:18px 0 16px}
 .case p{color:var(--muted);font-size:16px}
 .case .kv{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line);margin-top:28px}
 .case .kv div{padding:14px 0;border-bottom:1px solid var(--line)}
@@ -424,3 +424,13 @@ html.rm .marquee .track,html.rm .hero-meta .scroll i::after{animation:none}
 ::view-transition-group(site-header){animation:none}
 .wa-float{view-transition-name:wa-float}
 @media (prefers-reduced-motion:reduce){::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}}
+
+/* ---- Placeholder del logo en puntos (móvil, antes de cargar el 3D) ---- */
+.gl-ph{position:absolute;left:0;right:0;top:calc(27% - 60px);display:flex;flex-direction:column;align-items:center;gap:6px;font-family:var(--font-logo);line-height:1;pointer-events:none;transition:opacity 1.2s var(--ease)}
+.gl-ph span{font-size:min(17vw,96px);background:radial-gradient(circle,rgba(200,205,220,.85) 0 1px,transparent 1.4px) 0 0/4px 4px;-webkit-background-clip:text;background-clip:text;color:transparent;opacity:.75}
+.gl-ph span+span{font-size:min(9.4vw,53px)}
+.gl-ph.out{opacity:0}
+.nf .gl-ph span{font-size:min(30vw,160px)}
+
+/* a11y: texto de la barra de URL sobre #141417 (4.77:1, antes 4.27:1) */
+.case .media .top span,.device .top span{color:#7D828C}

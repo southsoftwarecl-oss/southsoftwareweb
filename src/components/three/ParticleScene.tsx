@@ -84,6 +84,7 @@ function Particles({ lines, font, count, accent }: { lines: Lines; font: string;
 
   useFrame((state) => {
     const p = pts.current; if (!p) return;
+    const uniforms = (p.material as THREE.ShaderMaterial).uniforms; // vía ref: mutación por frame
     const t = RT.reduced ? 2.5 : state.clock.elapsedTime;
     uniforms.uT.value = t;
     const m = RT.mouse;
@@ -138,6 +139,7 @@ export default function ParticleScene({ lines = LOGO_LINES, font, accent = '#7C5
       camera={{ fov: 40, near: 0.1, far: 100, position: [0, 0, 13] }}
       onCreated={({ gl }) => { gl.setClearColor(0x0a0a0b); gl.domElement.classList.add('gl'); gl.domElement.setAttribute('aria-hidden', 'true'); }}
       aria-hidden
+      fallback={<div className="gl-fallback" aria-hidden="true" />}
     >
       {/* drei: baja la resolución si el equipo no sostiene los FPS */}
       <PerformanceMonitor onDecline={() => setDpr(1)} onIncline={() => setDpr(capDpr())} flipflops={3} />

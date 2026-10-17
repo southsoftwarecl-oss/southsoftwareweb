@@ -2,15 +2,18 @@
 /**
  * Formulario "brief" (mismo diseño del preview) conectado a /api/contact.
  * Estados animados: error por campo (shake), cargando (spinner), éxito.
- * - Validación inmediata en el cliente + validación real en el servidor (zod).
+ * - Validación inmediata en el cliente (lib/contact-rules) + validación real en el servidor (zod).
  * - Honeypot anti-spam ("website") y Cloudflare Turnstile opcional
  *   (se activa solo si existe NEXT_PUBLIC_TURNSTILE_SITE_KEY).
  * - Sin claves: el servidor responde en modo demo (no envía correo).
  */
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion, useAnimationControls } from 'framer-motion';
+import dynamic from 'next/dynamic';
 import { BUDGETS, PROJECT_TYPES } from '@/content/site';
-import { contactSchema } from '@/lib/contact-schema';
+import { validateContact } from '@/lib/contact-rules';
+
+// Mensajes animados (Framer Motion) cargados solo cuando hacen falta
+const FormFeedback = dynamic(() => import('./FormFeedback'), { ssr: false });
 
 const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '';
 type Field = 'nombre' | 'empresa' | 'email' | 'tipo' | 'presupuesto' | 'mensaje';
@@ -27,7 +30,6 @@ export default function ContactForm() {
   const [status, setStatus] = useState<Status>('idle');
   const [serverMsg, setServerMsg] = useState('');
   const [demo, setDemo] = useState(false);
-  const shake = useAnimationControls();
   const tsRef = useRef<HTMLDivElement>(null);
   const tsToken = useRef('');
   const formRef = useRef<HTMLFormElement>(null);
@@ -60,12 +62,11 @@ export default function ContactForm() {
       tipo: String(fd.get('tipo') || ''), presupuesto: String(fd.get('presupuesto') || ''), mensaje: String(fd.get('mensaje') || ''),
       website: String(fd.get('website') || ''), turnstileToken: tsToken.current,
     };
-    const parsed = contactSchema.safeParse(payload);
-    if (!parsed.success) {
-      const errs: Partial<Record<Field, string>> = {};
-      for (const iss of parsed.error.issues) { const k = iss.path[0] as Field; if (!errs[k]) errs[k] = iss.message; }
+    const errs = validateContact(payload);
+    if (Object.keys(errs).length) {
       setErrors(errs);
-      shake.start({ x: [-6, 6, -4, 3, 0], transition: { duration: 0.5 } });
+      // micro-interacción de error (Web Animations API: sin cargar librerías)
+      formRef.current?.animate({ translate: ['0', '-6px', '6px', '-4px', '3px', '0'] }, { duration: 500, easing: 'ease-out' });
       return;
     }
     setErrors({}); setStatus('loading'); setServerMsg('');
@@ -87,7 +88,7 @@ export default function ContactForm() {
   const aria = (k: Field) => ({ 'aria-invalid': !!errors[k] || undefined, 'aria-describedby': errors[k] ? id(k) + '-e' : undefined });
 
   return (
-    <motion.form ref={formRef} className={`brief${status === 'loading' ? ' loading' : ''}${status === 'done' ? ' done' : ''}`} noValidate onSubmit={onSubmit} animate={shake} data-reveal aria-label="Formulario de contacto">
+    <form ref={formRef} className={`brief${status === 'loading' ? ' loading' : ''}${status === 'done' ? ' done' : ''}`} noValidate onSubmit={onSubmit} data-reveal aria-label="Formulario de contacto">
       <div className={f('nombre')}><input id={id('n')} name="nombre" required autoComplete="name" placeholder=" " maxLength={80} {...aria('nombre')} /><label htmlFor={id('n')}>Nombre</label>{errNode('nombre')}</div>
       <div className={f('empresa')}><input id={id('e')} name="empresa" autoComplete="organization" placeholder=" " maxLength={120} /><label htmlFor={id('e')}>Empresa</label></div>
       <div className={`${f('email')} full`}><input id={id('m')} name="email" type="email" required autoComplete="email" placeholder=" " maxLength={160} {...aria('email')} /><label htmlFor={id('m')}>Email</label>{errNode('email')}</div>
@@ -107,18 +108,8 @@ export default function ContactForm() {
         <span className="t"><span>Enviar brief</span><span aria-hidden="true">Enviar brief</span></span><i className="spin" aria-hidden="true" />
         <span className="sr-only" aria-live="polite">{status === 'loading' ? 'Enviando…' : ''}</span>
       </button>
-      <AnimatePresence>
-        {status === 'done' && (
-          <motion.div key="ok" className="ok" role="status" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
-            <span>¡Listo! Te contactamos dentro de 24 horas hábiles.{demo && <small className="demo"> Modo demo: el mensaje fue validado pero no enviado (falta configurar RESEND_API_KEY).</small>}</span>
-          </motion.div>
-        )}
-        {status === 'error' && serverMsg && (
-          <motion.div key="err" className="ko" role="alert" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>{serverMsg}</motion.div>
-        )}
-      </AnimatePresence>
+      {(status === 'done' || status === 'error') && <FormFeedback status={status} serverMsg={serverMsg} demo={demo} />}
       <p className="note">Respondemos dentro de 24 horas hábiles. Usamos tus datos solo para responder tu solicitud.</p>
-    </motion.form>
+    </form>
   );
 }
