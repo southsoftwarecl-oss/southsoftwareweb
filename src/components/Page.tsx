@@ -4,11 +4,12 @@
  * CSS en globals.css → "View transitions". Sin soporte del navegador, no anima.
  */
 import { ViewTransition, type ReactNode } from 'react';
+import { RouteMotion } from './MotionRoot';
 
 export default function Page({ children }: { children: ReactNode }) {
   return (
     <ViewTransition enter="page-in" exit="page-out" default="none">
-      <div className="page">{children}</div>
+      <div className="page">{children}<RouteMotion /></div>
     </ViewTransition>
   );
 }

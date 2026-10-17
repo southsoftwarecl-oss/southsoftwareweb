@@ -2,12 +2,14 @@
 import type { Metadata } from 'next';
 import { BRAND, PACKS, SERVICES, SITE_URL } from '@/content/site';
 
+const OG_IMAGE = { url: '/opengraph-image.jpg', width: 1200, height: 630, alt: 'South Software — desarrollo de software en Puerto Montt' };
+
 export function pageMeta({ title, description, path }: { title: string; description: string; path: string }): Metadata {
   return {
     title, description,
     alternates: { canonical: path },
-    openGraph: { title: `${title} · South Software`, description, url: path, type: 'website', locale: 'es_CL', siteName: 'South Software' },
-    twitter: { card: 'summary_large_image', title: `${title} · South Software`, description },
+    openGraph: { title: `${title} · South Software`, description, url: path, type: 'website', locale: 'es_CL', siteName: 'South Software', images: [OG_IMAGE] },
+    twitter: { card: 'summary_large_image', title: `${title} · South Software`, description, images: [OG_IMAGE.url] },
   };
 }
 

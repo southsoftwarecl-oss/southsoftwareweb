@@ -44,3 +44,30 @@ export function fireIntro() {
 
 /** DPR limitado como en el preview (1.75; 1.5 en móvil). */
 export const capDpr = () => Math.min(window.devicePixelRatio || 1, innerWidth < 760 ? 1.5 : 1.75);
+
+/* ---------- Sincronización con el preloader CSS (idempotente) ---------- */
+/** Momento (ms desde que arranca la animación CSS del preloader) en que se abre la cortina. */
+export const INTRO_AT = 1050;
+export const PRE_TOTAL = 1500;
+let introInit: { remaining: number } | null = null;
+/**
+ * Lee el tiempo real de la animación del preloader y agenda la intro.
+ * Devuelve los ms que faltan para que termine el preloader (0 si ya terminó).
+ * Si el JS llegó tarde, marca `lateIntro` (el hero ya está visible: no se oculta).
+ */
+export function initIntro() {
+  if (introInit) return introInit;
+  detectModes();
+  const pre = document.querySelector<HTMLElement>('.pre');
+  const anim = pre?.getAnimations?.().find((a) => (a as CSSAnimation).animationName === 'pre-out') ?? pre?.getAnimations?.()[0];
+  const elapsed = anim && typeof anim.currentTime === 'number' ? anim.currentTime : performance.now();
+  if (pre && !RT.static && elapsed < INTRO_AT - 120) {
+    window.setTimeout(fireIntro, INTRO_AT - elapsed);
+    introInit = { remaining: PRE_TOTAL - elapsed };
+  } else {
+    RT.lateIntro = !RT.static;
+    requestAnimationFrame(fireIntro);
+    introInit = { remaining: 0 };
+  }
+  return introInit;
+}

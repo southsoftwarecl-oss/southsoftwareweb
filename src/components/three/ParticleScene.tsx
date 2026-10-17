@@ -37,6 +37,7 @@ function sampleText(lines: Lines, font: string) {
 function Particles({ lines, font, count, accent }: { lines: Lines; font: string; count: number; accent: string }) {
   const pts = useRef<THREE.Points>(null);
   const { camera, size, invalidate } = useThree();
+  const [textW, setTextW] = useState(10); // ancho del texto en unidades (para encuadre móvil)
   const geo = useMemo(() => new THREE.BufferGeometry(), []);
   const uniforms = useMemo(() => ({
     uT: { value: 0 }, uMix: { value: 0 }, uMouse: { value: new THREE.Vector3(99, 99, 0) },
@@ -49,6 +50,7 @@ function Particles({ lines, font, count, accent }: { lines: Lines; font: string;
     const aT = new Float32Array(count * 3), aS = new Float32Array(count * 3), aR = new Float32Array(count);
     const fill = () => {
       const p = sampleText(lines, font);
+      if (p.length) { let mn = Infinity, mx = -Infinity; for (const q of p) { if (q[0] < mn) mn = q[0]; if (q[0] > mx) mx = q[0]; } setTextW(mx - mn); }
       for (let i = 0; i < count; i++) {
         const q = p[Math.floor(Math.random() * p.length)] || [0, 0];
         aT.set([q[0] + (Math.random() - 0.5) * 0.03, q[1] + 1.3 + (Math.random() - 0.5) * 0.03, (Math.random() - 0.5) * 0.25], i * 3);
@@ -96,7 +98,16 @@ function Particles({ lines, font, count, accent }: { lines: Lines; font: string;
     p.rotation.y = r.y + uniforms.uMix.value * t * 0.2; p.rotation.x = r.x;
   });
 
-  return <points ref={pts} geometry={geo} material={mat} scale={size.width < 760 ? 0.55 : 1} frustumCulled={false} />;
+  // Encuadre: en desktop idéntico al preview (escala 1, o .55 bajo 760px). En pantallas
+  // verticales se ajusta al ancho visible y se sube para no tapar el titular.
+  const aspect = size.width / Math.max(size.height, 1);
+  let scale = size.width < 760 ? 0.55 : 1, posY = 0;
+  if (aspect < 1) {
+    const visW = 2 * 13 * Math.tan(THREE.MathUtils.degToRad(20)) * aspect;
+    scale = Math.min(0.55, (visW * 0.86) / Math.max(textW, 1));
+    posY = 2.3 - 1.3 * scale;
+  }
+  return <points ref={pts} geometry={geo} material={mat} scale={scale} position-y={posY} frustumCulled={false} />;
 }
 
 /** Pausa el render cuando el hero sale de pantalla o la pestaña se oculta. */

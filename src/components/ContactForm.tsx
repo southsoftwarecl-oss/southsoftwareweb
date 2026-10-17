@@ -7,7 +7,7 @@
  *   (se activa solo si existe NEXT_PUBLIC_TURNSTILE_SITE_KEY).
  * - Sin claves: el servidor responde en modo demo (no envía correo).
  */
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useAnimationControls } from 'framer-motion';
 import { BUDGETS, PROJECT_TYPES } from '@/content/site';
 import { contactSchema } from '@/lib/contact-schema';
@@ -30,6 +30,14 @@ export default function ContactForm() {
   const shake = useAnimationControls();
   const tsRef = useRef<HTMLDivElement>(null);
   const tsToken = useRef('');
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // Next mantiene las páginas visitadas ocultas (Activity): al ocultarse,
+  // se limpia el formulario para no mostrar un éxito/errores antiguos al volver.
+  useLayoutEffect(() => () => {
+    if (formRef.current) formRef.current.reset();
+    setStatus('idle'); setErrors({}); setServerMsg('');
+  }, []);
 
   // Turnstile (opcional)
   useEffect(() => {
@@ -79,7 +87,7 @@ export default function ContactForm() {
   const aria = (k: Field) => ({ 'aria-invalid': !!errors[k] || undefined, 'aria-describedby': errors[k] ? id(k) + '-e' : undefined });
 
   return (
-    <motion.form className={`brief${status === 'loading' ? ' loading' : ''}${status === 'done' ? ' done' : ''}`} noValidate onSubmit={onSubmit} animate={shake} data-reveal aria-label="Formulario de contacto">
+    <motion.form ref={formRef} className={`brief${status === 'loading' ? ' loading' : ''}${status === 'done' ? ' done' : ''}`} noValidate onSubmit={onSubmit} animate={shake} data-reveal aria-label="Formulario de contacto">
       <div className={f('nombre')}><input id={id('n')} name="nombre" required autoComplete="name" placeholder=" " maxLength={80} {...aria('nombre')} /><label htmlFor={id('n')}>Nombre</label>{errNode('nombre')}</div>
       <div className={f('empresa')}><input id={id('e')} name="empresa" autoComplete="organization" placeholder=" " maxLength={120} /><label htmlFor={id('e')}>Empresa</label></div>
       <div className={`${f('email')} full`}><input id={id('m')} name="email" type="email" required autoComplete="email" placeholder=" " maxLength={160} {...aria('email')} /><label htmlFor={id('m')}>Email</label>{errNode('email')}</div>

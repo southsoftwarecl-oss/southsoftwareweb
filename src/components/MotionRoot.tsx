@@ -13,18 +13,15 @@ import { useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import Lenis from 'lenis';
 import { gsap, ScrollTrigger, SplitText, setupGsap } from '@/lib/gsap';
-import { RT, detectModes, fireIntro, onIntro } from '@/lib/runtime';
-
-/** Momento (ms desde que arranca la animación CSS del preloader) en que se abre la cortina. */
-const INTRO_AT = 1050;
-const PRE_TOTAL = 1500;
+import { RT, detectModes, initIntro, onIntro } from '@/lib/runtime';
 
 let lenis: Lenis | null = null;
 export const getLenis = () => lenis;
 
+let routeCount = 0;
+
+/** Runtime global (se monta una vez en el layout). */
 export default function MotionRoot() {
-  const pathname = usePathname();
-  const firstRoute = useRef(true);
 
   /* ------------------------------ GLOBAL ------------------------------ */
   useEffect(() => {
@@ -54,19 +51,12 @@ export default function MotionRoot() {
       gsap.ticker.lagSmoothing(0);
     }
 
-    // Sincroniza con el preloader CSS (ver Preloader.tsx)
-    const pre = document.querySelector<HTMLElement>('.pre');
-    const anim = pre?.getAnimations?.()[0];
-    const elapsed = anim && typeof anim.currentTime === 'number' ? anim.currentTime : performance.now();
-    if (pre && !RT.static && elapsed < INTRO_AT - 120) {
+    // Sincroniza con el preloader CSS (ver Preloader.tsx): Lenis arranca cuando se abre
+    const { remaining } = initIntro();
+    if (remaining > 0) {
       lenis?.stop();
-      const t1 = window.setTimeout(fireIntro, INTRO_AT - elapsed);
-      const t2 = window.setTimeout(() => lenis?.start(), PRE_TOTAL - elapsed);
-      off.push(() => { clearTimeout(t1); clearTimeout(t2); });
-    } else {
-      // JS llegó tarde (o modo estático): no ocultamos el texto que ya se ve.
-      RT.lateIntro = !RT.static;
-      requestAnimationFrame(fireIntro);
+      const t2 = window.setTimeout(() => lenis?.start(), remaining);
+      off.push(() => clearTimeout(t2));
     }
 
     // Scroll suave a anclas (#seccion o /#seccion estando en el home)
@@ -76,7 +66,8 @@ export default function MotionRoot() {
       const href = a.getAttribute('href') || '';
       const hash = href.startsWith('#') ? href : href.startsWith('/#') && location.pathname === '/' ? href.slice(1) : '';
       if (hash.length < 2) return;
-      const target = document.querySelector(hash);
+      // Con Cache Components las páginas anteriores quedan ocultas (Activity): usar la visible
+      const target = Array.from(document.querySelectorAll<HTMLElement>(hash)).find((el) => el.offsetParent !== null);
       if (!target) return;
       e.preventDefault();
       if (lenis) lenis.scrollTo(target as HTMLElement, { duration: 1.8, easing: (x) => 1 - Math.pow(1 - x, 4) });
@@ -126,10 +117,24 @@ export default function MotionRoot() {
     };
   }, []);
 
-  /* ------------------------------ POR RUTA ------------------------------ */
+  return null;
+}
+
+/**
+ * Animaciones por ruta. Se monta DENTRO de cada página (ver Page.tsx) para que su
+ * efecto corra recién cuando el contenido de la página ya está hidratado
+ * (SplitText modifica el DOM; hacerlo antes rompería la hidratación).
+ */
+export function RouteMotion() {
+  const pathname = usePathname();
+  const anchor = useRef<HTMLElement>(null);
   useEffect(() => {
-    const isFirst = firstRoute.current;
-    firstRoute.current = false;
+    // Todas las consultas se limitan a ESTA página: Next mantiene las páginas
+    // visitadas montadas pero ocultas (Activity), así que document.* encontraría duplicados.
+    const root = (anchor.current?.parentElement as HTMLElement) || document.body;
+    const $$ = <T extends Element = HTMLElement>(sel: string) => Array.from(root.querySelectorAll<T>(sel) as NodeListOf<T>);
+    detectModes(); setupGsap(); initIntro();
+    const isFirst = routeCount++ === 0;
     if (!isFirst) lenis?.scrollTo(0, { immediate: true, force: true });
     const STATIC = RT.static;
     // En la primera carga, si el JS llegó tarde, el hero ya está visible: no lo escondemos.
@@ -140,29 +145,29 @@ export default function MotionRoot() {
 
     const ctx = gsap.context(() => {
       /* ---- elementos de entrada del hero ---- */
-      gsap.utils.toArray<HTMLElement>('.hero [data-in]').forEach((el) => {
+      $$('.hero [data-in]').forEach((el) => {
         if (!animateHero) return;
         gsap.set(el, { opacity: 0, y: 24 });
         off.push(onIntro(() => gsap.to(el, { opacity: 1, y: 0, duration: 1.2, delay: parseFloat(el.dataset.in || '.3') })));
       });
       if (!STATIC) {
-        gsap.utils.toArray<HTMLElement>('[data-reveal]').forEach((el) =>
+        $$('[data-reveal]').forEach((el) =>
           gsap.from(el, { opacity: 0, y: 40, duration: 1.2, scrollTrigger: { trigger: el, start: 'top 88%' } }));
-        gsap.utils.toArray<HTMLElement>('[data-stagger]').forEach((g) =>
+        $$('[data-stagger]').forEach((g) =>
           gsap.from(g.children, { opacity: 0, y: 50, duration: 1.1, stagger: 0.07, scrollTrigger: { trigger: g, start: 'top 85%' } }));
-        gsap.utils.toArray<HTMLElement>('[data-parallax]').forEach((el) =>
+        $$('[data-parallax]').forEach((el) =>
           gsap.fromTo(el, { yPercent: -parseFloat(el.dataset.parallax || '0') }, {
             yPercent: parseFloat(el.dataset.parallax || '0'), ease: 'none',
             scrollTrigger: { trigger: el.closest('section,footer') || el, start: 'top bottom', end: 'bottom top', scrub: true },
           }));
-        gsap.utils.toArray<HTMLElement>('.case .media img').forEach((img) =>
+        $$('.case .media img').forEach((img) =>
           gsap.fromTo(img, { yPercent: -4 }, { yPercent: 4, ease: 'none', scrollTrigger: { trigger: img.closest('.case, .case-hero') || img, start: 'top bottom', end: 'bottom top', scrub: true } }));
         const giant = document.querySelector('.giant');
         if (giant) gsap.fromTo(giant, { yPercent: 55 }, { yPercent: 18, ease: 'none', scrollTrigger: { trigger: 'footer', start: 'top bottom', end: 'bottom bottom', scrub: true } });
       }
 
       /* ---- contadores (solo datos reales) ---- */
-      document.querySelectorAll<HTMLElement>('[data-count]').forEach((el) => {
+      $$('[data-count]').forEach((el) => {
         const end = +(el.dataset.count || 0), pad = +(el.dataset.pad || 0);
         const f = (v: number) => String(Math.round(v)).padStart(pad, '0');
         if (STATIC) { el.textContent = f(end); return; }
@@ -173,22 +178,22 @@ export default function MotionRoot() {
       });
 
       /* ---- historia fijada: código → interfaz → producto ---- */
-      const story = document.querySelector<HTMLElement>('.story');
+      const story = root.querySelector<HTMLElement>('.story');
       if (story && !STATIC && innerWidth > 1024) {
         const lines = story.querySelectorAll('.code .ln'), steps = story.querySelectorAll('.step'), bars = story.querySelectorAll('.progress b');
         gsap.timeline({ defaults: { ease: 'none' }, scrollTrigger: { trigger: story, start: 'top top', end: 'bottom bottom', scrub: 0.8 } })
           .to(lines, { opacity: 1, stagger: 0.12, duration: 0.2 }, 0).to(bars[0], { scaleX: 1, duration: 1.1 }, 0)
           .to(steps[0], { opacity: 0, y: -30, duration: 0.25 }, 1.1).fromTo(steps[1], { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.25 }, 1.25)
-          .to('.story .code', { opacity: 0, scale: 0.96, duration: 0.3 }, 1.1).fromTo('.story .wire', { opacity: 0 }, { opacity: 1, duration: 0.2 }, 1.2)
-          .fromTo('.story .wire .side,.story .wire .blk', { scale: 0.85, opacity: 0 }, { scale: 1, opacity: 1, stagger: 0.05, duration: 0.3 }, 1.25).to(bars[1], { scaleX: 1, duration: 1 }, 1.1)
+          .to(story.querySelector('.code'), { opacity: 0, scale: 0.96, duration: 0.3 }, 1.1).fromTo(story.querySelector('.wire'), { opacity: 0 }, { opacity: 1, duration: 0.2 }, 1.2)
+          .fromTo(story.querySelectorAll('.wire .side,.wire .blk'), { scale: 0.85, opacity: 0 }, { scale: 1, opacity: 1, stagger: 0.05, duration: 0.3 }, 1.25).to(bars[1], { scaleX: 1, duration: 1 }, 1.1)
           .to(steps[1], { opacity: 0, y: -30, duration: 0.25 }, 2.2).fromTo(steps[2], { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.25 }, 2.35)
-          .fromTo('.story .prod', { opacity: 0, clipPath: 'inset(0 100% 0 0)' }, { opacity: 1, clipPath: 'inset(0 0% 0 0)', duration: 0.6 }, 2.2)
-          .fromTo('.story .prod .chart path', { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.6 }, 2.5).to(bars[2], { scaleX: 1, duration: 0.9 }, 2.2)
-          .to('.device', { rotateY: -6, rotateX: 4, duration: 3.2, transformPerspective: 1400 }, 0);
+          .fromTo(story.querySelector('.prod'), { opacity: 0, clipPath: 'inset(0 100% 0 0)' }, { opacity: 1, clipPath: 'inset(0 0% 0 0)', duration: 0.6 }, 2.2)
+          .fromTo(story.querySelector('.prod .chart path'), { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.6 }, 2.5).to(bars[2], { scaleX: 1, duration: 0.9 }, 2.2)
+          .to(story.querySelector('.device'), { rotateY: -6, rotateX: 4, duration: 3.2, transformPerspective: 1400 }, 0);
       }
 
       /* ---- línea de proceso que se dibuja ---- */
-      const tlEl = document.querySelector('.tl');
+      const tlEl = root.querySelector('.tl');
       if (tlEl) {
         const rail = tlEl.querySelector('.rail b'); const sts = tlEl.querySelectorAll<HTMLElement>('.st');
         if (STATIC) sts.forEach((s) => s.classList.add('on'));
@@ -202,20 +207,20 @@ export default function MotionRoot() {
       }
 
       /* ---- spotlight en tarjetas de servicio ---- */
-      document.querySelectorAll<HTMLElement>('.svc .item,.spot').forEach((c) => listen(c, 'pointermove', ((e: PointerEvent) => {
+      $$('.svc .item,.spot').forEach((c) => listen(c, 'pointermove', ((e: PointerEvent) => {
         const r = c.getBoundingClientRect(); c.style.setProperty('--mx', e.clientX - r.left + 'px'); c.style.setProperty('--my', e.clientY - r.top + 'px');
       }) as EventListener));
 
       if (!STATIC) {
         /* ---- tilt ---- */
-        document.querySelectorAll<HTMLElement>('[data-tilt]').forEach((c) => {
+        $$('[data-tilt]').forEach((c) => {
           const qx = gsap.quickTo(c, 'rotationY', { duration: 0.8 }), qy = gsap.quickTo(c, 'rotationX', { duration: 0.8 });
           gsap.set(c, { transformPerspective: 1200 });
           listen(c, 'pointermove', ((e: PointerEvent) => { const r = c.getBoundingClientRect(); qx(((e.clientX - r.left) / r.width - 0.5) * 7); qy(((e.clientY - r.top) / r.height - 0.5) * -7); }) as EventListener);
           listen(c, 'pointerleave', () => { qx(0); qy(0); });
         });
         /* ---- botones magnéticos ---- */
-        if (matchMedia('(hover:hover)').matches) document.querySelectorAll<HTMLElement>('.btn,.magnetic,.orb').forEach((el) => {
+        if (matchMedia('(hover:hover)').matches) $$('.btn,.magnetic,.orb').forEach((el) => {
           const isOrb = el.classList.contains('orb'); const s = isOrb ? 0.45 : 0.28;
           const qx = gsap.quickTo(el, 'x', { duration: 0.7, ease: 'power3' }), qy = gsap.quickTo(el, 'y', { duration: 0.7, ease: 'power3' });
           const zone = isOrb && el.parentElement ? el.parentElement : el;
@@ -223,8 +228,8 @@ export default function MotionRoot() {
           listen(zone, 'pointerleave', () => { gsap.to(el, { x: 0, y: 0, duration: 1.1, ease: 'elastic.out(1,.45)' }); });
         });
         /* ---- distorsión SVG al pasar sobre los casos ---- */
-        document.querySelectorAll<HTMLElement>('.case .media').forEach((m, i) => {
-          const id = `dz${i}`; const NS = 'http://www.w3.org/2000/svg';
+        $$('.case .media').forEach((m, i) => {
+          const id = `dz${Math.random().toString(36).slice(2, 8)}${i}`; const NS = 'http://www.w3.org/2000/svg';
           const svg = document.createElementNS(NS, 'svg'); svg.setAttribute('width', '0'); svg.setAttribute('height', '0'); svg.setAttribute('aria-hidden', 'true'); svg.style.position = 'absolute';
           const filter = document.createElementNS(NS, 'filter'); filter.id = id;
           const turb = document.createElementNS(NS, 'feTurbulence');
@@ -245,7 +250,7 @@ export default function MotionRoot() {
     document.fonts.ready.then(() => {
       if (!alive) return;
       ctx.add(() => {
-        document.querySelectorAll<HTMLElement>('[data-split]').forEach((el) => {
+        $$('[data-split]').forEach((el) => {
           const type = el.dataset.split || 'words';
           const st = new SplitText(el, {
             type: type === 'chars' ? 'words,chars' : type === 'lines' ? 'lines' : 'words',
@@ -270,5 +275,5 @@ export default function MotionRoot() {
     return () => { alive = false; off.forEach((f) => f()); ctx.revert(); };
   }, [pathname]);
 
-  return null;
+  return <i ref={anchor} hidden aria-hidden="true" />;
 }

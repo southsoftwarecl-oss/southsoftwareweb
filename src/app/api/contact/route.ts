@@ -16,7 +16,7 @@ import { contactSchema, type ContactData } from '@/lib/contact-schema';
 
 const MAX_BYTES = 16 * 1024;
 const WINDOW_MS = 10 * 60 * 1000;
-const MAX_PER_WINDOW = 5;
+const MAX_PER_WINDOW = Number(process.env.CONTACT_RATE_LIMIT || 5);
 const hits = new Map<string, number[]>();
 
 function rateLimited(ip: string) {
