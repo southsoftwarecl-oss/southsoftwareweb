@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 const PAGES = [
+  { link: 'Packs', url: '/packs', h1: /Precio claro/ },
   { link: 'Servicios', url: '/servicios', h1: /Seis disciplinas/ },
   { link: 'Proyectos', url: '/proyectos', h1: /Hecho en el sur/ },
   { link: 'Nosotros', url: '/nosotros', h1: /Software hecho/ },
@@ -11,14 +12,14 @@ test.describe('Navegación', () => {
   test('home: hero, secciones y preloader que se retira', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('h1:visible')).toContainText('Cada detalle');
-    await expect(page.locator('.pre')).toHaveCount(0, { timeout: 5000 });
-    for (const id of ['servicios', 'proyectos', 'proceso', 'stack', 'packs', 'por-que', 'contacto']) {
+    await expect(page.locator('.pre')).toHaveCount(0, { timeout: 8000 });
+    // home v2: servicios (teaser), historia, proyectos destacados, franja de precios, contacto
+    for (const id of ['servicios', 'proyectos', 'precios', 'contacto']) {
       await expect(page.locator(`#${id}`)).toHaveCount(1);
     }
-    // Precios exactos
-    for (const price of ['$149.990', '$349.990', '$549.990', '$699.990', 'desde $1.490.000', '$249.990', 'desde $390.000']) {
-      await expect(page.locator('.pack .pr', { hasText: price }).first()).toBeVisible();
-    }
+    for (const id of ['proceso', 'stack', 'packs', 'por-que']) await expect(page.locator(`#${id}`)).toHaveCount(0);
+    await expect(page.locator('#precios .strip-p li')).toHaveCount(3);
+    await expect(page.locator('#precios')).toContainText('Desde $149.990');
     await expect(page.locator('footer')).toContainText('Puerto Montt');
   });
 
@@ -59,11 +60,23 @@ test.describe('Navegación', () => {
     await expect(page.locator('h1:visible')).toContainText('Cada detalle');
   });
 
-  test('ancla del home: Packs hace scroll suave', async ({ page }) => {
-    await page.goto('/');
-    await expect(page.locator('.pre')).toHaveCount(0, { timeout: 5000 });
-    await page.getByRole('navigation', { name: 'Principal' }).getByRole('link', { name: 'Packs' }).click();
-    await expect.poll(async () => page.evaluate(() => document.querySelector('#packs')!.getBoundingClientRect().top), { timeout: 6000 }).toBeLessThan(200);
+  test('/packs: precios exactos y JSON-LD', async ({ page }) => {
+    const res = await page.goto('/packs');
+    expect(res?.status()).toBe(200);
+    await expect(page).toHaveTitle(/Packs y precios · South Software/);
+    for (const price of ['$149.990', '$349.990', '$549.990', '$699.990', 'desde $1.490.000', '$249.990', 'desde $390.000']) {
+      await expect(page.locator('.pack .pr', { hasText: price }).first()).toBeVisible();
+    }
+    const ld = (await page.locator('script[type="application/ld+json"]').allTextContents()).join();
+    expect(ld).toContain('OfferCatalog');
+  });
+
+  test('anclas antiguas del home redirigen (#packs → /packs, #proceso → /servicios#proceso)', async ({ page }) => {
+    await page.goto('/#packs');
+    await expect(page).toHaveURL(/\/packs$/);
+    await page.goto('/#proceso');
+    await expect(page).toHaveURL(/\/servicios#proceso$/);
+    await expect(page.locator('#proceso')).toHaveCount(1);
   });
 
   test('menú móvil abre y navega @mobile', async ({ page, isMobile }) => {

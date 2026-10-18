@@ -44,7 +44,7 @@ function frameText(out: { scale: number; posY: number }, w: number, h: number, b
     posY = 2.3 - 1.3 * scale;
   }
   if (statusTop) {
-    const ppw = h / VIS_H, NAV = 92, limit = statusTop - 32;
+    const ppw = h / VIS_H, NAV = 92, limit = statusTop - 32 - 8; // +8 px: radio de gota y ruido curl
     const yPx = (Y: number) => h / 2 - Y * ppw; // posición en pantalla de una Y de mundo
     if (yPx(posY + scale * b.minY) > limit) posY = (h / 2 - limit) / ppw - scale * b.minY;
     if (yPx(posY + scale * b.maxY) < NAV) {
