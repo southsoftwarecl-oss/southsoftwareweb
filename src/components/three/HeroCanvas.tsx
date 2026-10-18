@@ -11,6 +11,8 @@ import dynamic from 'next/dynamic';
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import { onIntro } from '@/lib/runtime';
 import type { LOGO_LINES } from './ParticleScene';
+import type { Tokens } from './engine';
+import { detectTier, type Tier } from './tiers';
 
 const ParticleScene = dynamic(() => import('./ParticleScene'), { ssr: false });
 
@@ -23,8 +25,15 @@ function isLowEnd() {
   return innerWidth < 760 || (n.hardwareConcurrency || 8) <= 4 || (n.deviceMemory || 8) <= 4 || !!n.connection?.saveData;
 }
 
+/** Lee los tokens de color del CSS (:root) para que el 3D no tenga hex propios. */
+function readTokens(): Tokens {
+  const cs = getComputedStyle(document.documentElement), v = (k: string) => cs.getPropertyValue(k).trim();
+  return { accent: v('--accent'), deep: v('--accent-deep'), chrome1: v('--chrome-1'), chrome2: v('--chrome-2'), chrome3: v('--chrome-3') };
+}
+
 export default function HeroCanvas({ font, lines }: { font: string; lines?: typeof LOGO_LINES }) {
-  const [ready, setReady] = useState(false);
+  const [boot, setBoot] = useState<{ tier: Tier; tokens: Tokens } | null>(null);
+  const ready = !!boot;
   // Capacidades del dispositivo (constantes): en SSR se asume WebGL y equipo normal
   const ok = useSyncExternalStore(noop, hasWebGL, () => true);
   const low = useSyncExternalStore(noop, isLowEnd, () => false);
@@ -32,7 +41,7 @@ export default function HeroCanvas({ font, lines }: { font: string; lines?: type
   useEffect(() => {
     if (!hasWebGL()) return;
     let cancel = false; const off: (() => void)[] = [];
-    const go = () => { if (!cancel) setReady(true); };
+    const go = () => { if (!cancel) setBoot({ tier: detectTier(), tokens: readTokens() }); };
     type RIC = (cb: () => void, o?: { timeout: number }) => number;
     const ric = (window as Window & { requestIdleCallback?: RIC }).requestIdleCallback;
     const idle = (ms: number) => (ric ? ric(go, { timeout: ms }) : window.setTimeout(go, 50));
@@ -55,7 +64,7 @@ export default function HeroCanvas({ font, lines }: { font: string; lines?: type
   return (
     <>
       {low && <div className={`gl-ph${ready ? ' out' : ''}`} aria-hidden="true">{(lines ?? [{ text: 'SOUTH' }, { text: 'SOFTWARE' }]).map((l, i) => <span key={i}>{l.text}</span>)}</div>}
-      {ready && <ParticleScene font={font} lines={lines} />}
+      {boot && <ParticleScene font={font} lines={lines} tier={boot.tier} tokens={boot.tokens} />}
     </>
   );
 }
