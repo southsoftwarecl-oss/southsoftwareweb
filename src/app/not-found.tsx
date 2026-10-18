@@ -11,7 +11,7 @@ const LINES = [{ text: '404', size: 300, y: 200 }];
 export default function NotFound() {
   return (
     <Page>
-      <section className="hero nf" data-cursor-hide>
+      <section className="hero nf">
         <HeroCanvas font={michromaFamily} lines={LINES} />
         <div className="shade-b" />
         <div className="hx">

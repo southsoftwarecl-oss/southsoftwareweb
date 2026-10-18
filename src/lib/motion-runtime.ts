@@ -3,7 +3,7 @@
  * Se carga con import() dinámico desde components/MotionRoot.tsx para que GSAP
  * y Lenis no formen parte del JS crítico de hidratación.
  *
- * startGlobal(): Lenis, mouse, cursor contextual, nav que se oculta, botón
+ * startGlobal(): Lenis, mouse (RT.mouse → hero 3D; cursor nativo, sin seguidor), nav que se oculta, botón
  *   flotante de WhatsApp, scroll suave a anclas y sincronización con el preloader.
  * startRoute(root): reveals SplitText con máscara, [data-in], [data-reveal],
  *   [data-stagger], parallax, contadores, historia fijada, línea de proceso,
@@ -68,31 +68,6 @@ export function startGlobal(): () => void {
       if (lenis) lenis.scrollTo(target as HTMLElement, { duration: 1.8, easing: (x) => 1 - Math.pow(1 - x, 4) });
       else target.scrollIntoView();
     }) as EventListener);
-
-    // Cursor contextual (solo puntero fino y con movimiento)
-    if (!RT.static && matchMedia('(hover:hover)').matches) {
-      const d = document.createElement('div'); d.className = 'cursor';
-      const r = document.createElement('div'); r.className = 'cursor-ring'; r.append(document.createElement('span'));
-      document.body.append(d, r);
-      const label = r.querySelector('span')!;
-      const xd = gsap.quickTo(d, 'x', { duration: 0.15, ease: 'power3' }), yd = gsap.quickTo(d, 'y', { duration: 0.15, ease: 'power3' });
-      const xr = gsap.quickTo(r, 'x', { duration: 0.55, ease: 'power3' }), yr = gsap.quickTo(r, 'y', { duration: 0.55, ease: 'power3' });
-      on(window, 'pointermove', ((e: PointerEvent) => {
-        document.body.classList.add('cursor-on'); xd(e.clientX); yd(e.clientY); xr(e.clientX); yr(e.clientY);
-      }) as EventListener, { passive: true });
-      on(document, 'pointerover', ((e: PointerEvent) => {
-        const t = e.target as Element;
-        const ctx = t.closest?.('[data-cursor]') as HTMLElement | null;
-        const link = !ctx && !!t.closest?.('a,button,select,input,textarea');
-        // hero/404 ([data-cursor-hide]): sin anillo ni punto, solo el puntero nativo (salvo sobre links/botones)
-        const hide = !ctx && !link && !!t.closest?.('[data-cursor-hide]');
-        r.classList.toggle('big', !!ctx);
-        if (ctx) label.textContent = ctx.dataset.cursor || '';
-        r.classList.toggle('link', link);
-        document.body.classList.toggle('cursor-hide', hide);
-      }) as EventListener, { passive: true });
-      off.push(() => { d.remove(); r.remove(); document.body.classList.remove('cursor-on', 'cursor-hide'); });
-    }
 
     // Nav que se esconde al bajar + botón flotante de WhatsApp
     const nav = document.querySelector('.nav');

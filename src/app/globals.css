@@ -214,15 +214,33 @@ footer{border-top:1px solid var(--line);padding:72px 0 0;overflow:hidden;positio
 .wa-float{position:fixed;right:24px;bottom:24px;z-index:55;height:48px;padding:0 18px 0 14px;border-radius:999px;background:rgba(18,18,20,.8);border:1px solid var(--line2);backdrop-filter:blur(12px);display:flex;align-items:center;gap:10px;font-size:13.5px;font-weight:500;transition:transform .6s var(--ease),border-color .4s}
 .wa-float:hover{border-color:#25d366}
 .wa-float svg{width:20px;height:20px;color:#25d366}
-/* ===== cursor ===== */
-.cursor{position:fixed;left:0;top:0;z-index:200;pointer-events:none;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:#fff;mix-blend-mode:difference;opacity:0;transition:opacity .3s}
-.cursor-ring{position:fixed;left:0;top:0;z-index:199;pointer-events:none;width:36px;height:36px;margin:-18px 0 0 -18px;border-radius:50%;border:1px solid rgba(255,255,255,.35);display:grid;place-items:center;opacity:0;transition:width .6s var(--ease),height .6s var(--ease),margin .6s var(--ease),background .5s,border-color .5s,opacity .3s}
-.cursor-ring span{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:#fff;opacity:0;transition:opacity .3s}
-.cursor-ring.big{width:92px;height:92px;margin:-46px 0 0 -46px;background:rgba(47,92,150,.94);border-color:transparent}
-.cursor-ring.big span{opacity:1}
-.cursor-ring.link{width:56px;height:56px;margin:-28px 0 0 -28px;border-color:rgba(255,255,255,.6)}
-body.cursor-on .cursor{opacity:1}body.cursor-on .cursor-ring{opacity:1}
-@media (hover:none){.cursor,.cursor-ring{display:none}}
+/* ===== cursor nativo (sin seguidor) ===== */
+a,button,[role=button],[role=tab],label[for],select,summary,.pack,.case .media,.svc .item,.next-case,.orb{cursor:pointer}
+input,textarea{cursor:text}
+/* Etiquetas que antes llevaba el cursor ("Ver caso", "Explorar", "WhatsApp"): flecha que avanza 4px + acento en hover/focus-visible */
+.cue{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-decoration:underline;text-decoration-color:transparent;text-underline-offset:5px;text-decoration-thickness:1px;transition:color .4s var(--ease),text-decoration-color .4s var(--ease),border-color .4s var(--ease),background .4s var(--ease)}
+.cue .ic,.orb .ic,.next-case .ic{width:14px;height:14px;flex:none;transition:transform .5s var(--ease)}
+.svc .ico-row{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:46px 0 auto;position:relative}
+.svc .ico-row .aicon{margin:0}
+.svc-teaser .ico-row{margin:28px 0 auto}
+.svc .item:hover .cue,.svc .item:focus-visible .cue{color:var(--accent);text-decoration-color:var(--accent)}
+.svc .item:hover .cue .ic,.svc .item:focus-visible .cue .ic{transform:translateX(4px)}
+.case .media .cue{position:absolute;left:14px;bottom:14px;z-index:2;padding:8px 12px;border-radius:999px;background:rgba(10,10,11,.78);border:1px solid var(--line2);backdrop-filter:blur(10px);color:var(--fg)}
+.case .media{transition:border-color .5s var(--ease)}
+.case .media:hover,.case .media:focus-visible{border-color:var(--accent)}
+.case .media:hover .cue,.case .media:focus-visible .cue{border-color:var(--accent);color:var(--accent);text-decoration-color:var(--accent)}
+.case .media:hover .cue .ic,.case .media:focus-visible .cue .ic{transform:translateX(4px)}
+.orb{gap:6px;align-content:center}
+.orb::after{transition:border-color .5s var(--ease)}
+.orb:hover::after,.orb:focus-visible::after{border-color:var(--accent)}
+.orb:hover>span,.orb:focus-visible>span{text-decoration:underline;text-underline-offset:4px;text-decoration-color:var(--accent-deep)}
+.orb:hover .ic,.orb:focus-visible .ic{transform:translateX(4px)}
+.next-case .nc-t{display:inline-flex;align-items:center;gap:.25em}
+.next-case .nc-t .ic{width:.5em;height:.5em}
+.next-case:hover .ic,.next-case:focus-visible .ic{transform:translateX(4px)}
+.next-case:focus-visible .nc-t{color:var(--accent)}
+.btn:focus-visible .ic{transform:translateX(4px)}.btn:hover .ic{transform:translateX(4px)}
+.btn-ghost:hover,.btn-ghost:focus-visible{border-color:var(--accent)}
 /* ===== preloader ===== */
 .pre{position:fixed;inset:0;z-index:300;background:var(--bg);display:grid;place-items:center}
 .pre svg{width:min(560px,80vw);overflow:visible}
@@ -385,8 +403,6 @@ html.rm .marquee .track,html.rm .hero-meta .scroll i::after{animation:none}
 /* a11y: texto de la barra de URL sobre #141417 (4.77:1, antes 4.27:1) */
 .case .media .top span{color:#7D828C}
 
-/* hero y 404: sin cursor personalizado (anillo y punto ocultos); queda el puntero nativo */
-body.cursor-hide .cursor,body.cursor-hide .cursor-ring{opacity:0!important}
 
 /* ============ 5) Home v2 compacto (ritmo, teasers, franja de precios) ============ */
 .sec{padding:clamp(88px,10vw,128px) 0}
