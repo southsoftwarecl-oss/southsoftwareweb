@@ -1,26 +1,72 @@
-/** Contacto: formulario + canales directos. */
+/**
+ * Contacto: brief conversacional (tarjeta "Tu brief" en vivo + formulario con chips)
+ * y canales directos con microinteracciones. Estilos en ./contacto.css.
+ */
 import Page from '@/components/Page';
-import Final from '@/components/sections/Final';
+import BriefStudio from '@/components/contacto/BriefStudio';
+import CopyEmail from '@/components/contacto/CopyEmail';
+import LiquidPool from '@/components/contacto/LiquidPool';
+import ChileClock from '@/components/contacto/ChileClock';
 import { BRAND, WA_URL, WHATSAPP_IS_PLACEHOLDER } from '@/content/site';
 import { pageMeta } from '@/lib/seo';
+import './contacto.css';
 
 export const metadata = pageMeta({
   title: 'Contacto',
-  description: 'Agenda una reunión de 30 minutos sin costo con South Software. Software a medida, web, apps, seguridad y datos en Puerto Montt.',
+  description: 'Agenda una reunión de 30 minutos sin costo con South Software. Software a medida, web, apps, seguridad y datos para todo Chile.',
   path: '/contacto',
 });
 
 export default function Contacto() {
+  const head = (
+    <>
+      <div className="eyebrow" data-reveal><b>(00)</b>Contacto</div>
+      <h1 data-split="words" style={{ marginTop: 28 }}>Agenda una<br />reunión.</h1>
+      <p data-reveal>30 minutos, sin costo. Te decimos con honestidad qué necesitas, cuánto cuesta y en cuánto tiempo.</p>
+      <a className="orb" href={WA_URL} target="_blank" rel="noopener noreferrer">Escríbenos<br />por WhatsApp</a>
+    </>
+  );
   return (
     <Page>
       <div className="page-top" />
-      <Final n={0} as="h1" title={<>Agenda una<br />reunión.</>} />
-      <section className="sec" style={{ paddingTop: 0 }} aria-label="Canales directos">
+      <section className="final final-contact" id="contacto">
+        <LiquidPool />
+        <div className="wrap"><div className="g12">
+          <BriefStudio head={head} />
+        </div></div>
+      </section>
+      <section className="sec chan-sec" aria-label="Canales directos">
         <div className="wrap">
           <div className="why channels" data-stagger>
-            <div className="w"><span className="mono">Email</span><h2 className="h4"><a href={`mailto:${BRAND.email}`}>{BRAND.email}</a></h2><p>Respondemos dentro de 24 horas hábiles.</p></div>
-            <div className="w"><span className="mono">WhatsApp</span><h2 className="h4"><a href={WA_URL} target="_blank" rel="noopener noreferrer">Escríbenos</a></h2><p>{WHATSAPP_IS_PLACEHOLDER ? <span className="ph">[Número por definir]</span> : 'Hablas directo con quien programa.'}</p></div>
-            <div className="w"><span className="mono">Ubicación</span><h2 className="h4">{BRAND.city}</h2><p>{BRAND.region}, {BRAND.country}. Reuniones presenciales o por videollamada.</p></div>
+            <div className="w spot ch">
+              <span className="mono">Email</span>
+              <h2 className="h4"><a className="arw" href={`mailto:${BRAND.email}`}>{BRAND.email} <i aria-hidden="true">→</i></a></h2>
+              <p>Respondemos dentro de 24 horas hábiles.</p>
+              <CopyEmail email={BRAND.email} />
+            </div>
+            <div className="w spot ch">
+              <span className="mono">WhatsApp</span>
+              {WHATSAPP_IS_PLACEHOLDER ? (
+                <>
+                  <div className="ch-row">
+                    <h2 className="h4">Escríbenos</h2>
+                    <button type="button" className="ch-btn" disabled>WhatsApp <i aria-hidden="true">→</i> <small>(número por definir)</small></button>
+                  </div>
+                  <p><span className="ph">[Número por definir]</span> · <span className="ph">{BRAND.phoneLabel}</span></p>
+                </>
+              ) : (
+                <>
+                  <h2 className="h4"><a className="arw" href={WA_URL} target="_blank" rel="noopener noreferrer">Escríbenos <i aria-hidden="true">→</i></a></h2>
+                  <p>Hablas directo con quien programa.</p>
+                </>
+              )}
+            </div>
+            <div className="w spot ch ch-loc">
+              <span className="mono">Cobertura</span>
+              <h2 className="h4"><a className="arw" href="#contacto">Todo Chile <i aria-hidden="true">→</i></a></h2>
+              <p>Remoto y presencial. Reuniones por videollamada o en persona.</p>
+              <ChileClock />
+            </div>
           </div>
         </div>
       </section>
