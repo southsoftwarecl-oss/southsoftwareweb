@@ -173,7 +173,8 @@ export function startRoute(root: HTMLElement): () => void {
         $$('.case .media img').forEach((img) =>
           gsap.fromTo(img, { yPercent: -4 }, { yPercent: 4, ease: 'none', scrollTrigger: { trigger: img.closest('.case, .case-hero') || img, start: 'top bottom', end: 'bottom top', scrub: true } }));
         const giant = document.querySelector('.giant');
-        if (giant) gsap.fromTo(giant, { yPercent: 55 }, { yPercent: 18, ease: 'none', scrollTrigger: { trigger: 'footer', start: 'top bottom', end: 'bottom bottom', scrub: true } });
+        // entrada suave que termina en su sitio: la palabra nunca queda bajo la barra ©
+        if (giant) gsap.fromTo(giant, { yPercent: 14, opacity: 0.35 }, { yPercent: 0, opacity: 1, ease: 'none', scrollTrigger: { trigger: giant, start: 'top bottom', end: 'max', scrub: true } });
       }
 
       /* ---- contadores (solo datos reales) ---- */

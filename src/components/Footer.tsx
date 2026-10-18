@@ -1,6 +1,6 @@
 /** Footer con logo gigante en parallax (MotionRoot) — idéntico al preview, con links reales. */
 import Link from 'next/link';
-import Image from 'next/image';
+import Logo from './Logo';
 import { BRAND, SERVICES } from '@/content/site';
 
 export default function Footer() {
@@ -9,7 +9,7 @@ export default function Footer() {
       <div className="wrap">
         <div className="ft">
           <div className="about">
-            <Image src="/brand/logo.png" alt="South Software" width={600} height={187} sizes="141px" style={{ height: 44, width: 'auto', marginBottom: 22 }} />
+            <Logo />
             <p>Software a medida, apps, web, seguridad y datos. Desde Puerto Montt para todo Chile.</p>
           </div>
           <div className="col">
@@ -39,7 +39,21 @@ export default function Footer() {
           </div>
         </div>
       </div>
-      <div className="giant" aria-hidden="true"><span>SOUTH</span></div>
+      {/* Wordmark completo en SVG: textLength lo ajusta exacto al ancho (sin recortes en ningún viewport) */}
+      <div className="giant" aria-hidden="true"><div className="wrap">
+        <svg viewBox="0 0 1000 256" role="presentation" focusable="false">
+          <defs>
+            <linearGradient id="giant-chrome" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" className="gc1" />
+              <stop offset=".46" className="gc2" />
+              <stop offset=".54" className="gc3" />
+              <stop offset="1" className="gc1" />
+            </linearGradient>
+          </defs>
+          <text x="500" y="140" textAnchor="middle" fontSize="180" textLength="992" lengthAdjust="spacingAndGlyphs">SOUTH</text>
+          <text x="500" y="244" textAnchor="middle" fontSize="97" textLength="992" lengthAdjust="spacingAndGlyphs">SOFTWARE</text>
+        </svg>
+      </div></div>
       <div className="legal">
         <div className="wrap" style={{ display: 'flex', justifyContent: 'space-between', gap: 16 }}>
           <span>© 2026 South Software</span><span>Hecho en Puerto Montt, Chile</span>

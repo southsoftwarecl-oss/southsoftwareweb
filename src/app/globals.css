@@ -42,7 +42,7 @@ section{position:relative}.sec{padding:160px 0}
 /* ===== nav ===== */
 .nav{position:fixed;top:0;left:0;right:0;z-index:60;padding:20px 0;transition:transform .8s var(--ease)}
 .nav .bar{width:min(1320px,100% - 64px);margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:24px}
-.nav .logo img{height:30px;width:auto}
+.nav .logo img,.nav .logo .wm{height:30px;width:auto}
 .nav nav{display:flex;gap:4px;padding:5px;border-radius:999px;border:1px solid var(--line);background:rgba(16,16,18,.6);backdrop-filter:blur(16px) saturate(150%);-webkit-backdrop-filter:blur(16px) saturate(150%)}
 .nav nav a{font-size:13.5px;color:var(--muted);padding:8px 16px;border-radius:999px;transition:color .4s var(--ease),background .4s var(--ease)}
 .nav nav a:hover{color:var(--fg);background:rgba(255,255,255,.05)}
@@ -247,8 +247,10 @@ footer{border-top:1px solid var(--line);padding:72px 0 0;overflow:hidden;positio
 .ft .col{grid-column:span 2}.ft .col:nth-of-type(2){grid-column:7/9}
 .ft h5,.ft .h5{font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);font-weight:400;margin-bottom:18px}
 .ft ul{list-style:none;display:grid;gap:10px;font-size:14.5px;color:#c6c9cf}.ft ul a:hover{color:#fff}
-.giant{margin-top:90px;font-family:var(--font-logo);font-size:13.2vw;line-height:.8;letter-spacing:-.02em;text-align:center;white-space:nowrap;user-select:none;transform:translateY(20%)}
-.giant span{background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(255,255,255,.05) 85%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.giant{margin-top:80px;margin-bottom:56px;user-select:none}
+.giant svg{display:block;width:100%;height:auto;overflow:visible}
+.giant text{font-family:var(--font-logo);fill:url(#giant-chrome)}
+.giant .gc1{stop-color:var(--chrome-1)}.giant .gc2{stop-color:var(--chrome-2)}.giant .gc3{stop-color:var(--chrome-3)}
 .legal{display:flex;justify-content:space-between;padding:22px 0;border-top:1px solid var(--line);font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);position:relative;z-index:2;background:var(--bg)}
 /* ===== floating wa ===== */
 .wa-float{position:fixed;right:24px;bottom:24px;z-index:55;height:48px;padding:0 18px 0 14px;border-radius:999px;background:rgba(18,18,20,.8);border:1px solid var(--line2);backdrop-filter:blur(12px);display:flex;align-items:center;gap:10px;font-size:13.5px;font-weight:500;transition:transform .6s var(--ease),border-color .4s}
@@ -307,7 +309,7 @@ html{overflow-x:clip}
  .hero .spec,.hero .coord,.hero .quote,.hero .tags3d,#labels{display:none}
  .nav .btn{--h:36px;padding:0 14px;font-size:12.5px}
  .final h2{font-size:clamp(52px,15vw,80px)}
- .giant{font-size:19vw}
+ .giant{margin-top:56px;margin-bottom:36px}
  .story .copy{height:auto}.story .step{position:relative;display:none}.story .step:nth-child(3){display:block;opacity:1}.story .progress{display:none}
  .story .prod{opacity:1!important}.story .code{opacity:0}
 }
@@ -515,3 +517,19 @@ body.cursor-hide .cursor,body.cursor-hide .cursor-ring{opacity:0!important}
 .svc-teaser .item{min-height:200px}
 .see-all{margin-top:24px}
 @media (min-width:1025px){.story{height:160vh}}
+
+/* ===== wordmark vectorial (Logo.tsx) ===== */
+.wm{display:block;height:30px;width:auto;overflow:visible}
+.wm text{font-family:var(--font-logo)}
+.wm .c0{stop-color:#fff}.wm .c1{stop-color:var(--chrome-1)}.wm .c2{stop-color:var(--chrome-2)}.wm .c3{stop-color:var(--chrome-3)}
+.wm-face{stroke:rgba(255,255,255,.35);stroke-width:.35;paint-order:stroke}
+.wm-glow{fill:var(--accent-fill);opacity:.55}
+.wm-backlit .wm-glow{fill:#3D78C4;opacity:.75}
+.wm-steel .wm-glow{opacity:.35}
+.wm-rule{fill:var(--chrome-3);opacity:.6}
+.wm-sheen{opacity:0}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){
+ a:hover>.wm .wm-sheen,a:focus-visible>.wm .wm-sheen,.wm:hover .wm-sheen{animation:wm-sheen 1.6s cubic-bezier(.22,1,.36,1) both}
+}
+@keyframes wm-sheen{0%{opacity:0;transform:skewX(-20deg) translateX(0)}15%{opacity:1}100%{opacity:0;transform:skewX(-20deg) translateX(520px)}}
+.ft .about .wm{height:44px;margin-bottom:22px}
