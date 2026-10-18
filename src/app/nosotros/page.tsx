@@ -1,10 +1,19 @@
-/** Nosotros: quiénes somos, principios y proceso. Equipo = marcadores. */
+/**
+ * Nosotros — "Forjado en el sur": narrativa en 5 actos.
+ *  1 Apertura (cromo líquido + contorno real de Chile) · 2 Manifiesto (pin) · 3 Principios (monolitos)
+ *  4 Las personas (TEAM) · 5 Cómo trabajamos (franja) + CTA final.
+ * Motion: lib/nosotros-motion.ts (carga diferida desde el runtime). Estilos: ./nosotros.css.
+ * Todo el texto está en el SSR; sin JS o con movimiento reducido la página se ve completa.
+ */
+import './nosotros.css';
 import Page from '@/components/Page';
-import PageHero from '@/components/PageHero';
-import Why from '@/components/sections/Why';
-import Process from '@/components/sections/Process';
+import ForgeHero from '@/components/nosotros/ForgeHero';
+import Manifesto from '@/components/nosotros/Manifesto';
+import Monoliths from '@/components/nosotros/Monoliths';
+import Team from '@/components/nosotros/Team';
+import StepsStrip from '@/components/nosotros/StepsStrip';
 import Final from '@/components/sections/Final';
-import { SecHead } from '@/components/ui';
+import { MAP_ATTRIBUTION } from '@/components/ChileMap';
 import { pageMeta } from '@/lib/seo';
 
 export const metadata = pageMeta({
@@ -16,35 +25,15 @@ export const metadata = pageMeta({
 export default function Nosotros() {
   return (
     <Page>
-      <PageHero crumb={[{ href: '', label: 'Nosotros' }]} eyebrow="Nosotros" title={<>Software hecho<br /><span className="dim">en el sur.</span></>}
-        lead="Somos un estudio chileno de desarrollo. Construimos software, web y apps para empresas de todo el país que quieren crecer sin depender de nadie más que de sí mismas." />
-      <section className="sec" style={{ paddingTop: 40 }} aria-label="Manifiesto">
-        <div className="wrap">
-          <div className="manifesto g12">
-            <p className="m-big" data-reveal>Creemos que cualquier pyme, esté donde esté, merece la misma calidad técnica que una gran empresa. Por eso publicamos nuestros precios, dejamos todo a tu nombre y te atiende quien programa.</p>
-            <div className="m-side" data-reveal>
-              <div><small className="mono">Cobertura</small><span>Todo Chile · remoto y presencial</span></div>
-              <div><small className="mono">Atención</small><span>Directa, con quien programa tu proyecto</span></div>
-              <div><small className="mono">Especialidades</small><span>Software, escritorio, web, apps, seguridad y datos</span></div>
-            </div>
-          </div>
-        </div>
-      </section>
-      <Why n={1} />
-      <section className="sec" style={{ paddingTop: 40 }}>
-        <div className="wrap">
-          <SecHead n={2} eyebrow="Equipo" title={<>Las personas<br /><span className="dim">detrás del código.</span></>}
-            lead="Fotos, cargos y biografías se publicarán con la información oficial del equipo." />
-          <div className="testi" data-stagger>
-            <figure className="tq"><span className="pill">Fundador</span><blockquote className="q">Mathias Jara</blockquote><figcaption className="who"><span className="av" /><span className="ph">[Cargo y biografía por completar]</span></figcaption></figure>
-            {[0, 1].map((k) => (
-              <figure className="tq" key={k}><span className="pill">Espacio reservado</span><blockquote className="q">Integrante del equipo</blockquote><figcaption className="who"><span className="av" /><span className="ph">[Nombre · Rol por completar]</span></figcaption></figure>
-            ))}
-          </div>
-        </div>
-      </section>
-      <Process n={3} />
-      <Final n={4} />
+      <div className="forge">
+        <ForgeHero />
+        <Manifesto n={1} />
+        <Monoliths n={2} />
+        <Team n={3} />
+        <StepsStrip n={4} />
+        <Final n={5} />
+        <p className="map-credit mono"><span className="wrap">{MAP_ATTRIBUTION}</span></p>
+      </div>
     </Page>
   );
 }

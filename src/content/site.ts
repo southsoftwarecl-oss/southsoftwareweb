@@ -176,3 +176,32 @@ export const FOUNDERS = {
   title: 'Clientes Fundadores — 10 cupos',
   text: 'Hasta el 30 de noviembre de 2026: 30% de descuento en el pago inicial y el primer mes gratis.',
 };
+
+/**
+ * /nosotros — manifiesto (texto idéntico al publicado; solo cambia su presentación).
+ * `MANIFESTO_KEYS`: frases que se "cromean" al completarse (deben aparecer tal cual en MANIFESTO).
+ */
+export const MANIFESTO = 'Creemos que cualquier pyme, esté donde esté, merece la misma calidad técnica que una gran empresa. Por eso publicamos nuestros precios, dejamos todo a tu nombre y te atiende quien programa.';
+export const MANIFESTO_KEYS = ['misma calidad técnica', 'publicamos nuestros precios', 'todo a tu nombre', 'te atiende quien programa'] as const;
+export const MANIFESTO_SIDE = [
+  ['Cobertura', 'Todo Chile · remoto y presencial'],
+  ['Atención', 'Directa, con quien programa tu proyecto'],
+  ['Especialidades', 'Software, escritorio, web, apps, seguridad y datos'],
+] as const;
+
+/**
+ * EQUIPO — PLACEHOLDER: completar con datos oficiales antes de publicar.
+ * - `photo`: ruta en /public (p. ej. '/team/mathias.jpg', retrato 4:5). null → silueta de cromo.
+ * - `links`: LinkedIn/GitHub opcionales ({ label, href }).
+ * - `reserved: true` → "Espacio reservado" (silueta genérica, sin persona real).
+ * Todo texto entre [corchetes] es un marcador visible: NO inventar nombres, cargos ni biografías.
+ */
+export type TeamMember = {
+  name: string; role: string; bio: string; photo?: string | null;
+  links?: { label: string; href: string }[]; reserved?: boolean;
+};
+export const TEAM: TeamMember[] = [
+  { name: 'Mathias Jara', role: 'Fundador', bio: '[Cargo y biografía por completar]', photo: null, links: [] },
+  { name: '[Integrante del equipo]', role: '[Nombre · Rol por completar]', bio: '[Biografía por completar]', photo: null, reserved: true },
+  { name: '[Integrante del equipo]', role: '[Nombre · Rol por completar]', bio: '[Biografía por completar]', photo: null, reserved: true },
+];
