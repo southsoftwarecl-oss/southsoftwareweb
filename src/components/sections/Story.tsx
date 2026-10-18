@@ -38,7 +38,7 @@ const Chart = ({ id }: { id: string }) => (
   <svg viewBox="0 0 300 100" preserveAspectRatio="none" className="chart-svg">
     <defs><linearGradient id={id} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="var(--accent-deep)" stopOpacity=".3" /><stop offset="1" stopColor="var(--accent-deep)" stopOpacity="0" /></linearGradient></defs>
     <path className="area" d={`${CHART} L300,100 L0,100 Z`} fill={`url(#${id})`} />
-    <path className="line" pathLength={1} d={CHART} fill="none" stroke="var(--accent)" strokeWidth="2" strokeDasharray="1" vectorEffect="non-scaling-stroke" />
+    <path className="line" pathLength={1} d={CHART} fill="none" stroke="var(--accent)" strokeWidth="2" strokeDasharray="1" />
   </svg>
 );
 const Kpi = ({ k }: { k: (typeof KPIS)[number] }) => (

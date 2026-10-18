@@ -80,7 +80,7 @@ export function startStory(story: HTMLElement, STATIC: boolean, getLenis: () => 
   gsap.set($('.sdev .chart-svg .line'), { strokeDashoffset: 1 }); gsap.set($('.sdev .chart-svg .area'), { opacity: 0 });
 
   // cachés (onRefresh)
-  const cx: number[] = [], cy: number[] = [], ry: number[] = []; let x0 = 40, y0 = 0, headK = 1;
+  const cx: number[] = [], cy: number[] = [], ry: number[] = []; let x0 = 40, y0 = 0, headK = (head.offsetWidth + 88) / Math.max(1, head.offsetWidth);
   const pk = { ax: 0, ay: 0, bx: 0, by: 0, cx: 0, cy: 0 };
   const setCX = gsap.quickSetter(caret, 'x', 'px'), setCY = gsap.quickSetter(caret, 'y', 'px'), setHL = gsap.quickSetter(hl, 'y', 'px');
   const setPX = gsap.quickSetter(pkt, 'x', 'px'), setPY = gsap.quickSetter(pkt, 'y', 'px');
