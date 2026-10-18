@@ -1,4 +1,4 @@
-/** Página de caso: RG Motors Chile, Salgado Automotriz, Frío Austral. Métricas = marcadores. */
+/** Página de caso: RG Motors Chile, Salgado Automotriz, Frío Austral. Solo se muestran métricas validadas (value != null). */
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -28,6 +28,7 @@ export default async function CasePage({ params }: { params: Promise<{ slug: str
   if (i < 0) notFound();
   const c = CASES[i];
   const next = CASES[(i + 1) % CASES.length];
+  const metrics = c.metrics.filter((m) => m.value);
   return (
     <Page>
       <PageHero crumb={[{ href: '/proyectos', label: 'Proyectos' }, { href: '', label: c.name }]} eyebrow={c.meta} title={c.name} lead={c.summary}>
@@ -44,7 +45,7 @@ export default async function CasePage({ params }: { params: Promise<{ slug: str
       <section className="sec">
         <div className="wrap">
           <SecHead n={1} eyebrow="Lo que construimos" title={<>Cada pieza,<br /><span className="dim">con un propósito.</span></>}
-            lead={c.challenge ?? <span className="ph">[Desafío del proyecto por completar con el cliente]</span>} />
+            lead={c.challenge ?? undefined} />
           <div className="why" data-stagger>
             {c.built.map((b, k) => <div className="w" key={b}><span className="mono">0{k + 1}</span><h3 className="h4">{b}</h3></div>)}
           </div>
@@ -52,18 +53,19 @@ export default async function CasePage({ params }: { params: Promise<{ slug: str
       </section>
       <section className="sec" style={{ paddingTop: 0 }}>
         <div className="wrap">
-          <SecHead n={2} eyebrow="Resultados" title={<>Métricas reales,<br /><span className="dim">cuando el cliente las valide.</span></>}
-            lead="No publicamos cifras inventadas. Estos indicadores se completarán con datos verificados y autorizados." />
-          <div className="counters metrics" data-stagger>
-            {c.metrics.map((m) => <div className="counter" key={m.label}><b className={m.value ? '' : 'ph-num'}>{m.value ?? '—'}</b><span>{m.label}{!m.value && <em className="ph"> · [por confirmar]</em>}</span></div>)}
-          </div>
+          {metrics.length > 0 && <>
+            <SecHead n={2} eyebrow="Resultados" title={<>Métricas reales,<br /><span className="dim">validadas por el cliente.</span></>} />
+            <div className="counters metrics" data-stagger>
+              {metrics.map((m) => <div className="counter" key={m.label}><b>{m.value}</b><span>{m.label}</span></div>)}
+            </div>
+          </>}
           {c.note && <p className="fine">{c.note}</p>}
           <Link className="next-case" href={`/proyectos/${next.slug}`}>
             <span className="mono">Siguiente proyecto</span><span className="nc-t">{next.name}<ArrowIcon /></span>
           </Link>
         </div>
       </section>
-      <Final n={3} />
+      <Final n={metrics.length > 0 ? 3 : 2} />
       <JsonLd data={{ '@context': 'https://schema.org', '@type': 'CreativeWork', name: c.name, about: c.summary, url: `${SITE_URL}/proyectos/${c.slug}`, creator: { '@id': `${SITE_URL}/#org` }, dateCreated: c.year, image: `${SITE_URL}${c.image}` }} />
     </Page>
   );

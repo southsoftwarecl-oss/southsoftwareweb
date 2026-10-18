@@ -37,7 +37,7 @@ export default function Cases({ n = 2, title, as = 'h2' }: { n?: number; title?:
                 <div className="kv">
                   <div><small>Stack</small><span>{c.stack.join(' · ')}</span></div>
                   <div><small>Servicio</small><span>{c.service}</span></div>
-                  <div><small>Resultado</small><span className="ph">[Métrica por confirmar con el cliente]</span></div>
+                  <div><small>Sitio</small><span>{c.url}</span></div>
                   <div><small>Año</small><span>{c.year}</span></div>
                 </div>
               </div>

@@ -38,7 +38,7 @@ test.describe('Navegación', () => {
     await page.getByRole('link', { name: 'RG Motors Chile', exact: true }).click();
     await expect(page).toHaveURL(/\/proyectos\/rg-motors-chile$/);
     await expect(page.locator('h1:visible')).toHaveText('RG Motors Chile');
-    await expect(page.getByText('[por confirmar]').first()).toBeVisible();
+    expect(await page.locator('main').innerText()).not.toMatch(/\[[^\]]*(completar|confirmar)[^\]]*\]/i);
     await page.locator('.next-case').click();
     await expect(page).toHaveURL(/\/proyectos\/salgado-automotriz$/);
     await expect(page.locator('h1:visible')).toHaveText('Salgado Automotriz');

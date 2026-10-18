@@ -190,18 +190,23 @@ export const MANIFESTO_SIDE = [
 ] as const;
 
 /**
- * EQUIPO — PLACEHOLDER: completar con datos oficiales antes de publicar.
- * - `photo`: ruta en /public (p. ej. '/team/mathias.jpg', retrato 4:5). null → silueta de cromo.
+ * EQUIPO — completar con datos oficiales. La sección NO se renderiza hasta que haya al menos
+ * una persona lista (ver `TEAM_READY`): en el sitio en vivo nunca se muestran marcadores.
+ * - `ready: true` → se publica (requiere nombre, cargo y bio reales, sin [corchetes]).
+ * - `photo`: ruta en /public (p. ej. '/team/mathias.jpg', retrato 4:5). null → monograma de cromo (iniciales).
  * - `links`: LinkedIn/GitHub opcionales ({ label, href }).
- * - `reserved: true` → "Espacio reservado" (silueta genérica, sin persona real).
+ * - `reserved: true` → nunca se publica (marcador interno).
  * Todo texto entre [corchetes] es un marcador visible: NO inventar nombres, cargos ni biografías.
  */
 export type TeamMember = {
   name: string; role: string; bio: string; photo?: string | null;
-  links?: { label: string; href: string }[]; reserved?: boolean;
+  links?: { label: string; href: string }[]; reserved?: boolean; ready?: boolean;
 };
 export const TEAM: TeamMember[] = [
-  { name: 'Mathias Jara', role: 'Fundador', bio: '[Cargo y biografía por completar]', photo: null, links: [] },
-  { name: '[Integrante del equipo]', role: '[Nombre · Rol por completar]', bio: '[Biografía por completar]', photo: null, reserved: true },
-  { name: '[Integrante del equipo]', role: '[Nombre · Rol por completar]', bio: '[Biografía por completar]', photo: null, reserved: true },
+  { name: 'Mathias Jara', role: 'Fundador', ready: true, photo: null, links: [],
+    bio: 'Diseña y desarrolla cada proyecto de South Software. Trabaja directo contigo, sin intermediarios, desde la primera conversación hasta la puesta en producción, para empresas de todo Chile.' },
 ];
+/** Personas publicables: `ready`, no reservadas y sin marcadores [..] en nombre, cargo ni bio. */
+export const isTeamMemberReady = (m: TeamMember) =>
+  !!m.ready && !m.reserved && ![m.name, m.role, m.bio].some((t) => !t.trim() || t.includes('['));
+export const TEAM_READY: TeamMember[] = TEAM.filter(isTeamMemberReady);

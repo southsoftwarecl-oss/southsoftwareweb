@@ -98,13 +98,22 @@ for (const vp of [{ width: 1440, height: 900 }, { width: 1280, height: 680 }]) {
       expect(await page.locator('.mono-b[aria-expanded="true"]').count()).toBe(1);
     });
 
-    test('equipo: ningún nombre real distinto de "Mathias Jara" fuera de marcadores [..]', async ({ page }) => {
+    test('sin marcadores: no hay texto [..] ni "Espacio reservado"; equipo = tarjeta de Mathias', async ({ page }) => {
       await open(page);
-      const names = await page.$$eval('.tm-name', (n) => n.map((e) => e.textContent!.trim()));
-      expect(names.length).toBeGreaterThan(0);
-      for (const n of names) expect(n === 'Mathias Jara' || /^\[.*\]$/.test(n), n).toBe(true);
-      const reserved = await page.$$eval('.tm-res', (r) => r.map((e) => e.textContent));
-      reserved.forEach((t) => expect(t).toContain('Espacio reservado'));
+      await sweep(page);
+      const body = await page.locator('body').innerText();
+      expect(body).not.toMatch(/\[[^\]]*\]/);
+      expect(body).not.toContain('Espacio reservado');
+      expect(body).not.toMatch(/por completar/i);
+      // equipo: una sola tarjeta real (Mathias), con monograma y sin silueta ni marcadores
+      await expect(page.locator('#equipo .tm')).toHaveCount(1);
+      const card = page.locator('#equipo .tm-card');
+      await expect(card).toBeVisible();
+      await expect(card.locator('.tm-name')).toHaveText('Mathias Jara');
+      await expect(card.locator('.tm-role')).toHaveText('Fundador');
+      await expect(card.locator('.tm-bio')).toContainText('Diseña y desarrolla cada proyecto de South Software.');
+      await expect(card.locator('.tm-mono')).toHaveText('MJ');
+      await expect(page.locator('.tm-sil, .tm-res, .tm-pill')).toHaveCount(0);
     });
 
     test('hora local en vivo (America/Santiago)', async ({ page }) => {

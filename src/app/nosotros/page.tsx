@@ -1,7 +1,7 @@
 /**
  * Nosotros — "Forjado en el sur": narrativa en 5 actos.
  *  1 Apertura (cromo líquido + contorno real de Chile) · 2 Manifiesto (pin) · 3 Principios (monolitos)
- *  4 Las personas (TEAM) · 5 Cómo trabajamos (franja) + CTA final.
+ *  4 Las personas (TEAM_READY; se omite si no hay nadie listo) · 5 Cómo trabajamos (franja) + CTA final.
  * Motion: lib/nosotros-motion.ts (carga diferida desde el runtime). Estilos: ./nosotros.css.
  * Todo el texto está en el SSR; sin JS o con movimiento reducido la página se ve completa.
  */
@@ -10,7 +10,7 @@ import Page from '@/components/Page';
 import ForgeHero from '@/components/nosotros/ForgeHero';
 import Manifesto from '@/components/nosotros/Manifesto';
 import Monoliths from '@/components/nosotros/Monoliths';
-import Team from '@/components/nosotros/Team';
+import Team, { hasTeam } from '@/components/nosotros/Team';
 import StepsStrip from '@/components/nosotros/StepsStrip';
 import Final from '@/components/sections/Final';
 import { MAP_ATTRIBUTION } from '@/components/ChileMap';
@@ -29,9 +29,9 @@ export default function Nosotros() {
         <ForgeHero />
         <Manifesto n={1} />
         <Monoliths n={2} />
-        <Team n={3} />
-        <StepsStrip n={4} />
-        <Final n={5} />
+        {hasTeam && <Team n={3} />}
+        <StepsStrip n={hasTeam ? 4 : 3} />
+        <Final n={hasTeam ? 5 : 4} />
         <p className="map-credit mono"><span className="wrap">{MAP_ATTRIBUTION}</span></p>
       </div>
     </Page>
