@@ -151,8 +151,10 @@ section{position:relative}.sec{padding:160px 0}
 .stack .t:hover .tip{opacity:1;transform:translate(-50%,0)}
 /* ===== packs ===== */
 .packs{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-.pack{position:relative;display:flex;flex-direction:column;padding:28px;border-radius:var(--radius);border:1px solid var(--line);background:var(--card);transition:border-color .6s var(--ease),transform .8s var(--ease)}
-.pack:hover{border-color:var(--line2);transform:translateY(-4px)}
+/* La entrada de las tarjetas la anima GSAP sobre `transform`; el hover usa `translate` (propiedad aparte)
+   para que una transición CSS nunca compita con el tween (causaba tarjetas pegadas 50px abajo, encima de .founders). */
+.pack{position:relative;display:flex;flex-direction:column;padding:28px;border-radius:var(--radius);border:1px solid var(--line);background:var(--card);transition:border-color .6s var(--ease),translate .8s var(--ease)}
+.pack:hover{border-color:var(--line2);translate:0 -4px}
 .pack .pn{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .pack .pr{font-family:var(--font-display);font-weight:500;font-size:36px;letter-spacing:-.04em;line-height:1;margin-top:26px;font-variant-numeric:tabular-nums}
 .pack .pr small{display:block;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.08em;color:var(--muted);margin-bottom:10px;font-weight:400;text-transform:uppercase}
@@ -163,7 +165,7 @@ section{position:relative}.sec{padding:160px 0}
 .pack .btn{--h:42px;font-size:13.5px}
 .pack.feat{border-color:rgba(var(--accent-rgb),.5);background:linear-gradient(180deg,rgba(var(--accent-rgb),.10),rgba(var(--accent-rgb),.01) 60%)}
 .pack .badge{position:absolute;top:24px;right:24px;font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;padding:4px 8px;border-radius:6px;background:rgba(var(--accent-rgb),.15);color:var(--accent);border:1px solid rgba(var(--accent-rgb),.35)}
-.founders{display:flex;justify-content:space-between;align-items:center;gap:24px;margin-top:16px;padding:22px 28px;border-radius:var(--radius);border:1px solid var(--line)}
+.founders{position:relative;display:flex;justify-content:space-between;align-items:center;gap:24px;margin-top:clamp(32px,4vw,56px);padding:22px 28px;border-radius:var(--radius);border:1px solid var(--line)}
 .founders b{font-family:var(--font-display);font-weight:500;font-size:20px;letter-spacing:-.02em}
 .founders p{color:var(--muted);font-size:14.5px}
 .fine{font-size:12.5px;color:var(--dim);margin-top:18px}

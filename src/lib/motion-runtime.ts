@@ -159,13 +159,18 @@ export function startRoute(root: HTMLElement): () => void {
       });
     });
 
+    /* Entradas con destino EXPLÍCITO (fromTo, no from): con from() GSAP lee el estado final del estilo computado,
+       y si el elemento tiene una transición CSS de transform (p. ej. .pack) puede capturar el valor a medio camino
+       (y≈50) y dejarlo ahí para siempre. clearProps devuelve el control al CSS (hover) al terminar. */
+    const REVEAL_END = { opacity: 1, y: 0, clearProps: 'opacity,transform,translate,rotate,scale' } as const;
+
     /* ---- resto de la página (bajo el pliegue): en idle, para no alargar la hidratación ---- */
     const rest = () => { if (!alive) return; split(false); ctx.add(() => {
       if (!STATIC) {
         $$('[data-reveal]').forEach((el) =>
-          gsap.from(el, { opacity: 0, y: 40, duration: 1.2, scrollTrigger: { trigger: el, start: 'top 88%' } }));
+          gsap.fromTo(el, { opacity: 0, y: 40 }, { ...REVEAL_END, duration: 1.2, scrollTrigger: { trigger: el, start: 'top 88%' } }));
         $$('[data-stagger]').forEach((g) =>
-          gsap.from(g.children, { opacity: 0, y: 50, duration: 1.1, stagger: 0.07, scrollTrigger: { trigger: g, start: 'top 85%' } }));
+          gsap.fromTo(g.children, { opacity: 0, y: 50 }, { ...REVEAL_END, duration: 1.1, stagger: 0.07, scrollTrigger: { trigger: g, start: 'top 85%' } }));
         $$('[data-parallax]').forEach((el) =>
           gsap.fromTo(el, { yPercent: -parseFloat(el.dataset.parallax || '0') }, {
             yPercent: parseFloat(el.dataset.parallax || '0'), ease: 'none',
