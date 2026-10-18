@@ -53,17 +53,16 @@ function collectErrors(page: Page) {
 test.describe('Home v2 · desktop 1440×900', () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 
-  test('canvas, sin errores de consola, lente ≤72px y sin violeta', async ({ page }) => {
+  test('canvas, sin errores de consola, sin anillo de cursor en el hero y sin violeta', async ({ page }) => {
     const errs = collectErrors(page);
     await page.goto('/');
     await settle(page);
     await expect(page.locator('.hero canvas')).toHaveCount(1, { timeout: 15000 });
     await expect(page.locator('.hero canvas')).toHaveAttribute('aria-hidden', 'true');
     await page.mouse.move(700, 300); await page.mouse.move(720, 320);
-    await expect(page.locator('body')).toHaveClass(/cursor-lens/);
-    await page.waitForTimeout(400);
-    const ring = await page.locator('.cursor-ring').boundingBox();
-    expect(ring!.width).toBeLessThanOrEqual(72);
+    await expect(page.locator('body')).toHaveClass(/cursor-hide/);
+    // ni anillo ni punto visibles sobre el hero (tras la transición de opacidad)
+    await expect.poll(() => page.evaluate(() => ['.cursor-ring', '.cursor'].map((s) => getComputedStyle(document.querySelector(s)!).opacity).join()), { timeout: 3000 }).toBe('0,0');
     expect(await purpleHits(page)).toEqual([]);
     expect(errs).toEqual([]);
   });
@@ -98,6 +97,22 @@ test.describe('Home v2 · desktop 1440×900', () => {
     });
     expect(gap.gap).toBeGreaterThanOrEqual(32);
     expect(Math.abs(gap.center)).toBeLessThan(0.6); // el wordmark muestreado está centrado
+  });
+
+  test('sin anillo, la interacción con las partículas sigue activa (empuje/onda)', async ({ page }) => {
+    await page.goto('/?gl=mid');
+    await settle(page);
+    await page.waitForFunction(() => !!(window as unknown as { __liq?: { engine: unknown } }).__liq?.engine, null, { timeout: 15000 });
+    for (let i = 0; i < 12; i++) await page.mouse.move(500 + i * 25, 260 + (i % 3) * 10);
+    await expect.poll(() => page.evaluate(() => (window as unknown as { __liq: { cursor: number } }).__liq.cursor), { timeout: 8000 }).toBeGreaterThan(0.5);
+    expect(await page.evaluate(() => getComputedStyle(document.querySelector('.cursor-ring')!).opacity)).toBe('0');
+  });
+
+  test('404: tampoco muestra el anillo del cursor', async ({ page }) => {
+    await page.goto('/esta-ruta-no-existe');
+    await page.mouse.move(600, 300); await page.mouse.move(640, 320);
+    await expect(page.locator('body')).toHaveClass(/cursor-hide/);
+    await expect.poll(() => page.evaluate(() => getComputedStyle(document.querySelector('.cursor-ring')!).opacity), { timeout: 3000 }).toBe('0');
   });
 
   test('/packs responde 200 y NAV "Packs" lleva a /packs', async ({ page, request }) => {
@@ -147,7 +162,7 @@ test.describe('Home v2 · móvil 390×844', () => {
     await page.goto('/');
     await settle(page);
     await expect(page.locator('.hero canvas')).toHaveCount(1, { timeout: 20000 });
-    await expect(page.locator('body')).not.toHaveClass(/cursor-lens/);
+    await expect(page.locator('body')).not.toHaveClass(/cursor-hide/);
     expect(await purpleHits(page)).toEqual([]);
     expect(errs).toEqual([]);
   });

@@ -435,10 +435,8 @@ html.rm .marquee .track,html.rm .hero-meta .scroll i::after{animation:none}
 /* a11y: texto de la barra de URL sobre #141417 (4.77:1, antes 4.27:1) */
 .case .media .top span,.device .top span{color:#7D828C}
 
-/* Cursor "lente" sobre el hero (v2): anillo de 64px sin relleno ni etiqueta; se oculta el punto central */
-.cursor-ring.lens{width:64px;height:64px;margin:-32px 0 0 -32px;background:none;border:1px solid rgba(237,237,239,.35);-webkit-backdrop-filter:blur(0) saturate(1.1);backdrop-filter:blur(0) saturate(1.1)}
-.cursor-ring.lens span{display:none}
-body.cursor-lens .cursor{opacity:0!important}
+/* hero y 404: sin cursor personalizado (anillo y punto ocultos); queda el puntero nativo */
+body.cursor-hide .cursor,body.cursor-hide .cursor-ring{opacity:0!important}
 
 /* ============ 5) Home v2 compacto (ritmo, teasers, franja de precios) ============ */
 .sec{padding:clamp(88px,10vw,128px) 0}

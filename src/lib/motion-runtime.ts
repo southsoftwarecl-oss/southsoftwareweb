@@ -82,15 +82,14 @@ export function startGlobal(): () => void {
         const t = e.target as Element;
         const ctx = t.closest?.('[data-cursor]') as HTMLElement | null;
         const link = !ctx && !!t.closest?.('a,button,select,input,textarea');
-        // lente del hero: sin etiqueta ni relleno (no aplica sobre links/botones)
-        const lens = !ctx && !link && !!t.closest?.('[data-cursor-lens]');
+        // hero/404 ([data-cursor-hide]): sin anillo ni punto, solo el puntero nativo (salvo sobre links/botones)
+        const hide = !ctx && !link && !!t.closest?.('[data-cursor-hide]');
         r.classList.toggle('big', !!ctx);
         if (ctx) label.textContent = ctx.dataset.cursor || '';
         r.classList.toggle('link', link);
-        r.classList.toggle('lens', lens);
-        document.body.classList.toggle('cursor-lens', lens);
+        document.body.classList.toggle('cursor-hide', hide);
       }) as EventListener, { passive: true });
-      off.push(() => { d.remove(); r.remove(); document.body.classList.remove('cursor-on', 'cursor-lens'); });
+      off.push(() => { d.remove(); r.remove(); document.body.classList.remove('cursor-on', 'cursor-hide'); });
     }
 
     // Nav que se esconde al bajar + botón flotante de WhatsApp
