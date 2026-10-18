@@ -2,7 +2,7 @@
 import type { Metadata } from 'next';
 import { BRAND, PACKS, SERVICES, SITE_URL } from '@/content/site';
 
-const OG_IMAGE = { url: '/opengraph-image.jpg', width: 1200, height: 630, alt: 'South Software — desarrollo de software en Puerto Montt' };
+const OG_IMAGE = { url: '/opengraph-image.jpg', width: 1200, height: 630, alt: 'South Software — desarrollo de software para todo Chile' };
 
 export function pageMeta({ title, description, path }: { title: string; description: string; path: string }): Metadata {
   return {
@@ -24,8 +24,7 @@ export const orgJsonLd = {
   description: BRAND.description,
   email: BRAND.email,
   ...(BRAND.phone ? { telephone: BRAND.phone } : {}),
-  address: { '@type': 'PostalAddress', addressLocality: BRAND.city, addressRegion: BRAND.region, addressCountry: 'CL' },
-  geo: { '@type': 'GeoCoordinates', latitude: -41.4693, longitude: -72.9424 },
+  address: { '@type': 'PostalAddress', addressCountry: 'CL' },
   areaServed: { '@type': 'Country', name: 'Chile' },
   knowsAbout: SERVICES.map((s) => s.title),
 };

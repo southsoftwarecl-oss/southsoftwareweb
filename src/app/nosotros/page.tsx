@@ -9,7 +9,7 @@ import { pageMeta } from '@/lib/seo';
 
 export const metadata = pageMeta({
   title: 'Nosotros',
-  description: 'South Software es un estudio de desarrollo de software en Puerto Montt. Software a medida, web, apps, seguridad y datos con precio publicado y trato directo.',
+  description: 'South Software es un estudio chileno de desarrollo de software. Software a medida, web, apps, seguridad y datos con precio publicado y trato directo.',
   path: '/nosotros',
 });
 
@@ -17,14 +17,14 @@ export default function Nosotros() {
   return (
     <Page>
       <PageHero crumb={[{ href: '', label: 'Nosotros' }]} eyebrow="Nosotros" title={<>Software hecho<br /><span className="dim">en el sur.</span></>}
-        lead="Somos un estudio de desarrollo en Puerto Montt. Construimos software, web y apps para empresas que quieren crecer sin depender de nadie más que de sí mismas." />
+        lead="Somos un estudio chileno de desarrollo. Construimos software, web y apps para empresas de todo el país que quieren crecer sin depender de nadie más que de sí mismas." />
       <section className="sec" style={{ paddingTop: 40 }} aria-label="Manifiesto">
         <div className="wrap">
           <div className="manifesto g12">
-            <p className="m-big" data-reveal>Creemos que una pyme del sur merece la misma calidad técnica que una gran empresa de Santiago. Por eso publicamos nuestros precios, dejamos todo a tu nombre y te atiende quien programa.</p>
+            <p className="m-big" data-reveal>Creemos que cualquier pyme, esté donde esté, merece la misma calidad técnica que una gran empresa. Por eso publicamos nuestros precios, dejamos todo a tu nombre y te atiende quien programa.</p>
             <div className="m-side" data-reveal>
-              <div><small className="mono">Base</small><span>Puerto Montt, Región de Los Lagos</span></div>
-              <div><small className="mono">Atención</small><span>Presencial en la zona y remota en todo Chile</span></div>
+              <div><small className="mono">Cobertura</small><span>Todo Chile · remoto y presencial</span></div>
+              <div><small className="mono">Atención</small><span>Directa, con quien programa tu proyecto</span></div>
               <div><small className="mono">Especialidades</small><span>Software, escritorio, web, apps, seguridad y datos</span></div>
             </div>
           </div>

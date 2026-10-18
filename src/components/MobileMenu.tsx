@@ -25,7 +25,7 @@ export default function MobileMenu({ open, onClose }: { open: boolean; onClose: 
                 </m.div>
               ))}
             </nav>
-            <p className="mono mm-foot">Puerto Montt · Chile</p>
+            <p className="mono mm-foot">Chile</p>
           </m.div>
         )}
       </AnimatePresence>

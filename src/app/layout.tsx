@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   title: { default: `South Software — ${BRAND.tagline}`, template: '%s · South Software' },
   description: BRAND.description,
   applicationName: 'South Software',
-  keywords: ['desarrollo de software Puerto Montt', 'software a medida', 'páginas web Puerto Montt', 'apps móviles Chile', 'ciberseguridad pymes', 'ciencia de datos'],
+  keywords: ['desarrollo de software Chile', 'software a medida', 'páginas web Chile', 'apps móviles Chile', 'ciberseguridad pymes', 'ciencia de datos'],
   alternates: { canonical: '/' },
   openGraph: { type: 'website', locale: 'es_CL', url: '/', siteName: 'South Software', title: `South Software — ${BRAND.tagline}`, description: BRAND.description },
   twitter: { card: 'summary_large_image', title: `South Software — ${BRAND.tagline}`, description: BRAND.description },

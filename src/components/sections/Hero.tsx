@@ -16,7 +16,7 @@ export default function Hero() {
               <h1 data-split="words">Cada detalle,<br />en su lugar.</h1>
             </div>
             <div style={{ gridColumn: '9/13' }}>
-              <p className="sub" data-in=".55">Software a medida, apps y sitios web construidos con obsesión por el detalle desde Puerto Montt.</p>
+              <p className="sub" data-in=".55">Software a medida, apps y sitios web construidos con obsesión por el detalle, para empresas de todo Chile.</p>
               <div className="actions" data-in=".7">
                 <Btn href="#contacto">Agenda una reunión</Btn>
                 <Btn href="/proyectos" variant="ghost">Ver proyectos</Btn>
@@ -27,7 +27,7 @@ export default function Hero() {
       </div>
       <div className="hero-meta">
         <div className="wrap">
-          <span>41°28′S — 72°56′O · Puerto Montt</span>
+          <span>Chile · Software a medida</span>
           <span className="scroll">Desliza<i /></span>
           <span>Software · Web · Apps · Seguridad · Datos</span>
         </div>
