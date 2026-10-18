@@ -13,6 +13,7 @@
 import Lenis from 'lenis';
 import { gsap, ScrollTrigger, SplitText, setupGsap } from '@/lib/gsap';
 import { RT, detectModes, initIntro, onIntro } from '@/lib/runtime';
+import { startStory } from '@/lib/story-motion';
 
 let lenis: Lenis | null = null;
 let routeCount = 0;
@@ -188,20 +189,9 @@ export function startRoute(root: HTMLElement): () => void {
           onEnter: () => { gsap.to(o, { v: end, duration: 2, ease: 'power3.out', onUpdate: () => { el.textContent = f(o.v); } }); } });
       });
 
-      /* ---- historia fijada: código → interfaz → producto ---- */
+      /* ---- historia v3 "Del commit al cliente" (ver lib/story-motion.ts) ---- */
       const story = root.querySelector<HTMLElement>('.story');
-      if (story && !STATIC && innerWidth > 1024) {
-        const lines = story.querySelectorAll('.code .ln'), steps = story.querySelectorAll('.step'), bars = story.querySelectorAll('.progress b');
-        gsap.timeline({ defaults: { ease: 'none' }, scrollTrigger: { trigger: story, start: 'top top', end: 'bottom bottom', scrub: 0.8 } })
-          .to(lines, { opacity: 1, stagger: 0.12, duration: 0.2 }, 0).to(bars[0], { scaleX: 1, duration: 1.1 }, 0)
-          .to(steps[0], { opacity: 0, y: -30, duration: 0.25 }, 1.1).fromTo(steps[1], { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.25 }, 1.25)
-          .to(story.querySelector('.code'), { opacity: 0, scale: 0.96, duration: 0.3 }, 1.1).fromTo(story.querySelector('.wire'), { opacity: 0 }, { opacity: 1, duration: 0.2 }, 1.2)
-          .fromTo(story.querySelectorAll('.wire .side,.wire .blk'), { scale: 0.85, opacity: 0 }, { scale: 1, opacity: 1, stagger: 0.05, duration: 0.3 }, 1.25).to(bars[1], { scaleX: 1, duration: 1 }, 1.1)
-          .to(steps[1], { opacity: 0, y: -30, duration: 0.25 }, 2.2).fromTo(steps[2], { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.25 }, 2.35)
-          .fromTo(story.querySelector('.prod'), { opacity: 0, clipPath: 'inset(0 100% 0 0)' }, { opacity: 1, clipPath: 'inset(0 0% 0 0)', duration: 0.6 }, 2.2)
-          .fromTo(story.querySelector('.prod .chart path'), { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.6 }, 2.5).to(bars[2], { scaleX: 1, duration: 0.9 }, 2.2)
-          .to(story.querySelector('.device'), { rotateY: -6, rotateX: 4, duration: 3.2, transformPerspective: 1400 }, 0);
-      }
+      if (story) off.push(startStory(story, STATIC, () => lenis));
 
       /* ---- línea de proceso que se dibuja ---- */
       const tlEl = root.querySelector('.tl');
