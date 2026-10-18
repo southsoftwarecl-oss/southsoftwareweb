@@ -1,6 +1,6 @@
 /**
  * Layout raíz: fuentes self-hosted, metadata global, preloader, nav, footer,
- * WhatsApp flotante, grano y runtime de animación. Cada página se envuelve en
+ * WhatsApp flotante, grano, runtime de animación y analítica (GA4 con consentimiento). Cada página se envuelve en
  * <Page> (view transitions).
  */
 import type { Metadata, Viewport } from 'next';
@@ -14,6 +14,8 @@ import Footer from '@/components/Footer';
 import WaFloat from '@/components/WaFloat';
 import MotionRoot from '@/components/MotionRoot';
 import { JsonLd } from '@/components/ui';
+import Analytics from '@/components/Analytics';
+import { GA_ID, GSC_VERIFICATION } from '@/lib/analytics';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -26,6 +28,8 @@ export const metadata: Metadata = {
   twitter: { card: 'summary_large_image', title: `South Software — ${BRAND.tagline}`, description: BRAND.description },
   robots: { index: true, follow: true },
   formatDetection: { telephone: false },
+  // Google Search Console: <meta name="google-site-verification"> solo si hay token configurado
+  ...(GSC_VERIFICATION ? { verification: { google: GSC_VERIFICATION } } : {}),
 };
 
 export const viewport: Viewport = { themeColor: '#0A0A0B', colorScheme: 'dark' };
@@ -51,6 +55,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="grain" aria-hidden="true" />
         <MotionRoot />
         <JsonLd data={orgJsonLd} />
+        {/* GA4 + aviso de cookies: nada se renderiza sin NEXT_PUBLIC_GA_ID */}
+        {GA_ID && <Analytics gaId={GA_ID} />}
       </body>
     </html>
   );

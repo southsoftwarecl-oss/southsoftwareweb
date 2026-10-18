@@ -6,17 +6,21 @@ import type { NextConfig } from 'next';
  *   scripts inline de hidratación de Next en páginas estáticas (sin nonce).
  *   Ver docs: node_modules/next/dist/docs/01-app/02-guides/content-security-policy.md
  * - Cloudflare Turnstile se habilita en la CSP solo si hay site key configurada.
+ * - Google Analytics 4: script-src / connect-src / img-src (gtag.js solo carga tras consentimiento).
  */
 const isDev = process.env.NODE_ENV === 'development';
 const turnstile = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ? ' https://challenges.cloudflare.com' : '';
+/** Google Analytics 4 (gtag.js): script desde GTM, hits a *.google-analytics.com / *.analytics.google.com. */
+const gaScript = ' https://www.googletagmanager.com';
+const gaHits = ' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com';
 
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''}${turnstile}`,
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''}${gaScript}${turnstile}`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
+  `img-src 'self' data: blob:${gaHits}`,
   "font-src 'self'",
-  `connect-src 'self'${turnstile}`,
+  `connect-src 'self'${gaHits}${turnstile}`,
   `frame-src${turnstile || " 'none'"}`,
   "worker-src 'self' blob:",
   "object-src 'none'",
@@ -40,6 +44,8 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Solo para e2e: build paralelo con GA de prueba (SOUTH_DIST_DIR=.next-ga). Producción usa .next.
+  ...(process.env.SOUTH_DIST_DIR ? { distDir: process.env.SOUTH_DIST_DIR } : {}),
   cacheComponents: true,
   partialPrefetching: true,
   poweredByHeader: false,

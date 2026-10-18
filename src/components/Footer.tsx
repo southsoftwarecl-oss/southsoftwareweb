@@ -2,6 +2,8 @@
 import Link from 'next/link';
 import Logo from './Logo';
 import { BRAND, SERVICES } from '@/content/site';
+import { GA_ID } from '@/lib/analytics';
+import CookiePrefsLink from './CookiePrefsLink';
 
 export default function Footer() {
   return (
@@ -56,7 +58,9 @@ export default function Footer() {
       </div></div>
       <div className="legal">
         <div className="wrap" style={{ display: 'flex', justifyContent: 'space-between', gap: 16 }}>
-          <span>© 2026 South Software</span><span>Hecho en Chile</span>
+          <span>© 2026 South Software</span>
+          {GA_ID && <CookiePrefsLink />}
+          <span>Hecho en Chile</span>
         </div>
       </div>
     </footer>

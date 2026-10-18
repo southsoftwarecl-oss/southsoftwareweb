@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { BRAND, BUDGETS, PROJECT_TYPES, WHATSAPP_NUMBER } from '@/content/site';
 import { TYPE_GUIDE, TYPE_ICON, packsFor, type Budget, type ProjectType } from '@/content/contacto';
 import { validateContact } from '@/lib/contact-rules';
+import { trackLead } from '@/lib/analytics';
 import { AIcon } from '@/components/ui';
 import BriefCard, { briefText, type BriefData } from './BriefCard';
 
@@ -145,6 +146,7 @@ export default function BriefStudio({ head }: { head: ReactNode }) {
       const data = (await res.json().catch(() => ({}))) as { ok?: boolean; demo?: boolean; error?: string; fields?: Partial<Record<Field, string>> };
       if (res.ok && data.ok) {
         setDemo(!!data.demo);
+        trackLead('contacto');
         const card = [deskCard.current, mobOpen ? mobCard.current : null].find((c) => c && c.offsetParent !== null);
         if (m && card && !m.reduced()) { setStatus('sealing'); await m.seal(card); }
         setSummary(`Resumen de tu brief: ${briefText(d)}`);
