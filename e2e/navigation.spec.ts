@@ -65,7 +65,11 @@ test.describe('Navegación', () => {
     expect(res?.status()).toBe(200);
     await expect(page).toHaveTitle(/Packs y precios · South Software/);
     for (const price of ['$149.990', '$349.990', '$549.990', '$699.990', 'desde $1.490.000', '$249.990', 'desde $390.000']) {
-      await expect(page.locator('.pack .pr', { hasText: price }).first()).toBeVisible();
+      // packs v3: "desde" va en la línea pequeña (.pl) y el monto en .pr (una sola línea)
+      const amount = price.replace(/^desde\s+/, '');
+      const card = page.locator('.pack', { has: page.locator('.pr', { hasText: amount }) }).first();
+      await expect(card.locator('.pr')).toBeVisible();
+      if (amount !== price) await expect(card.locator('.pl')).toContainText('desde');
     }
     const ld = (await page.locator('script[type="application/ld+json"]').allTextContents()).join();
     expect(ld).toContain('OfferCatalog');
