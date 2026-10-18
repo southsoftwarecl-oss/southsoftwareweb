@@ -31,6 +31,21 @@ export const WHATSAPP_NUMBER = '56900000000';
 export const WHATSAPP_IS_PLACEHOLDER = WHATSAPP_NUMBER === '56900000000';
 export const WA_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Hola South Software, quiero cotizar un proyecto')}`;
 
+/**
+ * Enlace de WhatsApp con mensaje precargado. Parte de WA_URL: si ya trae `text=` se REEMPLAZA (dos `text` harían que
+ * WhatsApp muestre el genérico); cualquier otro parámetro se conserva y el texto se agrega con `&`.
+ * El texto va con encodeURIComponent (espacios como %20).
+ */
+export function waLink(text: string) {
+  const [base, query = ''] = WA_URL.split('?');
+  const keep = query.split('&').filter((kv) => kv && !/^text=/.test(kv));
+  return `${base}?${[...keep, `text=${encodeURIComponent(text)}`].join('&')}`;
+}
+/** Mensaje de "Elegir pack" (valores EXACTOS de PACKS). */
+export const packMessage = (p: { name: string; setup: string; monthly: string }) =>
+  `Hola, me interesa el pack ${p.name} (pago inicial ${p.setup} + ${p.monthly}/mes). ¿Conversamos?`;
+export const FOUNDERS_MESSAGE = 'Quiero reservar un cupo de Cliente Fundador';
+
 /** Navegación principal (mismo pill del preview). */
 export const NAV = [
   { href: '/servicios', label: 'Servicios' },

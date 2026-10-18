@@ -4,7 +4,7 @@
  * el JS solo lo envuelve en columnas de odómetro (aria-hidden) y deja el valor en aria-label + texto sr-only.
  * Móvil (<760px): carrusel con scroll-snap, puntos y contador "n / 8" (aria-live).
  */
-import { FOUNDERS, PACKS, WA_URL } from '@/content/site';
+import { FOUNDERS, FOUNDERS_MESSAGE, PACKS, packMessage, waLink } from '@/content/site';
 import { Btn, SecHead } from '../ui';
 
 /** "desde $1.490.000" → { from: true, amount: "$1.490.000" }. No cambia el valor, solo separa el prefijo. */
@@ -44,7 +44,7 @@ export default function Packs({ n = 5, head = true }: { n?: number; head?: boole
                   <div className="pr"><Odo v={s.amount} /></div>
                   <div className="mo">+ <b>{m.from && <>{m.from} </>}<Odo v={m.amount} /></b> / mes</div>
                   <ul>{p.includes.map((x) => <li key={x}><Check /><span>{x}</span></li>)}</ul>
-                  <Btn href={WA_URL} external variant={p.featured ? 'primary' : 'ghost'} icon={false}>Elegir pack</Btn>
+                  <Btn href={waLink(packMessage(p))} external variant={p.featured ? 'primary' : 'ghost'} icon={false}>Elegir pack</Btn>
                 </div>
               </article>
             );
@@ -72,7 +72,7 @@ export default function Packs({ n = 5, head = true }: { n?: number; head?: boole
         </div>
         <div className="founders" data-reveal>
           <div><b>{FOUNDERS.title}</b><p>{FOUNDERS.text}</p></div>
-          <Btn href={WA_URL} external>Reservar cupo</Btn>
+          <Btn href={waLink(FOUNDERS_MESSAGE)} external>Reservar cupo</Btn>
         </div>
         <p className="fine">Mensualidad sin permanencia con 30 días de aviso. Comisiones de pasarelas de pago y cuentas de desarrollador (Apple/Google) se cobran aparte.</p>
       </div>

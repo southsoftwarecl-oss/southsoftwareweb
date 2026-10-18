@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { PACKS } from '../src/content/site';
+import { PACKS, WA_URL } from '../src/content/site';
 
 /**
  * Packs v3 — "Forja de cromo" (/packs). Precios exactos de PACKS tras la animación, una sola línea de precio,
@@ -91,6 +91,27 @@ for (const vp of [{ width: 1440, height: 900 }, { width: 1280, height: 680 }]) {
     });
   });
 }
+
+test('WhatsApp precargado: cada "Elegir pack" lleva su pack y precios exactos', async ({ page }) => {
+  await open(page);
+  const base = WA_URL.split('?')[0];
+  const hrefs = await page.$$eval('#packs .pack', (cs) => cs.map((c) => ({ name: c.querySelector('.pn')?.textContent, href: c.querySelector('.btn')?.getAttribute('href') || '' })));
+  PACKS.forEach((p, i) => {
+    const h = hrefs[i].href;
+    expect(hrefs[i].name).toBe(p.name);
+    expect(h.startsWith(base + '?')).toBe(true);
+    expect(h).toContain(encodeURIComponent(p.name));
+    expect(h).toContain(encodeURIComponent(p.setup));
+    expect(h).toContain(encodeURIComponent(p.monthly));
+    expect(h.match(/[?&]text=/g)?.length, 'un solo parámetro text').toBe(1);
+    const text = new URL(h).searchParams.get('text');
+    expect(text).toBe(`Hola, me interesa el pack ${p.name} (pago inicial ${p.setup} + ${p.monthly}/mes). ¿Conversamos?`);
+  });
+  expect(hrefs[PACKS.length].href).toBe('/contacto'); // Software a medida
+  const cupo = await page.locator('#packs .founders .btn').getAttribute('href');
+  expect(new URL(cupo!).searchParams.get('text')).toBe('Quiero reservar un cupo de Cliente Fundador');
+  expect(cupo!.match(/[?&]text=/g)?.length).toBe(1);
+});
 
 test('sin violeta en /packs', async ({ page }) => {
   await open(page);
