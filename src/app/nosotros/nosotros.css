@@ -1,0 +1,190 @@
+/*
+ * /nosotros — "Forjado en el sur" (5 actos). Solo se carga en esta ruta.
+ * Animado únicamente: transform, opacity, clip-path/mask, strokeDashoffset y custom properties
+ * registradas con @property (--cy, --sh, --spec, --mr). html.rm / html.capture: todo estático y visible.
+ */
+@property --cy { syntax: '<percentage>'; inherits: false; initial-value: 0%; }
+@property --sh { syntax: '<percentage>'; inherits: false; initial-value: -30%; }
+@property --spec { syntax: '<percentage>'; inherits: true; initial-value: 40%; }
+@property --mr { syntax: '<percentage>'; inherits: false; initial-value: 150%; }
+
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.fh-defs{position:absolute;width:0;height:0;overflow:hidden}
+.forge{--chrome-grad:linear-gradient(180deg,#fff 0%,#e3e8ee 32%,var(--chrome-3) 52%,var(--chrome-1) 72%,var(--chrome-2) 100%)}
+.forge .fx-h{font-family:var(--font-display);font-weight:500;font-size:clamp(30px,3.3vw,52px);line-height:1;letter-spacing:-.04em;text-wrap:balance}
+.forge .fx-head{display:flex;align-items:baseline;flex-wrap:wrap;column-gap:28px;row-gap:12px;margin-bottom:32px}
+
+/* ================= ACTO 1 — apertura ================= */
+.fhero{min-height:100svh;display:flex;flex-direction:column;justify-content:flex-end;padding:140px 0 88px;border-bottom:1px solid var(--line)}
+.fhero .wrap{position:relative;z-index:2}
+.fh-map{position:absolute;z-index:0;top:84px;bottom:24px;right:max(32px,calc((100vw - 1320px) / 2));width:calc((100svh - 108px) * .186);pointer-events:none}
+.fh-map::before{content:"";position:absolute;inset:-10% -60%;background:radial-gradient(closest-side,rgba(var(--accent-deep-rgb),.14),transparent);z-index:-1}
+.cmap{display:block;width:100%;height:100%;overflow:visible}
+.cmap path{stroke:rgba(143,180,227,.18);stroke-width:1;stroke-linecap:round;stroke-linejoin:round}
+.cmap-c path{stroke:rgba(143,180,227,.42)}
+.fh-clock{position:absolute;z-index:2;top:112px;right:calc(max(32px,calc((100vw - 1320px) / 2)) + (100svh - 108px) * .186 + 28px)}
+.lclock{font-size:11px;letter-spacing:.08em;color:var(--muted)}
+.lclock .lc-t{color:var(--accent);font-variant-numeric:tabular-nums}
+.fh-title{margin-top:28px}
+.fh-title .fw{display:inline-block;padding:0 .02em .06em;margin:0 -.02em -.06em;background-image:var(--chrome-grad);background-size:100% 220%;background-position:50% var(--cy);-webkit-background-clip:text;background-clip:text;color:transparent;animation:fh-chrome 8s ease-in-out infinite alternate}
+@keyframes fh-chrome{to{--cy:100%}}
+.fh-lead{position:relative}
+
+/* ================= ACTO 2 — manifiesto ================= */
+.mf{border-bottom:1px solid var(--line);padding:96px 0}
+.mf-eb{margin-bottom:36px}
+.mf-text .kp{background-image:var(--chrome-grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.mf .mf-side{border-top:0;gap:10px;align-content:start}
+.mf .mf-side .mf-plate{position:relative;border-bottom:0;padding:14px 18px}
+.mf-edge{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.mf-edge rect{width:calc(100% - 1px);height:calc(100% - 1px);fill:none;stroke:url(#nos-chrome);stroke-opacity:.55;stroke-width:1;stroke-dasharray:1;stroke-dashoffset:0}
+.mf-text{perspective:1200px}
+.mf.is-anim .mf-text .kp{background:none;color:inherit}
+.mf.is-anim .mw{transform-style:preserve-3d}
+.mf.is-anim .kw{color:var(--muted)}
+.mf.is-anim .kw.on,.mf.is-anim.lines .kp.on{--sh:130%;background-image:linear-gradient(100deg,transparent calc(var(--sh) - 16%),rgba(255,255,255,.95) var(--sh),transparent calc(var(--sh) + 16%)),var(--chrome-grad);-webkit-background-clip:text;background-clip:text;color:transparent;transition:--sh .6s var(--ease)}
+.mf.is-anim.lines .kp{color:var(--muted)}
+@media (min-width:1025px){
+  html:not(.rm):not(.capture) .mf:not(.no-pin){height:calc(100vh + 60vh);padding:0}
+  html:not(.rm):not(.capture) .mf:not(.no-pin) .mf-pin{position:sticky;top:0;height:100vh;display:flex;align-items:center;padding-top:40px}
+  html:not(.rm):not(.capture) .mf:not(.no-pin) .mf-pin>.wrap{width:min(1320px,100% - 64px)}
+}
+@media (min-width:1025px) and (max-height:760px){
+  html:not(.rm):not(.capture) .mf:not(.no-pin){height:calc(100vh + 38vh)}
+}
+
+/* ================= ACTO 3 — monolitos ================= */
+.mono-sec{padding:72px 0}
+.mono-count{display:none;color:var(--dim);margin-left:auto}
+.mono-count b{color:var(--fg);font-weight:500}
+.monos{list-style:none;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:16px;perspective:1600px;--spec:40%}
+.mono-li{position:relative}
+.mono-p{position:relative;aspect-ratio:3/5;max-height:62vh;border-radius:14px;overflow:hidden;isolation:isolate;
+  background:linear-gradient(105deg,transparent calc(var(--spec) + var(--i) * 9% - 26%),rgba(238,242,246,.12) calc(var(--spec) + var(--i) * 9%),transparent calc(var(--spec) + var(--i) * 9% + 26%)),linear-gradient(180deg,#1c1f24 0%,#121418 55%,#0d0e11 100%);
+  border:1px solid rgba(238,242,246,.12);box-shadow:inset 0 1px 0 rgba(255,255,255,.09),inset 0 -1px 0 rgba(0,0,0,.6),0 30px 60px -30px rgba(0,0,0,.8);
+  transform:rotateY(var(--ry));transition:transform .7s var(--ease),opacity .5s var(--ease),border-color .5s}
+.mono-n{position:absolute;top:14px;left:16px;font-family:var(--font-display);font-weight:500;font-size:clamp(44px,4.4vw,72px);line-height:1;letter-spacing:-.05em;color:#16181c;text-shadow:0 1px 0 rgba(255,255,255,.16),0 -1px 0 rgba(0,0,0,.85),0 0 1px rgba(238,242,246,.2)}
+.mono-sheen{position:absolute;left:0;right:0;top:0;height:45%;background:linear-gradient(180deg,transparent,rgba(238,242,246,.22),transparent);transform:translateY(-120%);pointer-events:none;z-index:1}
+.mono-c{position:absolute;left:16px;right:16px;bottom:16px;z-index:2}
+.mono-t{font-family:var(--font-display);font-weight:500;font-size:clamp(17px,1.35vw,21px);line-height:1.12;letter-spacing:-.02em}
+.mono-b{all:unset;cursor:pointer;display:block}
+.mono-b::after{content:"";position:absolute;inset:0;z-index:3;border-radius:14px}
+.mono-b:focus-visible::after{outline:2px solid var(--accent);outline-offset:3px}
+.mono-d{margin-top:8px;color:var(--muted);font-size:13.5px;line-height:1.45}
+@media (min-width:1025px){
+  .mono-t,.mono-d{opacity:0;transform:translateY(10px);transition:opacity .45s var(--ease),transform .6s var(--ease)}
+  .mono-li.is-on .mono-p,.monos:not(.js) .mono-li:is(:hover,:focus-within) .mono-p{transform:rotateY(0deg) translateZ(40px);border-color:rgba(238,242,246,.28)}
+  .mono-li.is-on :is(.mono-t,.mono-d),.monos:not(.js) .mono-li:is(:hover,:focus-within) :is(.mono-t,.mono-d){opacity:1;transform:none}
+  .monos.has-on .mono-li:not(.is-on) .mono-p{opacity:.6}
+}
+@media (max-width:1024px){
+  .mono-count{display:inline}
+  .monos{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;perspective:none;margin:0 calc((100vw - 100%) / -2);padding:4px calc((100vw - 100%) / 2) 8px;scrollbar-width:none;scroll-padding:0 calc((100vw - 100%) / 2)}
+  .monos::-webkit-scrollbar{display:none}
+  .mono-li{flex:0 0 78vw;max-width:380px;scroll-snap-align:start}
+  .mono-p{transform:none;aspect-ratio:auto;min-height:300px;max-height:none}
+  .mono-sec{padding:64px 0}
+}
+
+/* ================= ACTO 4 — las personas ================= */
+.team-sec{padding:72px 0}
+.team-g{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:24px;align-items:end}
+.team-head{grid-column:1/5;display:block;margin:0}
+.team-head .fx-h{margin-top:20px}
+.team-lead{margin-top:18px;color:var(--muted);font-size:15px;max-width:340px}
+.team{grid-column:5/13;list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;justify-items:center}
+.tm{width:100%;max-width:calc(36vh * .8)}
+.tm-card{display:block;outline:none;border-radius:16px;transition:transform .6s var(--ease)}
+.tm-card:focus-visible{outline:2px solid var(--accent);outline-offset:6px}
+.tm-ph{position:relative;aspect-ratio:4/5;border-radius:14px;overflow:hidden;background:radial-gradient(120% 80% at 50% 0%,#1d2026,#0d0e10 70%);border:1px solid rgba(238,242,246,.12);
+  -webkit-mask-image:radial-gradient(circle at 50% 50%,#000 var(--mr),transparent calc(var(--mr) + 12%));mask-image:radial-gradient(circle at 50% 50%,#000 var(--mr),transparent calc(var(--mr) + 12%))}
+.tm-res .tm-ph{border-style:dashed}
+.tm-sil{position:absolute;left:12%;right:12%;bottom:0;width:76%;height:auto;transition:opacity .6s var(--ease),transform .6s var(--ease);opacity:.85}
+.tm-img{object-fit:cover}
+.tm-duo{transition:opacity .6s var(--ease);filter:url(#tm-duo)}
+.tm-pill{position:absolute;left:10px;top:10px;font-size:10px;padding:4px 8px;border-radius:6px;border:1px solid var(--line2);background:rgba(10,10,11,.6);color:var(--muted)}
+.tm-name{margin-top:14px;font-family:var(--font-display);font-weight:500;font-size:20px;letter-spacing:-.02em;line-height:1.15}
+.tm-role{color:var(--muted);font-size:13.5px;margin-top:2px}
+.tm-bio{font-size:13px;color:var(--dim);margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tm-link{margin-left:6px;color:var(--accent)}
+@media (hover:hover) and (min-width:761px){
+  .tm-bio{opacity:0;transform:translateY(6px);transition:opacity .5s var(--ease),transform .6s var(--ease)}
+  .tm-card:is(:hover,:focus-visible,:focus-within) .tm-bio{opacity:1;transform:none}
+  .tm-card:is(:hover,:focus-visible,:focus-within){transform:perspective(900px) rotateY(var(--tilt)) rotateX(2deg)}
+  .tm-card:is(:hover,:focus-visible,:focus-within) .tm-duo{opacity:0}
+  .tm-card:is(:hover,:focus-visible,:focus-within) .tm-sil{opacity:1;transform:translateY(-3px)}
+}
+
+/* ================= ACTO 5 — cómo trabajamos ================= */
+.steps-sec{padding:64px 0 72px;border-top:1px solid var(--line)}
+.steps-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:12px 28px;margin-bottom:28px}
+.steps-head .fx-h{font-size:clamp(26px,2.4vw,36px)}
+.steps-more{margin-left:auto;font-size:14.5px;color:var(--fg);border-bottom:1px solid var(--line2);padding-bottom:3px;transition:border-color .4s var(--ease),color .4s}
+.steps-more span{display:inline-block;transition:transform .5s var(--ease)}
+.steps-more:is(:hover,:focus-visible){border-color:var(--accent);color:var(--accent)}
+.steps-more:is(:hover,:focus-visible) span{transform:translateX(4px)}
+.steps-w{position:relative}
+.steps-rail{position:absolute;left:0;right:0;top:6px;height:1px;background:var(--line)}
+.steps-rail b{position:absolute;inset:0;background:linear-gradient(90deg,var(--accent),rgba(var(--accent-rgb),.25));transform-origin:left}
+.steps{list-style:none;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:16px;position:relative}
+.stp{display:grid;gap:4px;padding-top:28px;position:relative}
+.stp-node{position:absolute;top:0;left:0;width:13px;height:13px;border-radius:50%;background:var(--accent);border:1px solid var(--accent);box-shadow:0 0 0 5px rgba(var(--accent-rgb),.12);transition:background .5s,border-color .5s,box-shadow .5s}
+.steps.js .stp:not(.on) .stp-node{background:var(--bg);border-color:var(--line2);box-shadow:none}
+.stp-n{color:var(--dim);font-size:11px}
+.stp-t{font-family:var(--font-display);font-weight:500;font-size:19px;letter-spacing:-.02em}
+.stp-w{color:var(--muted);font-size:11px}
+
+.map-credit{font-size:10.5px;letter-spacing:.04em;text-transform:none;color:var(--dim);padding:14px 0;border-top:1px solid var(--line)}
+.map-credit .wrap{display:block}
+
+/* ================= responsive ================= */
+@media (min-width:1025px) and (max-height:760px){
+  .fhero{padding:120px 0 64px}
+  .mono-sec,.team-sec{padding:48px 0}
+  .steps-sec{padding:44px 0 52px}
+  .forge .fx-head{margin-bottom:22px}
+}
+@media (max-width:1024px){
+  .team-head{grid-column:1/-1;margin-bottom:28px}
+  .team{grid-column:1/-1}
+  .tm{max-width:none}
+  .steps{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:24px}
+  .steps-rail{display:none}
+}
+@media (max-width:760px){
+  .fhero{padding:120px 0 56px}
+  .fh-map{top:76px;bottom:auto;height:calc(100svh - 100px);right:16px;width:calc((100svh - 100px) * .186);opacity:.75}
+  .fh-clock{top:92px;left:20px;right:auto}
+  .cmap path:not([data-lo]){display:none}
+  .mf{padding:64px 0}
+  .mf-eb{margin-bottom:24px}
+  .mf .mf-side{margin-top:28px}
+  .team{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;margin:0 -20px;padding:0 20px 6px;scrollbar-width:none;justify-items:stretch}
+  .team::-webkit-scrollbar{display:none}
+  .tm{flex:0 0 64vw;scroll-snap-align:start}
+  .team-sec,.mono-sec{padding:56px 0}
+  .steps-sec{padding:52px 0 56px}
+  .steps-head{margin-bottom:20px}
+  .steps{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:14px;column-gap:12px}
+  .stp{padding:0 0 0 22px;gap:1px}
+  .stp-node{top:4px;width:11px;height:11px}
+  .stp-n{display:none}
+  .steps-more{margin-left:0}
+  .stp-t{font-size:16px;line-height:1.2}
+}
+
+/* ================= movimiento reducido / captura ================= */
+html.rm .fh-title .fw,html.capture .fh-title .fw{animation:none}
+html.rm .mono-p,html.capture .mono-p{transform:none;aspect-ratio:auto;min-height:260px}
+html.rm .mono-t,html.rm .mono-d,html.capture .mono-t,html.capture .mono-d{opacity:1;transform:none}
+html.rm .monos .mono-li .mono-p,html.capture .monos .mono-li .mono-p{opacity:1}
+html.rm .tm-card,html.capture .tm-card{transform:none!important}
+html.rm .tm-bio,html.capture .tm-bio{opacity:1;transform:none}
+html.rm .tm-duo,html.capture .tm-duo{opacity:1!important}
+
+/* apertura: el lead nunca se cruza con el mapa de Chile (desktop) */
+@media (min-width:1025px){
+  .fhero .ph-l{grid-column:1/8}
+  .fhero .ph-r{grid-column:8/13;margin-right:calc((100svh - 108px) * .186 + 40px);max-width:400px}
+}
+@media (max-width:760px){ .fh-map{opacity:.42} }

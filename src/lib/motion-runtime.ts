@@ -244,6 +244,9 @@ export function startRoute(root: HTMLElement): () => void {
     document.fonts.ready.then(() => {
       if (!alive) return;
       split(true);
+      // /nosotros "Forjado en el sur": módulo propio, cargado solo en esa ruta
+      const forge = root.querySelector<HTMLElement>('.forge');
+      if (forge) import('@/lib/nosotros-motion').then((m) => { if (alive) off.push(m.startNosotros(forge, { STATIC, animateHero })); });
       if (ric) ric(rest, { timeout: 300 }); else window.setTimeout(rest, 60);
     });
     const onLoad = () => ScrollTrigger.refresh();
