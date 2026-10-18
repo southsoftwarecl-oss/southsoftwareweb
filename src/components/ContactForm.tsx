@@ -11,6 +11,7 @@ import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { BUDGETS, PROJECT_TYPES } from '@/content/site';
 import { validateContact } from '@/lib/contact-rules';
+import { trackLead } from '@/lib/analytics';
 
 // Mensajes animados (Framer Motion) cargados solo cuando hacen falta
 const FormFeedback = dynamic(() => import('./FormFeedback'), { ssr: false });
@@ -73,7 +74,7 @@ export default function ContactForm() {
     try {
       const res = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       const data = (await res.json().catch(() => ({}))) as { ok?: boolean; demo?: boolean; error?: string; fields?: Partial<Record<Field, string>> };
-      if (res.ok && data.ok) { setDemo(!!data.demo); setStatus('done'); return; }
+      if (res.ok && data.ok) { setDemo(!!data.demo); setStatus('done'); trackLead('home'); return; }
       if (data.fields) setErrors(data.fields);
       setServerMsg(data.error || 'No pudimos enviar tu mensaje. Intenta de nuevo o escríbenos por WhatsApp.');
       setStatus('error');
