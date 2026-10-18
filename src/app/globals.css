@@ -487,10 +487,25 @@ body.cursor-lens .cursor{opacity:0!important}
  .svc-teaser{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;background:none;border:0;border-radius:0;margin:0 -20px;padding:0 20px;scrollbar-width:none}
  .svc-teaser::-webkit-scrollbar{display:none}
  .svc-teaser .item{flex:0 0 82%;scroll-snap-align:start;border:1px solid var(--line);border-radius:var(--radius);min-height:300px}
- .cases-feat{grid-template-columns:1fr;gap:48px}
+ /* proyectos destacados: mismo carrusel con scroll-snap que servicios */
+ .cases-feat{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:16px;margin:0 -20px;padding:0 20px;scrollbar-width:none}
+ .cases-feat::-webkit-scrollbar{display:none}
+ .cases-feat .case-sm{flex:0 0 84%;scroll-snap-align:start}
  .strip-p{grid-template-columns:1fr}
+ /* CTA final: orbe junto al párrafo para no apilar 170px extra */
+ .final{padding:56px 0}
+ .final .g12{row-gap:28px}
+ .final h2{font-size:clamp(40px,11.5vw,64px)}
+ .final .l p{margin-top:20px}
+ .final .l{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:20px;align-items:center}
+ .final .l>*{grid-column:1/-1}
+ .final .l>p{grid-column:1}
+ .final .l>.orb{grid-column:2;margin-top:16px;width:112px;height:112px;font-size:13px}
+ .final .l>.orb::after{inset:-8px}
  .see-all,.strip-cta{justify-content:flex-start}
 }
+/* viewports bajos de escritorio: ritmo algo más corto para que ninguna sección pase de 1.4vh */
+@media (min-width:1025px) and (max-height:760px){.sec,.final{padding:96px 0}}
 /* CTA final compacto (desktop): titular a 2–3 líneas y orbe junto al párrafo */
 @media (min-width:1025px){
  .final h2{font-size:clamp(56px,7vw,112px)}
