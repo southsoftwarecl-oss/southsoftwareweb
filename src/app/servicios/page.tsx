@@ -16,7 +16,7 @@ import './servicios.css';
 
 export const metadata = pageMeta({
   title: 'Servicios',
-  description: 'Software a medida, software de escritorio, sitios web, apps móviles, seguridad informática y ciencia de datos. Desarrollo de software para todo Chile.',
+  description: 'Software a medida, software de escritorio, sitios web, apps móviles, seguridad informática y ciencia de datos. Desarrollo para empresas de todo Chile.',
   path: '/servicios',
 });
 
