@@ -4,6 +4,7 @@ import Logo from './Logo';
 import { BRAND, SERVICES } from '@/content/site';
 import { GA_ID } from '@/lib/analytics';
 import CookiePrefsLink from './CookiePrefsLink';
+import InstagramLink from './InstagramLink';
 
 export default function Footer() {
   return (
@@ -37,6 +38,7 @@ export default function Footer() {
               <li>Por videollamada o en persona</li>
               <li><a href={`mailto:${BRAND.email}`}>{BRAND.email}</a></li>
               <li><a href={`tel:${BRAND.phoneE164}`}>{BRAND.phone}</a></li>
+              <li><InstagramLink /></li>
             </ul>
           </div>
         </div>

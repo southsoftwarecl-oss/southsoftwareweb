@@ -36,8 +36,8 @@ function Slot({ v, w, discrete, enter }: { v: string; w: number; discrete?: bool
   return <span className="slot"><span className="sv" ref={ref}>{v}</span></span>;
 }
 
-export default function BriefCard({ d, enter, sealed, demo, cardRef }: {
-  d: BriefData; enter: Enter | null; sealed: boolean; demo: boolean; cardRef?: React.Ref<HTMLDivElement>;
+export default function BriefCard({ d, enter, sealed, cardRef }: {
+  d: BriefData; enter: Enter | null; sealed: boolean; cardRef?: React.Ref<HTMLDivElement>;
 }) {
   const filled = [d.nombre.trim(), d.empresa.trim(), d.tipo, d.presupuesto, d.mensaje.trim()].filter(Boolean).length;
   const [pre, bv] = budgetClause(d.presupuesto);
@@ -49,7 +49,7 @@ export default function BriefCard({ d, enter, sealed, demo, cardRef }: {
         {sealed ? (
           <div className="bc-ok" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path pathLength={1} d="M20 6 9 17l-5-5" /></svg>
-            <p><b>Recibido ✓</b><span>Respondemos dentro de 24 horas hábiles.</span>{demo && <small>Modo demo: validado, no enviado.</small>}</p>
+            <p><b>Recibido ✓</b><span>Respondemos dentro de 24 horas hábiles.</span></p>
           </div>
         ) : (
           <p className="bc-text">

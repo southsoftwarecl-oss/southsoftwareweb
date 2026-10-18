@@ -27,6 +27,7 @@ export const orgJsonLd = {
   address: { '@type': 'PostalAddress', addressCountry: 'CL' },
   areaServed: { '@type': 'Country', name: 'Chile' },
   knowsAbout: SERVICES.map((s) => s.title),
+  sameAs: [BRAND.instagram.url],
 };
 
 /** Convierte "$349.990" o "desde $1.490.000" a número CLP. */

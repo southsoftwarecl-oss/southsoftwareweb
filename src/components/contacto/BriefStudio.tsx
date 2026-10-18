@@ -13,7 +13,7 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { BRAND, BUDGETS, PROJECT_TYPES, WHATSAPP_NUMBER } from '@/content/site';
 import { TYPE_GUIDE, TYPE_ICON, packsFor, type Budget, type ProjectType } from '@/content/contacto';
-import { validateContact } from '@/lib/contact-rules';
+import { CONTACT_MIN_MS, validateContact } from '@/lib/contact-rules';
 import { trackLead } from '@/lib/analytics';
 import { AIcon } from '@/components/ui';
 import BriefCard, { briefText, type BriefData } from './BriefCard';
@@ -40,7 +40,7 @@ export default function BriefStudio({ head }: { head: ReactNode }) {
   const [errors, setErrors] = useState<Partial<Record<Field, string>>>({});
   const [status, setStatus] = useState<Status>('idle');
   const [serverMsg, setServerMsg] = useState('');
-  const [demo, setDemo] = useState(false);
+  const shownAt = useRef(0);
   const [summary, setSummary] = useState('');
   const [mobOpen, setMobOpen] = useState(false);
   const [mo, setMo] = useState<Motion | null>(null);
@@ -68,6 +68,9 @@ export default function BriefStudio({ head }: { head: ReactNode }) {
     formRef.current?.reset();
     setD(EMPTY); setStatus('idle'); setErrors({}); setServerMsg(''); setSummary('');
   }, []);
+
+  // Momento en que se mostró el formulario (para el tiempo mínimo de envío)
+  useEffect(() => { shownAt.current = performance.now(); }, []);
 
   // Turnstile (opcional)
   useEffect(() => {
@@ -141,11 +144,12 @@ export default function BriefStudio({ head }: { head: ReactNode }) {
     }
     setErrors({}); setStatus('loading'); setServerMsg('');
     const m = await loadMotion().catch(() => null);
+    const wait = CONTACT_MIN_MS + 200 - (performance.now() - shownAt.current);
+    if (wait > 0) await new Promise((r) => setTimeout(r, wait));
     try {
-      const res = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-      const data = (await res.json().catch(() => ({}))) as { ok?: boolean; demo?: boolean; error?: string; fields?: Partial<Record<Field, string>> };
+      const res = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...payload, t: Math.round(performance.now() - shownAt.current) }) });
+      const data = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string; fields?: Partial<Record<Field, string>> };
       if (res.ok && data.ok) {
-        setDemo(!!data.demo);
         trackLead('contacto');
         const card = [deskCard.current, mobOpen ? mobCard.current : null].find((c) => c && c.offsetParent !== null);
         if (m && card && !m.reduced()) { setStatus('sealing'); await m.seal(card); }
@@ -175,7 +179,7 @@ export default function BriefStudio({ head }: { head: ReactNode }) {
   const sealed = status === 'done';
   const packs = d.tipo ? packsFor(d.tipo) : null;
   const waHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(briefText(d))}`;
-  const card = (ref: React.Ref<HTMLDivElement>) => <BriefCard d={d} enter={mo ? enter : null} sealed={sealed} demo={demo} cardRef={ref} />;
+  const card = (ref: React.Ref<HTMLDivElement>) => <BriefCard d={d} enter={mo ? enter : null} sealed={sealed} cardRef={ref} />;
 
   return (
     <>
@@ -250,11 +254,10 @@ export default function BriefStudio({ head }: { head: ReactNode }) {
           {sealed && <>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
             <span><b>Recibido ✓</b> Respondemos dentro de 24 horas hábiles.
-              {demo && <small className="demo"> Modo demo: el mensaje fue validado pero no enviado (falta configurar RESEND_API_KEY).</small>}
               <span className="sr-only"> {summary}</span></span>
           </>}
         </div>
-        {status === 'error' && <FormFeedback status={status} serverMsg={serverMsg} demo={demo} />}
+        {status === 'error' && <FormFeedback status={status} serverMsg={serverMsg} waHref={waHref} />}
         <p className="note">Respondemos dentro de 24 horas hábiles. Usamos tus datos solo para responder tu solicitud.</p>
       </form>
     </>

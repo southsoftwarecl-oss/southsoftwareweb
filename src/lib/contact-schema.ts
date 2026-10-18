@@ -22,6 +22,8 @@ export const contactSchema = z.object({
   mensaje: clean(4000).optional().default(''),
   /** honeypot: debe venir vacío */
   website: z.string().max(0).optional().default(''),
+  /** ms desde que se mostró el formulario (lo mide el navegador); el servidor exige CONTACT_MIN_MS */
+  t: z.number().finite().nonnegative().max(1e10).optional().default(0),
   /** token de Cloudflare Turnstile (solo si está configurado) */
   turnstileToken: z.string().max(2048).optional().default(''),
 });

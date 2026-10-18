@@ -1,6 +1,32 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 
-const valid = { nombre: 'Prueba E2E', empresa: 'Test SpA', email: 'prueba@example.com', tipo: 'Sitio web', presupuesto: 'Aún no lo sé', mensaje: 'Hola', website: '', turnstileToken: '' };
+/**
+ * Formulario de contacto → /api/contact → Resend (REST).
+ * - baseURL: CONTACT_DRY_RUN=1 → la ruta arma el correo y responde { ok, dryRun } sin llamar a Resend.
+ * - NOKEY_BASE (servidor GA, sin RESEND_API_KEY ni dry-run): error 503 + alternativas WhatsApp/email.
+ */
+const PORT = Number(process.env.E2E_PORT || 3300);
+const NOKEY_BASE = `http://localhost:${Number(process.env.E2E_GA_PORT || PORT + 1)}`;
+const valid = { nombre: 'Prueba E2E', empresa: 'Test SpA', email: 'prueba@example.com', tipo: 'Sitio web', presupuesto: 'Aún no lo sé', mensaje: 'Hola', website: '', turnstileToken: '', t: 5000 };
+
+/** Cuenta los eventos de lead (trackLead → 'south:lead') que emite la página. */
+async function countLeads(page: Page) {
+  await page.addInitScript(() => {
+    const w = window as unknown as { __leads: string[] };
+    w.__leads = [];
+    window.addEventListener('south:lead', (e) => w.__leads.push(String((e as CustomEvent).detail?.form)));
+  });
+  return () => page.evaluate(() => (window as unknown as { __leads: string[] }).__leads);
+}
+
+async function fillBrief(page: Page) {
+  await page.getByLabel('Nombre').fill('Prueba E2E');
+  await page.getByLabel('Empresa').fill('Test SpA');
+  await page.getByLabel('Email', { exact: true }).fill('prueba@example.com');
+  await page.getByRole('radio', { name: 'Software a medida' }).check();
+  await page.getByRole('radio', { name: 'Aún no lo sé' }).check();
+  await page.getByLabel('Cuéntanos tu idea').fill('Necesito un sistema de inventario.');
+}
 
 test.describe('Formulario de contacto (UI)', () => {
   test('muestra errores por campo y no envía si falta información', async ({ page }) => {
@@ -15,22 +41,70 @@ test.describe('Formulario de contacto (UI)', () => {
     expect(posted).toBe(false);
   });
 
-  test('envío válido → estado de éxito (modo demo sin claves)', async ({ page }) => {
+  test('envío válido → éxito, lead registrado y payload con tiempo mínimo', async ({ page }) => {
+    const leads = await countLeads(page);
     await page.goto('/contacto');
-    await page.getByLabel('Nombre').fill('Prueba E2E');
-    await page.getByLabel('Empresa').fill('Test SpA');
-    await page.getByLabel('Email', { exact: true }).fill('prueba@example.com');
-    await page.getByRole('radio', { name: 'Software a medida' }).check();
-    await page.getByRole('radio', { name: 'Aún no lo sé' }).check();
-    await page.getByLabel('Cuéntanos tu idea').fill('Necesito un sistema de inventario.');
+    await fillBrief(page);
+    const reqP = page.waitForRequest('**/api/contact');
     const resP = page.waitForResponse('**/api/contact');
     await page.getByRole('button', { name: 'Enviar brief' }).click();
+    const body = (await reqP).postDataJSON() as { t: number; website: string };
+    expect(body.t).toBeGreaterThanOrEqual(3000);
+    expect(body.website).toBe('');
     const res = await resP;
     expect(res.status()).toBe(200);
+    expect((await res.json()).ok).toBe(true);
     const ok = page.locator('form.brief .recv');
     await expect(ok).toContainText('Recibido', { timeout: 15000 });
-    await expect(ok).toContainText('Modo demo');
+    await expect(ok).not.toContainText('Modo demo');
     await expect(page.locator('form.brief')).toHaveClass(/done/);
+    expect(await leads()).toEqual(['contacto']);
+  });
+
+  test('error del servidor (Resend caído) → mensaje amable + WhatsApp/email, sin lead', async ({ page }) => {
+    const leads = await countLeads(page);
+    await page.route('**/api/contact', (r) => r.fulfill({ status: 502, contentType: 'application/json', body: JSON.stringify({ ok: false, error: 'No pudimos enviar tu mensaje en este momento. Escríbenos por WhatsApp o a contacto@southsoftware.cl.' }) }));
+    await page.goto('/contacto');
+    await fillBrief(page);
+    await page.getByRole('button', { name: 'Enviar brief' }).click();
+    const ko = page.locator('form.brief .ko');
+    await expect(ko).toContainText('No pudimos enviar tu mensaje', { timeout: 15000 });
+    await expect(ko.getByRole('link', { name: 'WhatsApp' })).toHaveAttribute('href', /^https:\/\/wa\.me\/56964710361\?text=/);
+    await expect(ko.getByRole('link', { name: 'contacto@southsoftware.cl' })).toHaveAttribute('href', 'mailto:contacto@southsoftware.cl');
+    await expect(page.locator('form.brief')).not.toHaveClass(/done/);
+    await expect(page.getByRole('button', { name: 'Enviar brief' })).toBeEnabled();
+    // las alternativas de siempre siguen ahí
+    await expect(page.getByRole('link', { name: 'Enviar por WhatsApp' })).toHaveAttribute('href', /^https:\/\/wa\.me\/56964710361\?text=/);
+    await expect(page.locator('form.brief')).toHaveAttribute('action', 'mailto:contacto@southsoftware.cl');
+    expect(await leads()).toEqual([]);
+  });
+
+  test('home: envío válido → éxito; error → alternativas', async ({ page }) => {
+    const leads = await countLeads(page);
+    await page.goto('/');
+    const form = page.locator('form.brief').first();
+    await form.scrollIntoViewIfNeeded();
+    await form.getByLabel('Nombre').fill('Prueba E2E');
+    await form.getByLabel('Email', { exact: true }).fill('prueba@example.com');
+    await form.getByLabel('Tipo de proyecto').selectOption('Sitio web');
+    const resP = page.waitForResponse('**/api/contact');
+    await form.getByRole('button', { name: 'Enviar brief' }).click();
+    expect((await resP).status()).toBe(200);
+    await expect(form.locator('.ok')).toContainText('¡Listo!', { timeout: 15000 });
+    expect(await leads()).toEqual(['home']);
+
+    await page.route('**/api/contact', (r) => r.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ ok: false, error: 'No pudimos enviar tu mensaje en este momento.' }) }));
+    await page.reload();
+    const f2 = page.locator('form.brief').first();
+    await f2.scrollIntoViewIfNeeded();
+    await f2.getByLabel('Nombre').fill('Prueba E2E');
+    await f2.getByLabel('Email', { exact: true }).fill('prueba@example.com');
+    await f2.getByLabel('Tipo de proyecto').selectOption('Sitio web');
+    await f2.getByRole('button', { name: 'Enviar brief' }).click();
+    await expect(f2.locator('.ko')).toContainText('No pudimos enviar', { timeout: 15000 });
+    await expect(f2.locator('.ko').getByRole('link', { name: 'WhatsApp' })).toHaveAttribute('href', /^https:\/\/wa\.me\/56964710361/);
+    await expect(f2.locator('.ko').getByRole('link', { name: 'contacto@southsoftware.cl' })).toBeVisible();
+    expect(await leads()).toEqual([]);
   });
 
   test('email inválido marca solo ese campo', async ({ page }) => {
@@ -45,23 +119,62 @@ test.describe('Formulario de contacto (UI)', () => {
 });
 
 test.describe('API /api/contact (validación en servidor)', () => {
-  test('payload válido → 200 demo', async ({ request }) => {
+  test('payload válido → 200 y correo armado (dry-run): from, to, reply_to', async ({ request }) => {
     const r = await request.post('/api/contact', { data: valid });
     expect(r.status()).toBe(200);
-    expect(await r.json()).toEqual({ ok: true, demo: true });
+    const j = await r.json();
+    expect(j.ok).toBe(true);
+    expect(j.dryRun).toMatchObject({ from: 'South Software <formulario@southsoftware.cl>', to: ['contacto@southsoftware.cl'], reply_to: 'prueba@example.com', subject: 'Brief: Sitio web — Prueba E2E' });
+    expect(j.dryRun.text).toContain('Empresa: Test SpA');
+  });
+
+  test('HTML escapado y asunto en una línea', async ({ request }) => {
+    const r = await request.post('/api/contact', { data: { ...valid, nombre: '<b>Ana</b>\nX', mensaje: '<script>alert(1)</script>\n"hola" & chao' } });
+    expect(r.status()).toBe(200);
+    const { dryRun } = await r.json();
+    expect(dryRun.html).not.toContain('<script>');
+    expect(dryRun.html).toContain('&lt;script&gt;alert(1)&lt;/script&gt;<br>&quot;hola&quot; &amp; chao');
+    expect(dryRun.html).toContain('&lt;b&gt;Ana&lt;/b&gt;');
+    expect(dryRun.subject).not.toMatch(/[\r\n]/);
+    expect(dryRun.text).toContain('<script>alert(1)</script>');
   });
 
   test('payload inválido → 422 con errores por campo', async ({ request }) => {
     const r = await request.post('/api/contact', { data: { ...valid, email: 'no-es-email', tipo: 'Hackeo', nombre: '' } });
     expect(r.status()).toBe(422);
     const j = await r.json();
+    expect(j.ok).toBe(false);
     expect(Object.keys(j.fields).sort()).toEqual(['email', 'nombre', 'tipo']);
+  });
+
+  test('largos máximos → 422', async ({ request }) => {
+    const r = await request.post('/api/contact', { data: { ...valid, nombre: 'a'.repeat(81), empresa: 'b'.repeat(121), mensaje: 'c'.repeat(4001) } });
+    expect(r.status()).toBe(422);
+    expect(Object.keys((await r.json()).fields).sort()).toEqual(['empresa', 'mensaje', 'nombre']);
   });
 
   test('honeypot lleno → 200 silencioso sin envío', async ({ request }) => {
     const r = await request.post('/api/contact', { data: { ...valid, website: 'http://spam.example' } });
     expect(r.status()).toBe(200);
     expect(await r.json()).toEqual({ ok: true });
+  });
+
+  test('envío demasiado rápido (o sin tiempo) → 400', async ({ request }) => {
+    for (const t of [200, undefined]) {
+      const r = await request.post('/api/contact', { data: { ...valid, t } });
+      expect(r.status()).toBe(400);
+      expect(await r.json()).toMatchObject({ ok: false, error: expect.stringContaining('demasiado rápido') });
+    }
+  });
+
+  test('sin RESEND_API_KEY → 503 con mensaje amable y alternativas', async ({ request }) => {
+    const r = await request.post(`${NOKEY_BASE}/api/contact`, { data: valid });
+    expect(r.status()).toBe(503);
+    const j = await r.json();
+    expect(j.ok).toBe(false);
+    expect(j.error).toContain('WhatsApp');
+    expect(j.error).toContain('contacto@southsoftware.cl');
+    expect(j.dryRun).toBeUndefined();
   });
 
   test('content-type no JSON → 415', async ({ request }) => {
@@ -82,5 +195,29 @@ test.describe('API /api/contact (validación en servidor)', () => {
   test('GET no permitido → 405', async ({ request }) => {
     const r = await request.get('/api/contact');
     expect(r.status()).toBe(405);
+  });
+});
+
+test.describe('Instagram oficial (@southsoftwarecl)', () => {
+  const IG = 'https://www.instagram.com/southsoftwarecl';
+  test('footer, /contacto y JSON-LD sameAs; sin otras redes', async ({ page }) => {
+    for (const path of ['/', '/contacto']) {
+      await page.goto(path);
+      const ft = page.locator('footer').getByRole('link', { name: 'Instagram de South Software (@southsoftwarecl)' });
+      await expect(ft).toHaveAttribute('href', IG);
+      await expect(ft).toHaveAttribute('target', '_blank');
+      await expect(ft).toHaveAttribute('rel', 'me noopener');
+      await expect(ft.locator('svg')).toHaveCount(1);
+      // ninguna otra red social (perfiles inexistentes)
+      const social = await page.locator('a[href*="instagram.com"], a[href*="facebook.com"], a[href*="linkedin.com"], a[href*="twitter.com"], a[href*="x.com/"], a[href*="tiktok.com"], a[href*="youtube.com"]').evaluateAll((as) => as.map((a) => (a as HTMLAnchorElement).href));
+      expect(social.every((h) => h === IG)).toBe(true);
+      const ld = await page.locator('script[type="application/ld+json"]').allTextContents();
+      const org = ld.map((t) => JSON.parse(t)).find((j) => j['@id']?.endsWith('/#org'));
+      expect(org?.sameAs).toEqual([IG]);
+    }
+    const ch = page.locator('.channels').getByRole('link', { name: 'Instagram de South Software (@southsoftwarecl)' });
+    await expect(ch).toHaveAttribute('href', IG);
+    await expect(ch).toHaveAttribute('rel', 'me noopener');
+    await expect(ch).toBeVisible();
   });
 });

@@ -3,7 +3,7 @@ import { PACKS } from '../src/content/site';
 
 /**
  * /contacto "brief conversacional": alturas, título, chips/presupuesto, tarjeta del brief,
- * packs de referencia (precios EXACTOS de PACKS), envío demo, copiar email, WhatsApp con número real,
+ * packs de referencia (precios EXACTOS de PACKS), envío (dry-run), copiar email, WhatsApp con número real,
  * sin cursor personalizado / violeta, reduced motion y fallback sin JS.
  */
 const errorsOf = (page: Page) => {
@@ -71,7 +71,7 @@ test.describe('contacto · desktop 1440×900', () => {
     await expect(ref.getByRole('link', { name: /Ver packs/ })).toHaveAttribute('href', '/packs');
   });
 
-  test('envío demo → sello y "Recibido ✓" con 24 horas hábiles', async ({ page }) => {
+  test('envío → sello y "Recibido ✓" con 24 horas hábiles', async ({ page }) => {
     await page.goto('/contacto');
     await page.waitForFunction(() => !!(window as unknown as { __contactMotion?: unknown }).__contactMotion, null, { timeout: 10000 });
     await page.getByLabel('Nombre').fill('Prueba E2E');
@@ -81,7 +81,7 @@ test.describe('contacto · desktop 1440×900', () => {
     const ok = page.locator('form.brief .recv');
     await expect(ok).toContainText('Recibido ✓', { timeout: 15000 });
     await expect(ok).toContainText('24 horas hábiles');
-    await expect(ok).toContainText('Modo demo');
+    await expect(ok).not.toContainText('Modo demo');
     await expect(ok).toContainText('Resumen de tu brief: Hola, soy Prueba E2E.');
     await expect(brief(page)).toContainText('Recibido ✓');
   });
@@ -107,7 +107,7 @@ test.describe('contacto · desktop 1440×900', () => {
   test('WhatsApp real: "Enviar por WhatsApp" visible, número y canal activos', async ({ page }) => {
     await page.goto('/contacto');
     await expect(page.getByRole('link', { name: 'Enviar por WhatsApp' })).toHaveAttribute('href', /^https:\/\/wa\.me\/56964710361\?text=/);
-    await expect(page.locator('.channels .ch-btn')).toHaveAttribute('href', /^https:\/\/wa\.me\/56964710361\?text=/);
+    await expect(page.locator('.channels .ch-row .ch-btn')).toHaveAttribute('href', /^https:\/\/wa\.me\/56964710361\?text=/);
     await expect(page.locator('.channels a[href="tel:+56964710361"]')).toHaveText('+56 9 6471 0361');
     await expect(page.locator('.channels .ph')).toHaveCount(0);
     expect(await page.locator('body').innerText()).not.toMatch(/XXXX|por definir\)|Número por definir/);

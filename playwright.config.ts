@@ -9,7 +9,11 @@ const PORT = Number(process.env.E2E_PORT || 3300);
 const GA_PORT = Number(process.env.E2E_GA_PORT || PORT + 1);
 const GA_TEST_ID = 'G-TEST000000';
 const GSC_TEST_TOKEN = 'gsc-test-token';
-const SERVER_ENV = { CONTACT_RATE_LIMIT: '1000', RESEND_API_KEY: '', CONTACT_TO_EMAIL: '', TURNSTILE_SECRET_KEY: '' };
+/**
+ * Formulario: nunca se llama a Resend en tests. Servidor principal con CONTACT_DRY_RUN=1 (arma el correo y responde ok);
+ * el servidor GA corre SIN clave ni dry-run para probar el error "falta RESEND_API_KEY" (503 + alternativas).
+ */
+const SERVER_ENV = { CONTACT_RATE_LIMIT: '1000', RESEND_API_KEY: '', CONTACT_TO_EMAIL: '', TURNSTILE_SECRET_KEY: '', CONTACT_DRY_RUN: '' };
 const executablePath = process.env.CHROME_PATH || (process.platform === 'linux' ? '/usr/bin/google-chrome' : undefined);
 
 export default defineConfig({
@@ -34,8 +38,8 @@ export default defineConfig({
       url: `http://localhost:${PORT}`,
       reuseExistingServer: false,
       timeout: 60_000,
-      // Sin RESEND_API_KEY → el formulario corre en modo demo
-      env: SERVER_ENV,
+      // Resend simulado en la ruta (CONTACT_DRY_RUN=1): valida y responde ok sin enviar
+      env: { ...SERVER_ENV, CONTACT_DRY_RUN: '1' },
     },
     {
       // Build con NEXT_PUBLIC_GA_ID de prueba en .next-ga: se (re)construye solo si falta o es más viejo que .next

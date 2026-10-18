@@ -5,12 +5,13 @@
  * - Validación inmediata en el cliente (lib/contact-rules) + validación real en el servidor (zod).
  * - Honeypot anti-spam ("website") y Cloudflare Turnstile opcional
  *   (se activa solo si existe NEXT_PUBLIC_TURNSTILE_SITE_KEY).
- * - Sin claves: el servidor responde en modo demo (no envía correo).
+ * - Tiempo mínimo antes de enviar (CONTACT_MIN_MS): si el envío es muy rápido, se espera lo que falta.
+ * - Si el servidor no puede enviar (sin RESEND_API_KEY o Resend falla) se muestra el error con WhatsApp/email.
  */
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { BUDGETS, PROJECT_TYPES } from '@/content/site';
-import { validateContact } from '@/lib/contact-rules';
+import { BUDGETS, PROJECT_TYPES, WA_URL } from '@/content/site';
+import { CONTACT_MIN_MS, validateContact } from '@/lib/contact-rules';
 import { trackLead } from '@/lib/analytics';
 
 // Mensajes animados (Framer Motion) cargados solo cuando hacen falta
@@ -30,7 +31,7 @@ export default function ContactForm() {
   const [errors, setErrors] = useState<Partial<Record<Field, string>>>({});
   const [status, setStatus] = useState<Status>('idle');
   const [serverMsg, setServerMsg] = useState('');
-  const [demo, setDemo] = useState(false);
+  const shownAt = useRef(0);
   const tsRef = useRef<HTMLDivElement>(null);
   const tsToken = useRef('');
   const formRef = useRef<HTMLFormElement>(null);
@@ -41,6 +42,9 @@ export default function ContactForm() {
     if (formRef.current) formRef.current.reset();
     setStatus('idle'); setErrors({}); setServerMsg('');
   }, []);
+
+  // Momento en que se mostró el formulario (para el tiempo mínimo de envío)
+  useEffect(() => { shownAt.current = performance.now(); }, []);
 
   // Turnstile (opcional)
   useEffect(() => {
@@ -71,10 +75,12 @@ export default function ContactForm() {
       return;
     }
     setErrors({}); setStatus('loading'); setServerMsg('');
+    const wait = CONTACT_MIN_MS + 200 - (performance.now() - shownAt.current);
+    if (wait > 0) await new Promise((r) => setTimeout(r, wait));
     try {
-      const res = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-      const data = (await res.json().catch(() => ({}))) as { ok?: boolean; demo?: boolean; error?: string; fields?: Partial<Record<Field, string>> };
-      if (res.ok && data.ok) { setDemo(!!data.demo); setStatus('done'); trackLead('home'); return; }
+      const res = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...payload, t: Math.round(performance.now() - shownAt.current) }) });
+      const data = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string; fields?: Partial<Record<Field, string>> };
+      if (res.ok && data.ok) { setStatus('done'); trackLead('home'); return; }
       if (data.fields) setErrors(data.fields);
       setServerMsg(data.error || 'No pudimos enviar tu mensaje. Intenta de nuevo o escríbenos por WhatsApp.');
       setStatus('error');
@@ -109,7 +115,7 @@ export default function ContactForm() {
         <span className="t"><span>Enviar brief</span><span aria-hidden="true">Enviar brief</span></span><i className="spin" aria-hidden="true" />
         <span className="sr-only" aria-live="polite">{status === 'loading' ? 'Enviando…' : ''}</span>
       </button>
-      {(status === 'done' || status === 'error') && <FormFeedback status={status} serverMsg={serverMsg} demo={demo} />}
+      {(status === 'done' || status === 'error') && <FormFeedback status={status} serverMsg={serverMsg} waHref={WA_URL} />}
       <p className="note">Respondemos dentro de 24 horas hábiles. Usamos tus datos solo para responder tu solicitud.</p>
     </form>
   );

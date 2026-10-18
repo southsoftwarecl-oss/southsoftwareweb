@@ -5,6 +5,7 @@
 import Page from '@/components/Page';
 import BriefStudio from '@/components/contacto/BriefStudio';
 import CopyEmail from '@/components/contacto/CopyEmail';
+import InstagramLink from '@/components/InstagramLink';
 import LiquidPool from '@/components/contacto/LiquidPool';
 import ChileClock from '@/components/contacto/ChileClock';
 import { ArrowIcon } from '@/components/ui';
@@ -43,7 +44,7 @@ export default function Contacto() {
               <span className="mono">Email</span>
               <h2 className="h4"><a className="arw" href={`mailto:${BRAND.email}`}>{BRAND.email} <i aria-hidden="true">→</i></a></h2>
               <p>Respondemos dentro de 24 horas hábiles.</p>
-              <CopyEmail email={BRAND.email} />
+              <div className="ch-acts"><CopyEmail email={BRAND.email} /><InstagramLink className="ch-btn" /></div>
             </div>
             <div className="w spot ch">
               <span className="mono">WhatsApp</span>

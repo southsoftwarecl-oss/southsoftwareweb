@@ -5,6 +5,9 @@
  */
 import { BUDGETS, PROJECT_TYPES } from '@/content/site';
 
+/** Tiempo mínimo (ms) entre que se muestra el formulario y el envío: los bots envían al instante. */
+export const CONTACT_MIN_MS = 3000;
+
 export type ContactField = 'nombre' | 'empresa' | 'email' | 'tipo' | 'presupuesto' | 'mensaje';
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 

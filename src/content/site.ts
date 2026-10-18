@@ -21,6 +21,8 @@ export const BRAND = {
   phone: '+56 9 6471 0361',
   phoneE164: '+56964710361',
   country: 'Chile',
+  /** Única red social oficial (también en JSON-LD sameAs). No agregar perfiles que no existan. */
+  instagram: { url: 'https://www.instagram.com/southsoftwarecl', handle: '@southsoftwarecl' },
 };
 
 /** Número de WhatsApp (formato internacional sin +). */

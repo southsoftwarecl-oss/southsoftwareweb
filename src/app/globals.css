@@ -205,6 +205,7 @@ footer{border-top:1px solid var(--line);padding:72px 0 0;overflow:hidden;positio
 .ft .col{grid-column:span 2}.ft .col:nth-of-type(2){grid-column:7/9}
 .ft h5,.ft .h5{font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);font-weight:400;margin-bottom:18px}
 .ft ul{list-style:none;display:grid;gap:10px;font-size:14.5px;color:#c6c9cf}.ft ul a:hover{color:#fff}
+.ig-link{display:inline-flex;align-items:center;gap:7px}.ig-ico{flex:none}
 .giant{margin-top:80px;margin-bottom:56px;user-select:none}
 .giant svg{display:block;width:100%;height:auto;overflow:visible}
 .giant text{font-family:var(--font-logo);fill:url(#giant-chrome)}
@@ -326,7 +327,8 @@ html{overflow-x:clip}
 .hp{position:absolute!important;left:-9999px;width:1px;height:1px;overflow:hidden}
 form.brief{position:relative}
 form.brief .submit:disabled{cursor:default}
-form.brief .ok .demo{display:block;margin-top:4px;color:#86efac;opacity:.8;font-size:12.5px}
+form.brief .ko-alt{display:block;margin-top:8px;font-size:13.5px}
+form.brief .ko-alt a{color:#fff;text-decoration:underline;text-underline-offset:3px}
 form.brief .ko{grid-column:1/-1;padding:14px 16px;border-radius:12px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);color:#fecaca;font-size:14.5px}
 form.brief .ts{min-height:65px}
 
