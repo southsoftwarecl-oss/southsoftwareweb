@@ -24,7 +24,7 @@ export const LOGO_LINES: Lines = [{ text: 'SOUTH', size: 210, y: 140 }, { text: 
 function sampleText(lines: Lines, font: string) {
   const c = document.createElement('canvas'); c.width = 1400; c.height = 420;
   const g = c.getContext('2d', { willReadFrequently: true })!;
-  g.fillStyle = '#fff'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillStyle = 'white'; // máscara de muestreo, no color visible g.textAlign = 'center'; g.textBaseline = 'middle';
   for (const l of lines) { g.font = `400 ${l.size}px ${font}, sans-serif`; g.fillText(l.text, 700, l.y); }
   const d = g.getImageData(0, 0, 1400, 420).data; const pts: [number, number][] = [];
   for (let y = 0; y < 420; y += 3) for (let x = 0; x < 1400; x += 3) if (d[(y * 1400 + x) * 4] > 128) pts.push([(x - 700) / 100, (210 - y) / 100]);
@@ -244,7 +244,7 @@ export default function ParticleScene({ lines = LOGO_LINES, font, tier, tokens }
       dpr={dpr}
       gl={{ antialias: false, powerPreference: 'high-performance', alpha: false, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1, outputColorSpace: THREE.SRGBColorSpace }}
       camera={{ fov: 40, near: 0.1, far: 100, position: [0, 0, 13] }}
-      onCreated={({ gl }) => { gl.setClearColor(0x0a0a0b); gl.domElement.classList.add('gl'); gl.domElement.setAttribute('aria-hidden', 'true'); }}
+      onCreated={({ gl }) => { gl.setClearColor(tokens.bg); gl.domElement.classList.add('gl'); gl.domElement.setAttribute('aria-hidden', 'true'); }}
       aria-hidden
       fallback={<div className="gl-fallback" aria-hidden="true" />}
     >

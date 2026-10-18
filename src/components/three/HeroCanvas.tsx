@@ -28,7 +28,7 @@ function isLowEnd() {
 /** Lee los tokens de color del CSS (:root) para que el 3D no tenga hex propios. */
 function readTokens(): Tokens {
   const cs = getComputedStyle(document.documentElement), v = (k: string) => cs.getPropertyValue(k).trim();
-  return { accent: v('--accent'), deep: v('--accent-deep'), chrome1: v('--chrome-1'), chrome2: v('--chrome-2'), chrome3: v('--chrome-3') };
+  return { bg: v('--bg'), accent: v('--accent'), deep: v('--accent-deep'), chrome1: v('--chrome-1'), chrome2: v('--chrome-2'), chrome3: v('--chrome-3') };
 }
 
 export default function HeroCanvas({ font, lines }: { font: string; lines?: typeof LOGO_LINES }) {

@@ -12,7 +12,7 @@ import { SIM_POS, SIM_VEL } from './shaders/sim';
 import { BLUR_FRAG, COMP_FRAG, DEPTH_FRAG, DROP_FRAG, DROP_VERT, QUAD_VERT, THICK_FRAG } from './shaders/render';
 import type { TierCfg } from './tiers';
 
-export type Tokens = { accent: string; deep: string; chrome1: string; chrome2: string; chrome3: string };
+export type Tokens = { bg: string; accent: string; deep: string; chrome1: string; chrome2: string; chrome3: string };
 export type Bounds = { minX: number; maxX: number; minY: number; maxY: number };
 
 /** Parámetros por frame (los escribe el componente; el motor solo los lee). */
@@ -31,8 +31,8 @@ export function makeMatcap(tk: Tokens) {
   const S = 256, c = document.createElement('canvas'); c.width = c.height = S;
   const g = c.getContext('2d')!;
   const lin = g.createLinearGradient(0, 0, 0, S);
-  lin.addColorStop(0, '#ffffff'); lin.addColorStop(0.24, tk.chrome1); lin.addColorStop(0.47, tk.chrome3);
-  lin.addColorStop(0.55, '#16191e'); lin.addColorStop(0.72, tk.chrome2); lin.addColorStop(1, tk.chrome1);
+  lin.addColorStop(0, 'white'); lin.addColorStop(0.24, tk.chrome1); lin.addColorStop(0.47, tk.chrome3);
+  lin.addColorStop(0.55, tk.bg); // horizonte oscuro = fondo del sitio lin.addColorStop(0.72, tk.chrome2); lin.addColorStop(1, tk.chrome1);
   g.fillStyle = lin; g.fillRect(0, 0, S, S);
   const hl = g.createRadialGradient(S * 0.32, S * 0.28, 0, S * 0.32, S * 0.28, S * 0.3);
   hl.addColorStop(0, 'rgba(255,255,255,.95)'); hl.addColorStop(1, 'rgba(255,255,255,0)');
@@ -217,7 +217,7 @@ export class LiquidEngine {
     const L = this.liquid; if (!L) return;
     // 1) profundidad y 2) espesor de las gotas a media resolución
     const prevAuto = gl.autoClear; gl.getClearColor(this.clear); const prevAlpha = gl.getClearAlpha();
-    gl.setClearColor(0x000000, 0);
+    gl.setClearColor(0, 0); // FBO de datos (profundidad/espesor), no es un color de la paleta
     for (const m of [L.depthMat, L.thickMat]) { m.uniforms.tPos.value = posTex; m.uniforms.uMix.value = f.mix; }
     this.points.material = L.depthMat; gl.setRenderTarget(L.rtA); gl.clear(true, true, false); gl.render(this.points, camera);
     this.points.material = L.thickMat; gl.setRenderTarget(L.rtB); gl.clear(true, false, false); gl.render(this.points, camera);
