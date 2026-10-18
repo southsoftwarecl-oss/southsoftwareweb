@@ -5,7 +5,7 @@
  * "Menú" que abre un overlay a pantalla completa (Framer Motion).
  */
 import Link from 'next/link';
-import Image from 'next/image';
+import Logo from './Logo';
 import { usePathname } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
@@ -35,7 +35,7 @@ export default function Nav() {
     <header className="nav">
       <div className="bar">
         <Link className="logo" href="/" aria-label="South Software, inicio">
-          <Image src="/brand/logo.png" alt="South Software" width={600} height={187} priority sizes="97px" />
+          <Logo />
         </Link>
         <nav aria-label="Principal">
           {NAV.map((l) => (
