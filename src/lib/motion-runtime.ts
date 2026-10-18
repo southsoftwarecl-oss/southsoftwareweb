@@ -14,6 +14,7 @@ import Lenis from 'lenis';
 import { gsap, ScrollTrigger, SplitText, setupGsap } from '@/lib/gsap';
 import { RT, detectModes, initIntro, onIntro } from '@/lib/runtime';
 import { startStory } from '@/lib/story-motion';
+import { startPacks } from '@/lib/packs-motion';
 
 let lenis: Lenis | null = null;
 let routeCount = 0;
@@ -197,6 +198,9 @@ export function startRoute(root: HTMLElement): () => void {
       /* ---- historia v3 "Del commit al cliente" (ver lib/story-motion.ts) ---- */
       const story = root.querySelector<HTMLElement>('.story');
       if (story) off.push(startStory(story, STATIC, () => lenis));
+
+      /* ---- packs v3 "Forja de cromo" (ver lib/packs-motion.ts) ---- */
+      root.querySelectorAll<HTMLElement>('[data-forja]').forEach((g) => off.push(startPacks(g, STATIC)));
 
       /* ---- línea de proceso que se dibuja ---- */
       const tlEl = root.querySelector('.tl');

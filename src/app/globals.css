@@ -150,21 +150,7 @@ section{position:relative}.sec{padding:160px 0}
 .stack .tip{position:absolute;left:50%;bottom:calc(100% - 12px);transform:translate(-50%,8px);width:230px;padding:12px 14px;border-radius:10px;background:#18181b;border:1px solid var(--line2);font-size:13px;line-height:1.45;color:#c8cbd1;opacity:0;pointer-events:none;transition:opacity .4s var(--ease),transform .6s var(--ease);box-shadow:0 20px 40px -10px rgba(0,0,0,.6)}
 .stack .t:hover .tip{opacity:1;transform:translate(-50%,0)}
 /* ===== packs ===== */
-.packs{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-/* La entrada de las tarjetas la anima GSAP sobre `transform`; el hover usa `translate` (propiedad aparte)
-   para que una transición CSS nunca compita con el tween (causaba tarjetas pegadas 50px abajo, encima de .founders). */
-.pack{position:relative;display:flex;flex-direction:column;padding:28px;border-radius:var(--radius);border:1px solid var(--line);background:var(--card);transition:border-color .6s var(--ease),translate .8s var(--ease)}
-.pack:hover{border-color:var(--line2);translate:0 -4px}
-.pack .pn{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.pack .pr{font-family:var(--font-display);font-weight:500;font-size:36px;letter-spacing:-.04em;line-height:1;margin-top:26px;font-variant-numeric:tabular-nums}
-.pack .pr small{display:block;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.08em;color:var(--muted);margin-bottom:10px;font-weight:400;text-transform:uppercase}
-.pack .mo{font-size:14.5px;color:var(--muted);margin-top:8px}.pack .mo b{color:var(--fg);font-weight:500}
-.pack ul{list-style:none;display:grid;gap:9px;margin:24px 0 26px;padding-top:22px;border-top:1px solid var(--line);font-size:14px;color:#b3b7bf;flex:1}
-.pack li{display:grid;grid-template-columns:16px 1fr;gap:8px}
-.pack li::before{content:"";width:10px;height:6px;margin-top:6px;border-left:1.5px solid var(--accent);border-bottom:1.5px solid var(--accent);transform:rotate(-45deg)}
-.pack .btn{--h:42px;font-size:13.5px}
-.pack.feat{border-color:rgba(var(--accent-rgb),.5);background:linear-gradient(180deg,rgba(var(--accent-rgb),.10),rgba(var(--accent-rgb),.01) 60%)}
-.pack .badge{position:absolute;top:24px;right:24px;font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;padding:4px 8px;border-radius:6px;background:rgba(var(--accent-rgb),.15);color:var(--accent);border:1px solid rgba(var(--accent-rgb),.35)}
+/* tarjetas: ver bloque "packs v3 — Forja de cromo" al final del archivo */
 .founders{position:relative;display:flex;justify-content:space-between;align-items:center;gap:24px;margin-top:clamp(32px,4vw,56px);padding:22px 28px;border-radius:var(--radius);border:1px solid var(--line)}
 .founders b{font-family:var(--font-display);font-weight:500;font-size:20px;letter-spacing:-.02em}
 .founders p{color:var(--muted);font-size:14.5px}
@@ -250,7 +236,7 @@ html.capture .pre,html.rm .pre{display:none}
 html.capture .tl .rail b{transform:none}
 /* responsive */
 @media (max-width:1024px){.sec{padding:110px 0}.sec-head{display:block}.sec-head .lead{margin-top:24px}.svc{grid-template-columns:1fr 1fr}.packs{grid-template-columns:1fr 1fr}.stack{grid-template-columns:repeat(3,1fr)}.why,.testi{grid-template-columns:1fr}.why .w{padding:28px 0!important;border-right:0!important}.case .media,.case .info,.case:nth-child(even) .media,.case:nth-child(even) .info{grid-column:1/-1;order:0}.case .info{margin-top:28px}.final .l,.final form{grid-column:1/-1}}
-@media (max-width:760px){.wrap{width:calc(100% - 40px)}.nav nav{display:none}.svc{grid-template-columns:1fr}.svc .item{min-height:auto}.svc .more{opacity:1;max-height:none;transform:none;margin-top:12px}.packs{grid-template-columns:1fr}.counters{grid-template-columns:1fr}.counter{padding-left:0!important;border-right:0!important;border-bottom:1px solid var(--line)}.tl .rail,.tl .st .node{left:6px}.tl .st{grid-template-columns:1fr;padding-left:36px}.tl .st .c,.tl .st:nth-child(odd) .c{grid-column:1;text-align:left}.stack{grid-template-columns:1fr 1fr}form.brief{grid-template-columns:1fr}.ft .about,.ft .col{grid-column:1/-1!important;margin-bottom:30px}.wa-float span{display:none}.founders{flex-direction:column;align-items:flex-start}}
+@media (max-width:760px){.wrap{width:calc(100% - 40px)}.nav nav{display:none}.svc{grid-template-columns:1fr}.svc .item{min-height:auto}.svc .more{opacity:1;max-height:none;transform:none;margin-top:12px}.counters{grid-template-columns:1fr}.counter{padding-left:0!important;border-right:0!important;border-bottom:1px solid var(--line)}.tl .rail,.tl .st .node{left:6px}.tl .st{grid-template-columns:1fr;padding-left:36px}.tl .st .c,.tl .st:nth-child(odd) .c{grid-column:1;text-align:left}.stack{grid-template-columns:1fr 1fr}form.brief{grid-template-columns:1fr}.ft .about,.ft .col{grid-column:1/-1!important;margin-bottom:30px}.wa-float span{display:none}.founders{flex-direction:column;align-items:flex-start}}
 .sw-mask,.sl-mask{padding-bottom:.14em!important;margin-bottom:-.14em!important;padding-right:.04em}
 .wa-float{transform:translateY(160%)}.wa-float.show{transform:none}
 /* hero layout helpers */
@@ -626,3 +612,66 @@ html.rm .story .live,html.capture .story .live{animation:none}
  html.rm .story .step,html.capture .story .step{grid-row:auto}
 }
 .story .step:nth-child(1),.story .card:nth-child(1){--o:0}.story .step:nth-child(2),.story .card:nth-child(2){--o:1}.story .step:nth-child(3),.story .card:nth-child(3){--o:2}
+
+/* ===== packs v3 — "Forja de cromo" (motion en lib/packs-motion.ts) =====
+   Capas por tarjeta: ::before luz especular (cursor) · ::after banda de brillo del vertido · .rim borde cónico de cromo (1px, mask exclude)
+   · .pk-c contenido (translateZ 20px con puntero fino ≥1025px). El vertido usa mask-image SOLO mientras dura (.forging),
+   así la sombra de piso de Pyme no queda recortada. Elevación con la propiedad `translate` (nunca compite con el tilt GSAP en `transform`).
+   Contrastes (fondo efectivo de tarjeta ≈ #0F0F10; Pyme arriba ≈ #19191B): ítems #b3b7bf 9.4:1 · precio #EDEDEF 16.7:1 · badge #8FB4E3 sobre rgba(143,180,227,.15) 7.2:1. */
+@property --p{syntax:'<percentage>';inherits:true;initial-value:100%}
+@property --ang{syntax:'<angle>';inherits:true;initial-value:0deg}
+.packs{position:relative;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.pack{--g:0;--mx:50%;--my:0%;position:relative;display:flex;flex-direction:column;padding:28px;border-radius:var(--radius);border:1px solid var(--line);background:var(--card);transform-style:preserve-3d;translate:0 0 0;transition:border-color .6s var(--ease),translate .8s var(--ease),opacity .5s var(--ease)}
+.pack::before,.pack::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none}
+.pack::before{background:radial-gradient(240px circle at var(--mx) var(--my),rgba(238,242,246,.10),transparent 60%);opacity:0;transition:opacity .5s var(--ease)}
+.pack::after{opacity:var(--g);background:linear-gradient(180deg,transparent calc(var(--p) - 18%),rgba(238,242,246,.22) calc(var(--p) - 9%),transparent var(--p))}
+.pack.forging{-webkit-mask-image:linear-gradient(180deg,#000 var(--p),transparent calc(var(--p) + 12%));mask-image:linear-gradient(180deg,#000 var(--p),transparent calc(var(--p) + 12%))}
+.pack .rim{position:absolute;inset:-1px;border-radius:inherit;padding:1px;pointer-events:none;background:conic-gradient(from var(--ang),var(--chrome-1),var(--chrome-3),var(--accent),var(--chrome-1));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);opacity:0;transition:opacity .5s var(--ease)}
+.pack .pk-c{position:relative;display:flex;flex-direction:column;flex:1;min-width:0}
+.pack .pn{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.pack .pl{display:block;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.08em;line-height:1.2;color:var(--muted);margin-top:26px;font-weight:400;text-transform:uppercase}
+.pack .pr{--lh:1.1em;font-family:var(--font-display);font-weight:500;font-size:clamp(28px,2.4vw,36px);letter-spacing:-.04em;line-height:1.1;margin-top:8px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.pack .mo{--lh:1.6em;font-size:14.5px;color:var(--muted);margin-top:8px;font-variant-numeric:tabular-nums}.pack .mo b{color:var(--fg);font-weight:500}
+.odo .cols{display:inline-block;white-space:nowrap}
+.odo .dg{display:inline-block;height:var(--lh);line-height:var(--lh);overflow:hidden;vertical-align:bottom}
+.odo .reel{display:block;white-space:pre;text-align:center}
+.sr{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+.pack ul{list-style:none;display:grid;gap:9px;margin:24px 0 26px;padding-top:22px;border-top:1px solid var(--line);font-size:14px;color:#b3b7bf;flex:1}
+.pack li{display:grid;grid-template-columns:16px 1fr;gap:8px}
+.pack .ck{width:12px;height:9px;margin-top:6px;stroke:var(--accent);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;overflow:visible}
+.pack .ck path{stroke-dasharray:1;stroke-dashoffset:0}
+.pack .btn{--h:42px;font-size:13.5px}
+.pack.feat{border-color:rgba(var(--accent-rgb),.5);background:linear-gradient(180deg,rgba(var(--accent-rgb),.10),rgba(var(--accent-rgb),.01) 60%);translate:0 -8px 30px;box-shadow:0 40px 80px -30px rgba(36,74,127,.45);z-index:1}
+.pack.feat .rim{opacity:.75}
+.pack .badge{position:absolute;top:24px;right:24px;z-index:2;overflow:hidden;font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;padding:4px 8px;border-radius:6px;background:rgba(var(--accent-rgb),.15);color:var(--accent);border:1px solid rgba(var(--accent-rgb),.35)}
+.pack .badge i{position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(238,242,246,.5) 50%,transparent 70%);transform:translateX(-120%);pointer-events:none}
+/* foco de teclado = misma luz y elevación que el hover; las demás bajan a .78 */
+.pack:focus-within{border-color:var(--line2);translate:0 -4px}
+.pack.feat:focus-within{translate:0 -12px 30px}
+.pack:focus-within::before,.pack.lit::before{opacity:1}
+.pack:focus-within .rim{opacity:1}
+.packs:has(.pack:focus-within) .pack:not(:focus-within){opacity:.78}
+@media (hover:hover) and (pointer:fine){
+ .pack:hover{border-color:var(--line2);translate:0 -4px}
+ .pack.feat:hover{translate:0 -12px 30px}
+ .pack:hover::before,.pack:hover .rim{opacity:1}
+ .packs:has(.pack:hover) .pack:not(:hover){opacity:.78}
+}
+@media (hover:hover) and (pointer:fine) and (min-width:1025px){.pack .pk-c{transform:translateZ(20px)}}
+.pk-nav{display:none}
+@media (max-width:1024px){.packs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* móvil: carrusel con scroll-snap (navegación, se mantiene con reduced motion) */
+@media (max-width:759px){
+ .sec-packs{padding-bottom:72px}
+ .packs{display:flex;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;gap:12px;margin:0 -20px;padding:14px 8vw 36px;scrollbar-width:none;scroll-behavior:smooth}
+ .packs::-webkit-scrollbar{display:none}
+ .packs:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;border-radius:var(--radius)}
+ .pack{flex:0 0 84vw;scroll-snap-align:center;scroll-snap-stop:always}
+ .pk-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:-8px}
+ .pk-dots{display:flex}
+ .pk-dots button{width:22px;height:28px;display:grid;place-items:center;padding:0;border:0;background:none;cursor:pointer}
+ .pk-dots button i{display:block;width:6px;height:6px;border-radius:3px;background:var(--line2);transition:width .5s var(--ease),background .5s}
+ .pk-dots button[aria-current] i{width:16px;background:var(--accent)}
+ .pk-count{font-size:11px;letter-spacing:.06em;color:var(--muted)}
+}
+html.rm .packs,html.capture .packs{scroll-behavior:auto}
