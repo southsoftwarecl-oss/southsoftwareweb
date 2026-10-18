@@ -13,17 +13,14 @@ export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://southsoftw
 
 export const BRAND = {
   name: 'South Software',
-  tagline: 'Desarrollo de software en Puerto Montt',
+  tagline: 'Desarrollo de software para todo Chile',
   description:
-    'South Software construye software a medida, apps, sitios web, ciberseguridad y ciencia de datos desde Puerto Montt para todo Chile.',
+    'South Software construye software a medida, apps, sitios web, ciberseguridad y ciencia de datos para empresas de todo Chile.',
   email: 'contacto@southsoftware.cl',
   /** PLACEHOLDER: número real pendiente. Mientras sea null se muestra "(por definir)". */
   phone: null as string | null,
   phoneLabel: '+56 9 XXXX XXXX (por definir)',
-  city: 'Puerto Montt',
-  region: 'Región de Los Lagos',
   country: 'Chile',
-  coords: '41°28′S 72°56′O',
 };
 
 /** PLACEHOLDER: reemplazar 56900000000 por el número real de WhatsApp (formato internacional sin +). */
@@ -92,7 +89,7 @@ export const HOME_PACKS = ['Emprende', 'Pyme', 'E-commerce'] as const;
 
 export const PACKS: { name: string; setup: string; monthly: string; featured?: boolean; includes: string[] }[] = [
   { name: 'Emprende', setup: '$149.990', monthly: '$19.990', includes: ['Landing de 1 página adaptada a celular', 'Botón de WhatsApp, mapa y formulario', 'Dominio .cl a tu nombre', 'Hosting, SSL y soporte por WhatsApp'] },
-  { name: 'Pyme', setup: '$349.990', monthly: '$34.990', featured: true, includes: ['Sitio de hasta 6 secciones', 'SEO local Puerto Montt / Los Lagos', '2 correos corporativos', 'Respaldo semanal y reporte mensual'] },
+  { name: 'Pyme', setup: '$349.990', monthly: '$34.990', featured: true, includes: ['Sitio de hasta 6 secciones', 'SEO local para tu ciudad', '2 correos corporativos', 'Respaldo semanal y reporte mensual'] },
   { name: 'Automotora / Catálogo', setup: '$549.990', monthly: '$49.990', includes: ['Catálogo autoadministrable', 'Ficha por vehículo o producto con filtros', 'WhatsApp con el producto precargado', 'Respaldo diario y soporte en 24 h'] },
   { name: 'E-commerce', setup: '$699.990', monthly: '$59.990', includes: ['Tienda con Webpay o Mercado Pago', 'Carga inicial de hasta 50 productos', 'Despacho, retiro y correos automáticos', 'Parches de seguridad y monitoreo'] },
   { name: 'App', setup: 'desde $1.490.000', monthly: 'desde $99.990', includes: ['MVP iOS/Android o PWA', 'Login, backend y notificaciones push', 'Publicación en las tiendas', 'Pago por hitos 30/30/30/10'] },
@@ -109,13 +106,13 @@ export type Case = {
   note?: string;
 };
 export const CASES: Case[] = [
-  { slug: 'rg-motors-chile', name: 'RG Motors Chile', meta: 'Automotora · Puerto Montt', url: 'rgmotorschile.cl', image: '/cases/rgmotors.jpg',
+  { slug: 'rg-motors-chile', name: 'RG Motors Chile', meta: 'Automotora', url: 'rgmotorschile.cl', image: '/cases/rgmotors.jpg',
     summary: 'Plataforma de venta de vehículos con catálogo en vivo, consignación, comparador y visor 360° propio.',
     stack: ['Next.js', 'Supabase', 'Three.js'], service: 'Plataforma web', year: '2026',
     built: ['Catálogo de vehículos en vivo administrado desde un panel', 'Flujo de consignación de vehículos', 'Comparador de modelos', 'Visor 360° de interiores desarrollado a medida con Three.js'],
     challenge: null,
     metrics: [{ label: 'Consultas mensuales', value: null }, { label: 'Tiempo de carga (LCP)', value: null }, { label: 'Vehículos publicados', value: null }] },
-  { slug: 'salgado-automotriz', name: 'Salgado Automotriz', meta: 'Automotora · Puerto Montt', url: 'salgadoautomotriz.cl', image: '/cases/salgado.jpg',
+  { slug: 'salgado-automotriz', name: 'Salgado Automotriz', meta: 'Automotora', url: 'salgadoautomotriz.cl', image: '/cases/salgado.jpg',
     summary: 'Sitio con inventario, buscador por marca/modelo, comparador, financiamiento y consignación.',
     stack: ['Next.js', 'Tailwind', 'Supabase'], service: 'Plataforma web', year: '2026',
     built: ['Inventario con buscador por marca y modelo', 'Comparador de vehículos', 'Secciones de financiamiento y consignación', 'Diseño adaptado a celular'],
@@ -167,7 +164,7 @@ export const WHY = [
   ['Todo queda a tu nombre', 'Dominio, código, contenidos y cuentas te pertenecen. Nunca secuestramos tu marca.'],
   ['Precio publicado', 'Siete packs con valores visibles. Sabes cuánto cuesta antes de la primera reunión.'],
   ['Sin permanencia', 'Mensualidad mes a mes con 30 días de aviso en los planes con pago inicial.'],
-  ['Equipo local', 'Desarrollamos desde Puerto Montt. Nos juntamos en persona o por videollamada.'],
+  ['Trato directo', 'Trabajamos con empresas de todo Chile, por videollamada o en persona.'],
   ['Seguridad desde el día uno', 'HTTPS, respaldos automáticos y buenas prácticas en cada proyecto.'],
   ['Hablas con quien programa', 'Sin intermediarios: soporte directo por WhatsApp con el equipo que construyó tu proyecto.'],
 ] as const;

@@ -10,7 +10,7 @@ export default function Footer() {
         <div className="ft">
           <div className="about">
             <Logo />
-            <p>Software a medida, apps, web, seguridad y datos. Desde Puerto Montt para todo Chile.</p>
+            <p>Software a medida, apps, web, seguridad y datos. Para empresas de todo Chile.</p>
           </div>
           <div className="col">
             <h2 className="h5">Servicios</h2>
@@ -29,11 +29,10 @@ export default function Footer() {
             </ul>
           </div>
           <div className="col">
-            <h2 className="h5">{BRAND.city}</h2>
+            <h2 className="h5">Cobertura</h2>
             <ul>
-              <li>{BRAND.region}</li>
-              <li>{BRAND.country}</li>
-              <li className="mono" style={{ fontSize: 11, color: 'var(--dim)' }}>{BRAND.coords}</li>
+              <li>Todo {BRAND.country}</li>
+              <li>Por videollamada o en persona</li>
               <li><a href={`mailto:${BRAND.email}`}>{BRAND.email}</a></li>
             </ul>
           </div>
@@ -56,7 +55,7 @@ export default function Footer() {
       </div></div>
       <div className="legal">
         <div className="wrap" style={{ display: 'flex', justifyContent: 'space-between', gap: 16 }}>
-          <span>© 2026 South Software</span><span>Hecho en Puerto Montt, Chile</span>
+          <span>© 2026 South Software</span><span>Hecho en Chile</span>
         </div>
       </div>
     </footer>

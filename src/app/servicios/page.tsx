@@ -11,7 +11,7 @@ import { pageMeta, servicesJsonLd } from '@/lib/seo';
 
 export const metadata = pageMeta({
   title: 'Servicios',
-  description: 'Software a medida, software de escritorio, sitios web, apps móviles, seguridad informática y ciencia de datos. Desarrollo en Puerto Montt para todo Chile.',
+  description: 'Software a medida, software de escritorio, sitios web, apps móviles, seguridad informática y ciencia de datos. Desarrollo para empresas de todo Chile.',
   path: '/servicios',
 });
 

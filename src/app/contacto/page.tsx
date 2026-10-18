@@ -6,7 +6,7 @@ import { pageMeta } from '@/lib/seo';
 
 export const metadata = pageMeta({
   title: 'Contacto',
-  description: 'Agenda una reunión de 30 minutos sin costo con South Software. Software a medida, web, apps, seguridad y datos en Puerto Montt.',
+  description: 'Agenda una reunión de 30 minutos sin costo con South Software. Software a medida, web, apps, seguridad y datos para todo Chile.',
   path: '/contacto',
 });
 
@@ -20,7 +20,7 @@ export default function Contacto() {
           <div className="why channels" data-stagger>
             <div className="w"><span className="mono">Email</span><h2 className="h4"><a href={`mailto:${BRAND.email}`}>{BRAND.email}</a></h2><p>Respondemos dentro de 24 horas hábiles.</p></div>
             <div className="w"><span className="mono">WhatsApp</span><h2 className="h4"><a href={WA_URL} target="_blank" rel="noopener noreferrer">Escríbenos</a></h2><p>{WHATSAPP_IS_PLACEHOLDER ? <span className="ph">[Número por definir]</span> : 'Hablas directo con quien programa.'}</p></div>
-            <div className="w"><span className="mono">Ubicación</span><h2 className="h4">{BRAND.city}</h2><p>{BRAND.region}, {BRAND.country}. Reuniones presenciales o por videollamada.</p></div>
+            <div className="w"><span className="mono">Cobertura</span><h2 className="h4">Todo {BRAND.country}</h2><p>Reuniones por videollamada o en persona.</p></div>
           </div>
         </div>
       </section>

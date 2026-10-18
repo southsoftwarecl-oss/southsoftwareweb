@@ -1,6 +1,6 @@
 # South Software — sitio web
 
-Sitio de **South Software** (Puerto Montt): port 1:1 del preview 10 "Partículas"
+Sitio de **South Software** (Chile): port 1:1 del preview 10 "Partículas"
 (14.000 partículas que forman SOUTH SOFTWARE, esquivan el mouse y se transforman en esfera con el scroll).
 
 **Stack:** Next.js 16 (App Router, Cache Components, View Transitions) · TypeScript · Tailwind v4 ·

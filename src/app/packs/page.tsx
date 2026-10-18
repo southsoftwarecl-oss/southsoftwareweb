@@ -8,7 +8,7 @@ import { packsJsonLd, pageMeta } from '@/lib/seo';
 
 export const metadata = pageMeta({
   title: 'Packs y precios',
-  description: 'Precios publicados: sitios web, catálogos, e-commerce, apps, seguridad y datos. Pago inicial + mensualidad con hosting, dominio, respaldos y soporte. Puerto Montt, Chile.',
+  description: 'Precios publicados: sitios web, catálogos, e-commerce, apps, seguridad y datos. Pago inicial + mensualidad con hosting, dominio, respaldos y soporte. Para todo Chile.',
   path: '/packs',
 });
 
