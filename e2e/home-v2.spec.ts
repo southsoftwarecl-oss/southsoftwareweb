@@ -93,9 +93,11 @@ test.describe('Home v2 · desktop 1440×900', () => {
       const h = innerHeight, ppw = h / (2 * 13 * Math.tan((20 * Math.PI) / 180));
       const bottom = h / 2 - (st.fr.posY + st.fr.scale * st.engine.bounds.minY) * ppw;
       const hero = document.querySelector('.hero')!.getBoundingClientRect().top;
-      return document.querySelector('.hero .status')!.getBoundingClientRect().top - hero - bottom;
+      const b = st.engine.bounds as unknown as { minX: number; maxX: number };
+      return { gap: document.querySelector('.hero .status')!.getBoundingClientRect().top - hero - bottom, center: (b.minX + b.maxX) / 2 };
     });
-    expect(gap).toBeGreaterThanOrEqual(32);
+    expect(gap.gap).toBeGreaterThanOrEqual(32);
+    expect(Math.abs(gap.center)).toBeLessThan(0.6); // el wordmark muestreado está centrado
   });
 
   test('/packs responde 200 y NAV "Packs" lleva a /packs', async ({ page, request }) => {

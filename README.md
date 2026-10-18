@@ -49,8 +49,10 @@ src/
     layout.tsx            fuentes, preloader, nav, footer, JSON-LD Organization
   content/site.ts         ← TODOS LOS TEXTOS, servicios, packs, precios, proyectos y placeholders
   components/
-    sections/             secciones del home (Hero, Services, Cases, Packs, …)
-    three/                hero 3D (ParticleScene: shaders y muestreo del texto; HeroCanvas: carga diferida)
+    sections/             secciones (Hero, Services[teaser], Story, Cases/FeaturedCases, PacksTeaser, Packs, Final, …)
+    three/                hero "metal líquido": engine.ts (GPGPU + gotas impostoras + pasada de fluido),
+                          shaders/ (sim, render, noise), tiers.ts (niveles), ParticleScene (R3F), HeroCanvas (carga diferida)
+    LegacyHash.tsx        redirige anclas antiguas del home (#packs → /packs, #proceso/#stack → /servicios, #por-que → /nosotros)
     MotionRoot.tsx        puente React → lib/motion-runtime.ts (se carga tras el primer pintado)
     Nav, Footer, ContactForm, MobileMenu, FormFeedback, Preloader, PageHero, Page, ui
   lib/
@@ -59,8 +61,8 @@ src/
     contact-schema.ts     validación servidor (zod) · contact-rules.ts validación cliente (liviana)
     seo.ts fonts.ts gsap.ts
   fonts/                  woff2 self-hosted + licencias
-e2e/                      tests Playwright (navegación y formulario)
-scripts/                  shoot.py (capturas) · record-home.py (video del home)
+e2e/                      tests Playwright (navegación, formulario, home-v2: canvas/lente/paleta/largos/enlaces)
+scripts/                  shoot.py (capturas) · record-home.py (video 10 s del hero) · measure-home.py (alto por sección) · js-weight.py (peso JS)
 audit/                    Semgrep (reporte y reglas propias)
 ```
 
@@ -70,15 +72,19 @@ audit/                    Semgrep (reporte y reglas propias)
 - **Proyectos:** agrega un objeto en `CASES` (`src/content/site.ts`) y su imagen en `public/cases/`.
   La página `/proyectos/<slug>` se genera sola (y entra al sitemap). Para métricas reales, cambia `value: null` por el dato.
 - **WhatsApp / teléfono:** `WHATSAPP_NUMBER` y `BRAND.phone` en `src/content/site.ts`.
-- **Colores:** variables al inicio de `src/app/globals.css` (`--bg`, `--fg`, `--muted`, `--dim`) y el bloque
-  "Concept 10" (`--accent: #7C5CFF`, `--accent-rgb`, `--accent-fill`). El color de las partículas sale de `--accent`.
+- **Colores:** variables al inicio de `src/app/globals.css`: `--bg`, `--fg`, `--muted`, `--dim` y la paleta acero/cromo
+  `--accent:#8FB4E3` (texto/acento, 9.2:1 sobre el fondo), `--accent-rgb`, `--accent-fill:#2F5C96` (botón, 6.8:1 con texto blanco),
+  `--accent-deep:#244A7F` (brillos ≤ .18), `--chrome-1/2/3`. El 3D lee estos tokens (sin hex propios).
+- **Home vs /packs:** el home muestra 3 packs (`HOME_PACKS` en `src/content/site.ts`) con "Desde $X"; la tabla completa está en `/packs`.
 - **Tipografías:** `src/lib/fonts.ts` (Satoshi titulares, Inter cuerpo, JetBrains Mono etiquetas, Michroma logo/partículas).
 - **Imagen para redes:** reemplaza `src/app/opengraph-image.jpg` y `twitter-image.jpg` (1200×630).
 
 ## Rendimiento, accesibilidad y seguridad
 
-- 3D con code-splitting: se carga tras la intro (desktop) o a la primera interacción (móviles/equipos modestos), con 7.000 partículas en móvil, DPR limitado, pausa fuera de pantalla y fallback sin WebGL.
-- `prefers-reduced-motion`: sin preloader, sin Lenis, sin animaciones de scroll; partículas estáticas.
+- 3D con code-splitting: se carga tras la intro (desktop) o a la primera interacción (móviles/equipos modestos), pausa fuera de pantalla y fallback sin WebGL.
+- Niveles (`src/components/three/tiers.ts`): high 14k gotas + fluido · mid 14k sin fluido · mobile 7k, DPR ≤ 1.5, matcap · low 4k, DPR 1.
+  Si el PerformanceMonitor detecta caída: 1) apaga el fluido, 2) DPR 1, 3) menos partículas. QA: `?gl=high|mid|mobile|low` fuerza un nivel.
+- `prefers-reduced-motion`: sin preloader, sin Lenis, sin animaciones de scroll; un único frame estático del texto cromado (frameloop "demand").
 - Cabeceras (next.config.ts): CSP, HSTS (2 años, preload), X-Frame-Options, nosniff, Referrer-Policy, Permissions-Policy, COOP.
 - Auditoría Semgrep: `audit/SEMGREP.md`.
 

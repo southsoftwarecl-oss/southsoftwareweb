@@ -24,7 +24,7 @@ export const LOGO_LINES: Lines = [{ text: 'SOUTH', size: 210, y: 140 }, { text: 
 function sampleText(lines: Lines, font: string) {
   const c = document.createElement('canvas'); c.width = 1400; c.height = 420;
   const g = c.getContext('2d', { willReadFrequently: true })!;
-  g.fillStyle = 'white'; // máscara de muestreo, no color visible g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillStyle = 'white'; g.textAlign = 'center'; g.textBaseline = 'middle'; /* blanco = máscara de muestreo, no color visible */
   for (const l of lines) { g.font = `400 ${l.size}px ${font}, sans-serif`; g.fillText(l.text, 700, l.y); }
   const d = g.getImageData(0, 0, 1400, 420).data; const pts: [number, number][] = [];
   for (let y = 0; y < 420; y += 3) for (let x = 0; x < 1400; x += 3) if (d[(y * 1400 + x) * 4] > 128) pts.push([(x - 700) / 100, (210 - y) / 100]);
@@ -81,9 +81,11 @@ function Liquid({ lines, font, cfg, tokens }: { lines: Lines; font: string; cfg:
     const engine = new LiquidEngine(gl, cfg, tokens, env?.texture ?? null, matcap);
     st.engine = engine;
     if (forcedTier() || /[?&]qa\b/.test(location.search)) (window as unknown as { __liq?: unknown }).__liq = st; // QA (?gl=…): inspección desde Playwright
-    group.current?.add(engine.points);
+    const grp = group.current;
+    grp?.add(engine.points);
     const fill = (first: boolean) => {
-      engine.setTargets(sampleText(lines, font), first ? (RT.static || st.intro.v > 0.5 ? 'text' : 'scatter') : undefined);
+      // estático (sin simulación): las posiciones deben seguir al texto re-muestreado al cargar la fuente
+      engine.setTargets(sampleText(lines, font), RT.static ? 'text' : first ? (st.intro.v > 0.5 ? 'text' : 'scatter') : undefined);
       invalidate();
     };
     fill(true);
@@ -94,7 +96,7 @@ function Liquid({ lines, font, cfg, tokens }: { lines: Lines; font: string; cfg:
       ripO: st.ripO, ripT: 9, ripA: 0, mouseUv: st.mouseUv, liquid: 0.85, rUv: 0.1, static: RT.static,
     };
     return () => {
-      alive = false; group.current?.remove(engine.points); engine.dispose(); st.engine = null;
+      alive = false; grp?.remove(engine.points); engine.dispose(); st.engine = null;
       env?.dispose(); matcap?.dispose();
     };
   }, [gl, cfg, tokens, lines, font, invalidate]);

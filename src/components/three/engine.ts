@@ -32,7 +32,7 @@ export function makeMatcap(tk: Tokens) {
   const g = c.getContext('2d')!;
   const lin = g.createLinearGradient(0, 0, 0, S);
   lin.addColorStop(0, 'white'); lin.addColorStop(0.24, tk.chrome1); lin.addColorStop(0.47, tk.chrome3);
-  lin.addColorStop(0.55, tk.bg); // horizonte oscuro = fondo del sitio lin.addColorStop(0.72, tk.chrome2); lin.addColorStop(1, tk.chrome1);
+  lin.addColorStop(0.55, tk.bg); lin.addColorStop(0.72, tk.chrome2); lin.addColorStop(1, tk.chrome1); /* horizonte oscuro = fondo del sitio */
   g.fillStyle = lin; g.fillRect(0, 0, S, S);
   const hl = g.createRadialGradient(S * 0.32, S * 0.28, 0, S * 0.32, S * 0.28, S * 0.3);
   hl.addColorStop(0, 'rgba(255,255,255,.95)'); hl.addColorStop(1, 'rgba(255,255,255,0)');
