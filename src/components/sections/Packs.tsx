@@ -3,6 +3,8 @@ import { FOUNDERS, PACKS, WA_URL } from '@/content/site';
 import { Btn, SecHead } from '../ui';
 
 export default function Packs({ n = 5, head = true }: { n?: number; head?: boolean }) {
+  // sin encabezado de sección (en /packs el h1 ya es el título) los nombres de pack bajan a h2 para no saltar niveles
+  const H = head ? 'h3' : 'h2';
   return (
     <section className="sec" id="packs" style={head ? undefined : { paddingTop: 40 }} aria-label={head ? undefined : 'Packs y precios'}>
       <div className="wrap">
@@ -12,7 +14,7 @@ export default function Packs({ n = 5, head = true }: { n?: number; head?: boole
           {PACKS.map((p) => (
             <article className={`pack${p.featured ? ' feat' : ''}`} key={p.name}>
               {p.featured && <span className="badge">Recomendado</span>}
-              <h3 className="pn">{p.name}</h3>
+              <H className="pn">{p.name}</H>
               <div className="pr"><small>Pago inicial</small>{p.setup}</div>
               <div className="mo">+ <b>{p.monthly}</b> / mes</div>
               <ul>{p.includes.map((x) => <li key={x}>{x}</li>)}</ul>
@@ -20,7 +22,7 @@ export default function Packs({ n = 5, head = true }: { n?: number; head?: boole
             </article>
           ))}
           <article className="pack">
-            <h3 className="pn">Software a medida</h3>
+            <H className="pn">Software a medida</H>
             <div className="pr"><small>Por alcance</small>Cotización</div>
             <div className="mo">Escritorio, ERP, integraciones</div>
             <ul><li>Levantamiento de procesos</li><li>Prototipo antes de programar</li><li>Pago por hitos</li><li>Soporte mensual opcional</li></ul>
