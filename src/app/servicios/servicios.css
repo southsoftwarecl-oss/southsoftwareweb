@@ -232,7 +232,7 @@ html.rm .ps-panel{animation:none}
 .chip-b{height:32px;padding:0 13px;border-radius:999px;border:1px solid var(--line2);background:none;font-size:13px;color:#c6c9cf;cursor:pointer;transition:border-color .4s var(--ease),background .4s var(--ease),color .4s var(--ease)}
 .chip-b:hover{border-color:rgba(255,255,255,.3);color:var(--fg)}
 .chip-b[aria-pressed="true"]{background:var(--accent-fill);border-color:var(--accent-fill);color:#fff}
-.stk{list-style:none;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.stk{list-style:none;display:grid;align-content:start;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
 .stk-t{position:relative}
 .stk-t button{position:relative;display:flex;flex-direction:column;justify-content:space-between;gap:16px;width:100%;height:clamp(84px,12vh,112px);padding:14px 16px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.015);text-align:left;cursor:pointer;overflow:hidden;isolation:isolate;transition:border-color .5s var(--ease)}
 /* luz especular de cromo */

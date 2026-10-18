@@ -37,6 +37,8 @@ export default function StackLive({ n }: { n: number }) {
 
   const filter = (c: string) => {
     const m = g.current;
+    // reserva el alto de la grilla completa: filtrar nunca mueve lo que viene debajo (CLS 0)
+    if (grid.current && !grid.current.style.minHeight) grid.current.style.minHeight = `${grid.current.offsetHeight}px`;
     if (m && grid.current && !isReduced()) state.current = m.Flip.getState(grid.current.querySelectorAll('.stk-t'));
     setCat(c); setTip(null);
   };
