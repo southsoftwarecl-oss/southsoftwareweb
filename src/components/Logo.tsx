@@ -3,15 +3,15 @@
  * Wordmark vectorial "SOUTH / SOFTWARE" (Michroma, ancho tipo grotesk futurista).
  * Nítido en cualquier DPR: es texto SVG con textLength (ambas líneas justificadas al mismo ancho).
  * Variantes (cambiar el default en LOGO_VARIANT):
- *  - 'chrome'  cromo cepillado + filo acero-azul fino            (default)
- *  - 'backlit' cromo + contraluz azul acero más marcado (como el logo 3D elegido)
+ *  - 'chrome'  cromo cepillado + filo acero-azul fino
+ *  - 'backlit' cromo + contraluz azul acero más marcado (como el logo 3D elegido) (default)
  *  - 'steel'   cromo arriba, SOFTWARE en acero espaciado con línea fina
  * El brillo especular solo corre en hover/focus y se desactiva con prefers-reduced-motion.
  */
 import { useId } from 'react';
 
 export type LogoVariant = 'chrome' | 'backlit' | 'steel';
-export const LOGO_VARIANT: LogoVariant = 'chrome';
+export const LOGO_VARIANT: LogoVariant = 'backlit';
 
 export default function Logo({ variant = LOGO_VARIANT, className }: { variant?: LogoVariant; className?: string }) {
   const id = useId().replace(/[^a-zA-Z0-9_-]/g, '');
