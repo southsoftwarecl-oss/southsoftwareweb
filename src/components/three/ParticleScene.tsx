@@ -80,10 +80,10 @@ function Liquid({ lines, font, cfg, tokens }: { lines: Lines; font: string; cfg:
     }
     const engine = new LiquidEngine(gl, cfg, tokens, env?.texture ?? null, matcap);
     st.engine = engine;
-    if (forcedTier()) (window as unknown as { __liq?: unknown }).__liq = st; // QA (?gl=…): inspección desde Playwright
+    if (forcedTier() || /[?&]qa\b/.test(location.search)) (window as unknown as { __liq?: unknown }).__liq = st; // QA (?gl=…): inspección desde Playwright
     group.current?.add(engine.points);
     const fill = (first: boolean) => {
-      engine.setTargets(sampleText(lines, font), first ? (RT.static ? 'text' : 'scatter') : undefined);
+      engine.setTargets(sampleText(lines, font), first ? (RT.static || st.intro.v > 0.5 ? 'text' : 'scatter') : undefined);
       invalidate();
     };
     fill(true);
@@ -231,8 +231,12 @@ function VisibilityLoop() {
 export default function ParticleScene({ lines = LOGO_LINES, font, tier, tokens }: { lines?: Lines; font: string; tier: Tier; tokens: Tokens }) {
   // degradación progresiva: 0 = completo, 1 = sin fluido, 2 = DPR 1, 3 = menos partículas
   const [level, setLevel] = useState(0);
-  const cfg = useMemo(() => effectiveCfg(tier, level), [tier, level]);
-  const dpr = Math.min(typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1, cfg.dpr);
+  const eff = effectiveCfg(tier, level);
+  const key = `${eff.tex}|${eff.count}|${eff.liquid}|${eff.matcap}`;
+  // el motor solo se recrea si cambia algo estructural (no por el DPR)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const cfg = useMemo(() => eff, [key]);
+  const dpr = Math.min(typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1, eff.dpr);
   return (
     <Canvas
       className="gl-wrap"
