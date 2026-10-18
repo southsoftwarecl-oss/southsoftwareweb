@@ -617,21 +617,30 @@ html.rm .story .live,html.capture .story .live{animation:none}
    Capas por tarjeta: ::before luz especular (cursor) · ::after banda de brillo del vertido · .rim borde cónico de cromo (1px, mask exclude)
    · .pk-c contenido (translateZ 20px con puntero fino ≥1025px). El vertido usa mask-image SOLO mientras dura (.forging),
    así la sombra de piso de Pyme no queda recortada. Elevación con la propiedad `translate` (nunca compite con el tilt GSAP en `transform`).
-   Contrastes (fondo efectivo de tarjeta ≈ #0F0F10; Pyme arriba ≈ #19191B): ítems #b3b7bf 9.4:1 · precio #EDEDEF 16.7:1 · badge #8FB4E3 sobre rgba(143,180,227,.15) 7.2:1. */
+   Contrastes medidos (tarjeta ≈ #0F0F10 · Pyme arriba ≈ #171B21 · peor caso = centro de la luz especular o tarjeta atenuada a .78):
+   ítems #b3b7bf 9.50 / 8.59 / peor 6.09 · precio #EDEDEF 16.34 / 14.78 / peor 10.06 · badge #8FB4E3 sobre rgba(143,180,227,.15) 6.05 (con luz 4.52)
+   · etiquetas --pk-mut #9AA0A9 7.26 / peor 4.78 (el --muted global daría 3.97 atenuado) · botón blanco sobre #2F5C96 6.79. */
 @property --p{syntax:'<percentage>';inherits:true;initial-value:100%}
 @property --ang{syntax:'<angle>';inherits:true;initial-value:0deg}
 .packs{position:relative;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
-.pack{--g:0;--mx:50%;--my:0%;position:relative;display:flex;flex-direction:column;padding:28px;border-radius:var(--radius);border:1px solid var(--line);background:var(--card);transform-style:preserve-3d;translate:0 0 0;transition:border-color .6s var(--ease),translate .8s var(--ease),opacity .5s var(--ease)}
+.pack{--g:0;--mx:50%;--my:0%;--pk-mut:#9AA0A9;position:relative;display:flex;flex-direction:column;padding:28px;border-radius:var(--radius);border:1px solid var(--line);background:var(--card);transform-style:preserve-3d;translate:0 0 0;transition:border-color .6s var(--ease),translate .8s var(--ease),opacity .5s var(--ease)}
 .pack::before,.pack::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none}
 .pack::before{background:radial-gradient(240px circle at var(--mx) var(--my),rgba(238,242,246,.10),transparent 60%);opacity:0;transition:opacity .5s var(--ease)}
 .pack::after{opacity:var(--g);background:linear-gradient(180deg,transparent calc(var(--p) - 18%),rgba(238,242,246,.22) calc(var(--p) - 9%),transparent var(--p))}
 .pack.forging{-webkit-mask-image:linear-gradient(180deg,#000 var(--p),transparent calc(var(--p) + 12%));mask-image:linear-gradient(180deg,#000 var(--p),transparent calc(var(--p) + 12%))}
-.pack .rim{position:absolute;inset:-1px;border-radius:inherit;padding:1px;pointer-events:none;background:conic-gradient(from var(--ang),var(--chrome-1),var(--chrome-3),var(--accent),var(--chrome-1));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);opacity:0;transition:opacity .5s var(--ease)}
+.pack .rim{position:absolute;inset:-1px;border-radius:inherit;padding:1px;overflow:hidden;pointer-events:none;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);opacity:0;transition:opacity .5s var(--ease)}
+.pack .rim i{position:absolute;inset:0;background:conic-gradient(from var(--ang),var(--chrome-1),var(--chrome-3),var(--accent),var(--chrome-1))}
+/* Pyme: el cónico vive en un cuadrado del tamaño de la diagonal (--sq, por JS) y gira con rotate (compositor, sin repintar) */
+.pack.feat .rim i{inset:auto;left:50%;top:50%;width:var(--sq,270%);aspect-ratio:1;translate:-50% -50%;will-change:transform}
+/* las demás tarjetas montan su borde solo al hover/foco (un borde enmascarado por tarjeta cuesta aunque esté en opacity 0) */
+.pack:not(.feat) .rim{display:none;transition:opacity .5s var(--ease),display .5s allow-discrete}
+.pack:focus-within .rim{display:block}
+@starting-style{.pack:focus-within .rim{opacity:0}}
 .pack .pk-c{position:relative;display:flex;flex-direction:column;flex:1;min-width:0}
-.pack .pn{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.pack .pl{display:block;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.08em;line-height:1.2;color:var(--muted);margin-top:26px;font-weight:400;text-transform:uppercase}
+.pack .pn{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--pk-mut)}
+.pack .pl{display:block;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.08em;line-height:1.2;color:var(--pk-mut);margin-top:26px;font-weight:400;text-transform:uppercase}
 .pack .pr{--lh:1.1em;font-family:var(--font-display);font-weight:500;font-size:clamp(28px,2.4vw,36px);letter-spacing:-.04em;line-height:1.1;margin-top:8px;white-space:nowrap;font-variant-numeric:tabular-nums}
-.pack .mo{--lh:1.6em;font-size:14.5px;color:var(--muted);margin-top:8px;font-variant-numeric:tabular-nums}.pack .mo b{color:var(--fg);font-weight:500}
+.pack .mo{--lh:1.6em;font-size:14.5px;color:var(--pk-mut);margin-top:8px;font-variant-numeric:tabular-nums}.pack .mo b{color:var(--fg);font-weight:500}
 .odo .cols{display:inline-block;white-space:nowrap}
 .odo .dg{display:inline-block;height:var(--lh);line-height:var(--lh);overflow:hidden;vertical-align:bottom}
 .odo .reel{display:block;white-space:pre;text-align:center}
@@ -655,6 +664,8 @@ html.rm .story .live,html.capture .story .live{animation:none}
  .pack:hover{border-color:var(--line2);translate:0 -4px}
  .pack.feat:hover{translate:0 -12px 30px}
  .pack:hover::before,.pack:hover .rim{opacity:1}
+ .pack:hover .rim{display:block}
+ @starting-style{.pack:hover .rim{opacity:0}}
  .packs:has(.pack:hover) .pack:not(:hover){opacity:.78}
 }
 @media (hover:hover) and (pointer:fine) and (min-width:1025px){.pack .pk-c{transform:translateZ(20px)}}
@@ -663,11 +674,12 @@ html.rm .story .live,html.capture .story .live{animation:none}
 /* móvil: carrusel con scroll-snap (navegación, se mantiene con reduced motion) */
 @media (max-width:759px){
  .sec-packs{padding-bottom:72px}
- .packs{display:flex;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;gap:12px;margin:0 -20px;padding:14px 8vw 36px;scrollbar-width:none;scroll-behavior:smooth}
+ .packs{display:flex;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;gap:12px;margin:0 -20px;padding:14px 8vw 48px;scrollbar-width:none;scroll-behavior:smooth}
  .packs::-webkit-scrollbar{display:none}
  .packs:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;border-radius:var(--radius)}
  .pack{flex:0 0 84vw;scroll-snap-align:center;scroll-snap-stop:always}
- .pk-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:-8px}
+ .pack.feat{box-shadow:0 24px 40px -20px rgba(36,74,127,.5)}
+ .pk-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:-16px}
  .pk-dots{display:flex}
  .pk-dots button{width:22px;height:28px;display:grid;place-items:center;padding:0;border:0;background:none;cursor:pointer}
  .pk-dots button i{display:block;width:6px;height:6px;border-radius:3px;background:var(--line2);transition:width .5s var(--ease),background .5s}

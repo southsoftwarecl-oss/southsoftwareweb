@@ -181,7 +181,12 @@ export function startPacks(grid: HTMLElement, STATIC: boolean): () => void {
     const feat = cards[featIdx]?.classList.contains('feat') ? cards[featIdx] : null;
     let spin: gsap.core.Tween | null = null;
     if (feat) {
-      spin = gsap.fromTo(feat, { '--ang': '0deg' }, { '--ang': '360deg', duration: 9, ease: 'none', repeat: -1, paused: true });
+      // el ángulo del cónico gira 0→360° en 9 s: se rota el cuadrado que lo contiene (transform, sin repintar)
+      spin = gsap.fromTo(feat.querySelector('.rim i'), { rotation: 0 }, { rotation: 360, duration: 9, ease: 'none', repeat: -1, paused: true });
+      // lado del cuadrado que gira = diagonal de la tarjeta (cubre el borde en cualquier ángulo, sin sobredimensionar)
+      const sq = feat.querySelector<HTMLElement>('.rim i');
+      const ro = new ResizeObserver(([e]) => { const { width: w, height: h } = e.contentRect; sq?.style.setProperty('width', `${Math.ceil(Math.hypot(w + 58, h + 58)) + 4}px`); });
+      ro.observe(feat); off.push(() => { ro.disconnect(); sq?.style.removeProperty('width'); });
       const vis = new IntersectionObserver(([e]) => { if (e.isIntersecting && !feat.matches(':hover')) spin?.play(); else spin?.pause(); });
       vis.observe(feat); off.push(() => vis.disconnect());
     }
@@ -219,11 +224,7 @@ export function startPacks(grid: HTMLElement, STATIC: boolean): () => void {
           cancelAnimationFrame(raf); raf = 0; rect = null; qx = qy = null;
           gsap.killTweensOf(el, 'rotationX,rotationY');
           gsap.to(el, { rotationX: 0, rotationY: 0, duration: 0.9, ease: 'mercury', onComplete: () => { gsap.set(el, { clearProps: 'transform' }); } });
-          if (el === feat && spin) {
-            // retoma el giro desde el ángulo actual (sin salto)
-            const a = ((parseFloat(String(gsap.getProperty(el, '--ang'))) % 360) + 360) % 360;
-            spin.progress(a / 360).play();
-          }
+          if (el === feat) spin?.play();
         });
         off.push(() => cancelAnimationFrame(raf));
       });

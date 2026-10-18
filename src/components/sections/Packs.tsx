@@ -36,7 +36,7 @@ export default function Packs({ n = 5, head = true }: { n?: number; head?: boole
             const s = splitPrice(p.setup), m = splitPrice(p.monthly);
             return (
               <article className={`pack${p.featured ? ' feat' : ''}`} key={p.name}>
-                <i className="rim" aria-hidden="true" />
+                <i className="rim" aria-hidden="true"><i /></i>
                 {p.featured && <span className="badge">Recomendado<i aria-hidden="true" /></span>}
                 <div className="pk-c">
                   <H className="pn">{p.name}</H>
@@ -50,7 +50,7 @@ export default function Packs({ n = 5, head = true }: { n?: number; head?: boole
             );
           })}
           <article className="pack">
-            <i className="rim" aria-hidden="true" />
+            <i className="rim" aria-hidden="true"><i /></i>
             <div className="pk-c">
               <H className="pn">Software a medida</H>
               <small className="pl">Por alcance</small>
