@@ -5,7 +5,7 @@ import { michromaFamily } from '@/lib/fonts';
 
 export default function Hero() {
   return (
-    <section className="hero" id="hero" data-cursor-hide>
+    <section className="hero" id="hero">
       <HeroCanvas font={michromaFamily} />
       <div className="shade-b" />
       <div className="hx">

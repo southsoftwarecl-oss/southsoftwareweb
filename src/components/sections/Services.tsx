@@ -6,7 +6,7 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { SERVICES } from '@/content/site';
-import { AIcon, Btn, SecHead } from '../ui';
+import { AIcon, ArrowIcon, Btn, SecHead } from '../ui';
 
 export default function Services({ n = 1, title, linkToDetail = true, teaser = false }: { n?: number; title?: ReactNode; linkToDetail?: boolean; teaser?: boolean }) {
   return (
@@ -18,14 +18,14 @@ export default function Services({ n = 1, title, linkToDetail = true, teaser = f
           {SERVICES.map((s, i) => {
             const body = (<>
               <div className="num"><span>0{i + 1}</span><span>{s.tags[0]}</span></div>
-              <AIcon name={s.icon} />
+              <div className="ico-row"><AIcon name={s.icon} /><span className="cue" aria-hidden="true">Explorar<ArrowIcon /></span></div>
               <h3>{s.title}</h3>
               <div className="more"><p>{s.desc}</p><div className="tags">{s.tags.map((t) => <span className="tag" key={t}>{t}</span>)}</div></div>
               <span className="plus" aria-hidden="true" />
             </>);
             return linkToDetail
-              ? <Link className="item" key={s.slug} href={`/servicios#${s.slug}`} data-cursor="Explorar">{body}</Link>
-              : <article className="item" key={s.slug} data-cursor="Explorar">{body}</article>;
+              ? <Link className="item" key={s.slug} href={`/servicios#${s.slug}`}>{body}</Link>
+              : <article className="item" key={s.slug}>{body}</article>;
           })}
         </div>
         {teaser && <div className="see-all" data-reveal><Btn href="/servicios" variant="ghost">Ver todos los servicios</Btn></div>}

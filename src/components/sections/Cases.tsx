@@ -3,7 +3,10 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { ReactNode } from 'react';
 import { CASES } from '@/content/site';
-import { Btn, SecHead } from '../ui';
+import { ArrowIcon, Btn, SecHead } from '../ui';
+
+/** Etiqueta visible "Ver caso →" (reemplaza la del antiguo cursor personalizado). */
+const CaseCue = () => <span className="cue" aria-hidden="true">Ver caso<ArrowIcon /></span>;
 
 export function CaseMedia({ c, priority = false }: { c: (typeof CASES)[number]; priority?: boolean }) {
   return (
@@ -23,7 +26,7 @@ export default function Cases({ n = 2, title, as = 'h2' }: { n?: number; title?:
         <div className="cases">
           {CASES.map((c, i) => (
             <article className="case" key={c.slug}>
-              <Link className="media" href={`/proyectos/${c.slug}`} data-cursor="Ver caso" aria-label={`${c.url}: ver caso ${c.name}`}><CaseMedia c={c} priority={as === 'h1' && i === 0} /></Link>
+              <Link className="media" href={`/proyectos/${c.slug}`} aria-label={`${c.url}: ver caso ${c.name}`}><CaseMedia c={c} priority={as === 'h1' && i === 0} /><CaseCue /></Link>
               <div className="info" data-reveal>
                 <span className="idx">0{i + 1} / 0{CASES.length} — {c.meta}</span>
                 {/* en /proyectos el título de sección es h1 → los casos bajan a h2 */}
@@ -59,7 +62,7 @@ export function FeaturedCases({ n = 2 }: { n?: number }) {
         <div className="cases-feat" data-stagger>
           {CASES.map((c, i) => (
             <article className="case case-sm" key={c.slug}>
-              <Link className="media" href={`/proyectos/${c.slug}`} data-cursor="Ver caso" aria-label={`${c.url}: ver caso ${c.name}`}><CaseMedia c={c} /></Link>
+              <Link className="media" href={`/proyectos/${c.slug}`} aria-label={`${c.url}: ver caso ${c.name}`}><CaseMedia c={c} /><CaseCue /></Link>
               <div className="info">
                 <span className="idx">0{i + 1} / 0{CASES.length} — {c.meta}</span>
                 <h3><Link href={`/proyectos/${c.slug}`}>{c.name}</Link></h3>

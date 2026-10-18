@@ -56,12 +56,12 @@ src/
     MotionRoot.tsx        puente React → lib/motion-runtime.ts (se carga tras el primer pintado)
     Nav, Footer, ContactForm, MobileMenu, FormFeedback, Preloader, PageHero, Page, ui
   lib/
-    motion-runtime.ts     animaciones (Lenis, reveals SplitText, parallax, contadores, cursor, magnéticos…)
+    motion-runtime.ts     animaciones (Lenis, reveals SplitText, parallax, contadores, magnéticos; cursor nativo…)
     runtime.ts            modos (reduced motion, static), sincronía con el preloader
     contact-schema.ts     validación servidor (zod) · contact-rules.ts validación cliente (liviana)
     seo.ts fonts.ts gsap.ts
   fonts/                  woff2 self-hosted + licencias
-e2e/                      tests Playwright (navegación, formulario, home-v2: canvas/lente/paleta/largos/enlaces)
+e2e/                      tests Playwright (navegación, formulario, home-v2: canvas/paleta/largos/enlaces; cursor: cursor nativo sin seguidor)
 scripts/                  shoot.py (capturas) · record-home.py (video 10 s del hero) · measure-home.py (alto por sección) · js-weight.py (peso JS)
 audit/                    Semgrep (reporte y reglas propias)
 ```

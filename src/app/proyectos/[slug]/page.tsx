@@ -6,7 +6,7 @@ import Page from '@/components/Page';
 import PageHero from '@/components/PageHero';
 import { CaseMedia } from '@/components/sections/Cases';
 import Final from '@/components/sections/Final';
-import { SecHead } from '@/components/ui';
+import { ArrowIcon, SecHead } from '@/components/ui';
 import { CASES, SITE_URL } from '@/content/site';
 import { pageMeta } from '@/lib/seo';
 import { JsonLd } from '@/components/ui';
@@ -39,7 +39,7 @@ export default async function CasePage({ params }: { params: Promise<{ slug: str
         </div>
       </PageHero>
       <section className="case case-hero" aria-label={`Captura de ${c.name}`}>
-        <div className="wrap"><div className="media" data-cursor={c.name}><CaseMedia c={c} priority /></div></div>
+        <div className="wrap"><div className="media"><CaseMedia c={c} priority /></div></div>
       </section>
       <section className="sec">
         <div className="wrap">
@@ -58,8 +58,8 @@ export default async function CasePage({ params }: { params: Promise<{ slug: str
             {c.metrics.map((m) => <div className="counter" key={m.label}><b className={m.value ? '' : 'ph-num'}>{m.value ?? '—'}</b><span>{m.label}{!m.value && <em className="ph"> · [por confirmar]</em>}</span></div>)}
           </div>
           {c.note && <p className="fine">{c.note}</p>}
-          <Link className="next-case" href={`/proyectos/${next.slug}`} data-cursor="Siguiente">
-            <span className="mono">Siguiente proyecto</span><span className="nc-t">{next.name}</span>
+          <Link className="next-case" href={`/proyectos/${next.slug}`}>
+            <span className="mono">Siguiente proyecto</span><span className="nc-t">{next.name}<ArrowIcon /></span>
           </Link>
         </div>
       </section>
