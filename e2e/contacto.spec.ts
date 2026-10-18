@@ -3,7 +3,7 @@ import { PACKS } from '../src/content/site';
 
 /**
  * /contacto "brief conversacional": alturas, título, chips/presupuesto, tarjeta del brief,
- * packs de referencia (precios EXACTOS de PACKS), envío demo, copiar email, WhatsApp placeholder,
+ * packs de referencia (precios EXACTOS de PACKS), envío demo, copiar email, WhatsApp con número real,
  * sin cursor personalizado / violeta, reduced motion y fallback sin JS.
  */
 const errorsOf = (page: Page) => {
@@ -104,11 +104,13 @@ test.describe('contacto · desktop 1440×900', () => {
     expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('contacto@southsoftware.cl');
   });
 
-  test('WhatsApp placeholder: sin "Enviar por WhatsApp" y número marcado', async ({ page }) => {
+  test('WhatsApp real: "Enviar por WhatsApp" visible, número y canal activos', async ({ page }) => {
     await page.goto('/contacto');
-    await expect(page.getByRole('link', { name: 'Enviar por WhatsApp' })).toHaveCount(0);
-    await expect(page.locator('.channels .ph', { hasText: '[Número por definir]' })).toBeVisible();
-    await expect(page.locator('.channels .ch-btn')).toBeDisabled();
+    await expect(page.getByRole('link', { name: 'Enviar por WhatsApp' })).toHaveAttribute('href', /^https:\/\/wa\.me\/56964710361\?text=/);
+    await expect(page.locator('.channels .ch-btn')).toHaveAttribute('href', /^https:\/\/wa\.me\/56964710361\?text=/);
+    await expect(page.locator('.channels a[href="tel:+56964710361"]')).toHaveText('+56 9 6471 0361');
+    await expect(page.locator('.channels .ph')).toHaveCount(0);
+    expect(await page.locator('body').innerText()).not.toMatch(/XXXX|por definir\)|Número por definir/);
   });
 
   test('cobertura: "Todo Chile" + hora de Chile, sin ciudad, coordenadas ni horarios', async ({ page }) => {

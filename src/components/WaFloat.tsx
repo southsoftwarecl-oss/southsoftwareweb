@@ -1,4 +1,4 @@
-/** Botón flotante de WhatsApp (aparece tras el hero vía MotionRoot). PLACEHOLDER de número en content/site.ts */
+/** Botón flotante de WhatsApp (aparece tras el hero vía MotionRoot). Número en content/site.ts (WHATSAPP_NUMBER) */
 import { WA_URL } from '@/content/site';
 import { WaIcon } from './ui';
 

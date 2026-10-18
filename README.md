@@ -90,7 +90,6 @@ audit/                    Semgrep (reporte y reglas propias)
 
 ## Placeholders pendientes (marcados en el sitio)
 
-- WhatsApp `56900000000` y teléfono `+56 9 XXXX XXXX (por definir)`.
 - Testimonios: 3 tarjetas con texto reservado ("Aquí irá el testimonio real…"); usar solo testimonios reales y autorizados.
 - Métricas y "el desafío" de cada caso (RG Motors Chile, Salgado Automotriz, Frío Austral).
 - Frío Austral: "Propuesta de diseño. Ubicación y alcance por confirmar con el cliente."

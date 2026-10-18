@@ -17,7 +17,7 @@ export default function Final({ n = 8, title, as = 'h2' }: { n?: number; title?:
           <a className="orb" href={WA_URL} target="_blank" rel="noopener noreferrer"><span>Escríbenos<br />por WhatsApp</span><ArrowIcon /></a>
           <div className="direct" data-reveal>
             <a href={`mailto:${BRAND.email}`}>{BRAND.email}</a>
-            {BRAND.phone ? <a href={`tel:${BRAND.phone.replace(/\s/g, '')}`}>{BRAND.phone}</a> : <span className="ph">{BRAND.phoneLabel}</span>}
+            <a href={`tel:${BRAND.phoneE164}`}>{BRAND.phone}</a>
           </div>
         </div>
         <ContactForm />

@@ -8,7 +8,7 @@ import CopyEmail from '@/components/contacto/CopyEmail';
 import LiquidPool from '@/components/contacto/LiquidPool';
 import ChileClock from '@/components/contacto/ChileClock';
 import { ArrowIcon } from '@/components/ui';
-import { BRAND, WA_URL, WHATSAPP_IS_PLACEHOLDER } from '@/content/site';
+import { BRAND, WA_URL } from '@/content/site';
 import { pageMeta } from '@/lib/seo';
 import './contacto.css';
 
@@ -47,20 +47,11 @@ export default function Contacto() {
             </div>
             <div className="w spot ch">
               <span className="mono">WhatsApp</span>
-              {WHATSAPP_IS_PLACEHOLDER ? (
-                <>
-                  <div className="ch-row">
-                    <h2 className="h4">Escríbenos</h2>
-                    <button type="button" className="ch-btn" disabled>WhatsApp <i aria-hidden="true">→</i> <small>(número por definir)</small></button>
-                  </div>
-                  <p><span className="ph">[Número por definir]</span> · <span className="ph">{BRAND.phoneLabel}</span></p>
-                </>
-              ) : (
-                <>
-                  <h2 className="h4"><a className="arw" href={WA_URL} target="_blank" rel="noopener noreferrer">Escríbenos <i aria-hidden="true">→</i></a></h2>
-                  <p>Hablas directo con quien programa.</p>
-                </>
-              )}
+              <div className="ch-row">
+                <h2 className="h4"><a className="arw" href={WA_URL} target="_blank" rel="noopener noreferrer">Escríbenos <i aria-hidden="true">→</i></a></h2>
+                <a className="ch-btn" href={WA_URL} target="_blank" rel="noopener noreferrer">WhatsApp <i aria-hidden="true">→</i></a>
+              </div>
+              <p><a href={`tel:${BRAND.phoneE164}`}>{BRAND.phone}</a> · Hablas directo con quien programa.</p>
             </div>
             <div className="w spot ch ch-loc">
               <span className="mono">Cobertura</span>

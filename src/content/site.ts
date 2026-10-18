@@ -17,15 +17,14 @@ export const BRAND = {
   description:
     'South Software construye software a medida, apps, sitios web, ciberseguridad y ciencia de datos para empresas de todo Chile.',
   email: 'contacto@southsoftware.cl',
-  /** PLACEHOLDER: número real pendiente. Mientras sea null se muestra "(por definir)". */
-  phone: null as string | null,
-  phoneLabel: '+56 9 XXXX XXXX (por definir)',
+  /** Teléfono / WhatsApp: `phone` para mostrar, `phoneE164` para tel: y JSON-LD. */
+  phone: '+56 9 6471 0361',
+  phoneE164: '+56964710361',
   country: 'Chile',
 };
 
-/** PLACEHOLDER: reemplazar 56900000000 por el número real de WhatsApp (formato internacional sin +). */
-export const WHATSAPP_NUMBER = '56900000000';
-export const WHATSAPP_IS_PLACEHOLDER = WHATSAPP_NUMBER === '56900000000';
+/** Número de WhatsApp (formato internacional sin +). */
+export const WHATSAPP_NUMBER = '56964710361';
 export const WA_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Hola South Software, quiero cotizar un proyecto')}`;
 
 /**

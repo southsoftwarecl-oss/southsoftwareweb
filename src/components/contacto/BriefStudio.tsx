@@ -11,7 +11,7 @@
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { BRAND, BUDGETS, PROJECT_TYPES, WHATSAPP_IS_PLACEHOLDER, WHATSAPP_NUMBER } from '@/content/site';
+import { BRAND, BUDGETS, PROJECT_TYPES, WHATSAPP_NUMBER } from '@/content/site';
 import { TYPE_GUIDE, TYPE_ICON, packsFor, type Budget, type ProjectType } from '@/content/contacto';
 import { validateContact } from '@/lib/contact-rules';
 import { AIcon } from '@/components/ui';
@@ -242,9 +242,7 @@ export default function BriefStudio({ head }: { head: ReactNode }) {
             <span className="t"><span>Enviar brief</span><span aria-hidden="true">Enviar brief</span></span><i className="ring" aria-hidden="true" />
             <span className="sr-only" aria-live="polite">{busy ? 'Enviando…' : ''}</span>
           </button>
-          {!WHATSAPP_IS_PLACEHOLDER && (
-            <a className="btn btn-ghost wa-send" href={waHref} target="_blank" rel="noopener noreferrer">Enviar por WhatsApp</a>
-          )}
+          <a className="btn btn-ghost wa-send" href={waHref} target="_blank" rel="noopener noreferrer">Enviar por WhatsApp</a>
         </div>
         <div className="recv full" role="status">
           {sealed && <>

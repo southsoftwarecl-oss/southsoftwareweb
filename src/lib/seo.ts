@@ -23,7 +23,7 @@ export const orgJsonLd = {
   image: `${SITE_URL}/opengraph-image.jpg`,
   description: BRAND.description,
   email: BRAND.email,
-  ...(BRAND.phone ? { telephone: BRAND.phone } : {}),
+  telephone: BRAND.phoneE164,
   address: { '@type': 'PostalAddress', addressCountry: 'CL' },
   areaServed: { '@type': 'Country', name: 'Chile' },
   knowsAbout: SERVICES.map((s) => s.title),

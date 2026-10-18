@@ -146,8 +146,8 @@ form.brief-v2 .recv .demo{display:block;margin-top:4px;color:#86efac;font-size:1
 .toast{font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#86EFAC;opacity:0;transform:translateY(4px);transition:opacity .3s,transform .4s var(--ease)}
 .toast.on{opacity:1;transform:none}
 .ch-row{display:flex;align-items:center;justify-content:space-between;gap:8px 12px;flex-wrap:wrap}
-.ch-btn{border-style:dashed;color:var(--muted)}
-.ch-btn:disabled{cursor:not-allowed}
+.ch-btn{color:var(--fg)}
+.ch-btn:hover,.ch-btn:focus-visible{border-color:var(--accent);color:var(--accent)}
 .ch-btn i{font-style:normal}
 .ch-btn small{font-size:11.5px}
 .cclock{display:inline-flex;gap:10px;align-items:baseline;margin-top:16px;padding:6px 12px;border-radius:999px;border:1px solid var(--line2);font-size:11px;letter-spacing:.06em;color:var(--muted)}

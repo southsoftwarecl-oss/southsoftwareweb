@@ -34,6 +34,7 @@ export default function Footer() {
               <li>Todo {BRAND.country}</li>
               <li>Por videollamada o en persona</li>
               <li><a href={`mailto:${BRAND.email}`}>{BRAND.email}</a></li>
+              <li><a href={`tel:${BRAND.phoneE164}`}>{BRAND.phone}</a></li>
             </ul>
           </div>
         </div>
