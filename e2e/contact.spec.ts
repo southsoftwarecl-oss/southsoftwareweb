@@ -124,8 +124,42 @@ test.describe('API /api/contact (validación en servidor)', () => {
     expect(r.status()).toBe(200);
     const j = await r.json();
     expect(j.ok).toBe(true);
-    expect(j.dryRun).toMatchObject({ from: 'South Software <formulario@southsoftware.cl>', to: ['contacto@southsoftware.cl'], reply_to: 'prueba@example.com', subject: 'Brief: Sitio web — Prueba E2E' });
-    expect(j.dryRun.text).toContain('Empresa: Test SpA');
+    expect(j.dryRun).toMatchObject({ from: 'South Software <formulario@southsoftware.cl>', to: ['contacto@southsoftware.cl'], reply_to: 'prueba@example.com', subject: 'Nueva solicitud: Sitio web — Prueba E2E' });
+    expect(j.dryRun.text).toContain('Empresa:     Test SpA');
+    expect(j.dryRun.html).toContain('Nueva solicitud desde southsoftware.cl');
+    expect(j.dryRun.html).toContain('https://southsoftware.cl/email/logo.png');
+    expect(j.dryRun.html).toContain('href="mailto:prueba@example.com?subject=');
+    expect(j.dryRun.html).toContain('Responder a Prueba');
+    expect(j.dryRun.html).not.toContain('wa.me/');
+    for (const s of ['contacto@southsoftware.cl', '+56 9 6471 0361', '@southsoftwarecl']) expect(j.dryRun.html).toContain(s);
+    expect(j.dryRun.html).not.toMatch(/purple|violet|#8b5cf6|#a855f7/i);
+    // auto-reply al visitante
+    expect(j.autoReply).toMatchObject({ from: 'South Software <contacto@southsoftware.cl>', to: ['prueba@example.com'], reply_to: 'contacto@southsoftware.cl', subject: 'Recibimos tu mensaje · South Software' });
+    expect(j.autoReply.html).toContain('Hola Prueba,');
+    expect(j.autoReply.text).toContain('24 horas hábiles');
+  });
+
+  test('teléfono → botón de WhatsApp; auto-reply no repite el mensaje ni nombres raros', async ({ request }) => {
+    const r = await request.post('/api/contact', { data: { ...valid, telefono: '9 6471 0000', nombre: 'http://spam.example oferta', mensaje: 'Compra en http://spam.example' } });
+    expect(r.status()).toBe(200);
+    const j = await r.json();
+    expect(j.dryRun.html).toContain('href="https://wa.me/56964710000"');
+    expect(j.dryRun.text).toContain('WhatsApp: https://wa.me/56964710000');
+    expect(j.autoReply.html).not.toContain('spam.example');
+    expect(j.autoReply.text).not.toContain('spam.example');
+    expect(j.autoReply.text).toContain('Hola,');
+  });
+
+  test('campos faltantes → mensajes en español', async ({ request }) => {
+    const r = await request.post('/api/contact', { data: {} });
+    expect(r.status()).toBe(422);
+    expect((await r.json()).fields).toEqual({ nombre: 'Ingresa tu nombre', email: 'Email no válido', tipo: 'Elige un tipo de proyecto' });
+  });
+
+  test('logo del correo publicado (/email/logo.png @2x)', async ({ request }) => {
+    const r = await request.get('/email/logo.png');
+    expect(r.status()).toBe(200);
+    expect(r.headers()['content-type']).toContain('image/png');
   });
 
   test('HTML escapado y asunto en una línea', async ({ request }) => {

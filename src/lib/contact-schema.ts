@@ -18,6 +18,8 @@ export const contactSchema = z.object({
   empresa: clean(120).optional().default(''),
   email: z.string().trim().max(160).pipe(z.email('Email no válido')),
   tipo: z.enum(PROJECT_TYPES, { message: 'Elige un tipo de proyecto' }),
+  /** opcional (los formularios actuales no lo piden): habilita el botón de WhatsApp en el aviso */
+  telefono: z.string().trim().max(30, 'Máximo 30 caracteres').regex(/^[+\d\s().-]*$/, 'Teléfono no válido').optional().default(''),
   presupuesto: z.union([z.enum(BUDGETS), z.literal('')]).optional().default(''),
   mensaje: clean(4000).optional().default(''),
   /** honeypot: debe venir vacío */

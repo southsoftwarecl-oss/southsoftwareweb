@@ -12,7 +12,9 @@
  *
  * Envío: API REST de Resend (fetch, sin SDK) con RESEND_API_KEY (solo servidor, NUNCA NEXT_PUBLIC_).
  *  - from: South Software <formulario@southsoftware.cl>; to: CONTACT_TO_EMAIL (por defecto
- *    contacto@southsoftware.cl); reply_to: el email del visitante.
+ *    contacto@southsoftware.cl); reply_to: el email del visitante. Plantilla de marca en lib/email-template.ts.
+ *  - Auto-reply al visitante ("Recibimos tu mensaje") desde contacto@southsoftware.cl, reply_to contacto@;
+ *    no repite el mensaje del visitante. CONTACT_AUTOREPLY=0 lo desactiva. Si falla, el envío igual es ok.
  *  - Sin RESEND_API_KEY o si Resend falla → { ok: false, error } y la UI ofrece WhatsApp / email.
  *  - CONTACT_DRY_RUN=1 (SOLO tests e2e; ignorado en producción de Vercel): arma el correo y responde
  *    { ok: true, dryRun } sin llamar a Resend.
@@ -22,11 +24,13 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { contactSchema, type ContactData } from '@/lib/contact-schema';
 import { CONTACT_MIN_MS } from '@/lib/contact-rules';
 import { BRAND } from '@/content/site';
+import { renderAutoReply, renderContactNotification } from '@/lib/email-template';
 
 const MAX_BYTES = 16 * 1024;
 const WINDOW_MS = 10 * 60 * 1000;
 const FROM = 'South Software <formulario@southsoftware.cl>';
 const DEFAULT_TO = 'contacto@southsoftware.cl';
+const AUTOREPLY_FROM = 'South Software <contacto@southsoftware.cl>';
 const FALLBACK = `Escríbenos por WhatsApp o a ${BRAND.email}.`;
 const hits = new Map<string, number[]>();
 
@@ -40,9 +44,9 @@ function rateLimited(ip: string) {
   return list.length > max;
 }
 
-const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
-const oneLine = (s: string) => s.replace(/[\r\n\t]+/g, ' ').trim();
 const json = (body: object, status = 200) => NextResponse.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
+/** Mensajes en español cuando falta un campo o viene con otro tipo (zod los da en inglés). */
+const MISSING: Record<string, string> = { nombre: 'Ingresa tu nombre', email: 'Email no válido', tipo: 'Elige un tipo de proyecto' };
 
 async function verifyTurnstile(token: string, ip: string, secret: string) {
   if (!token) return false;
@@ -55,21 +59,19 @@ async function verifyTurnstile(token: string, ip: string, secret: string) {
   } catch { return false; }
 }
 
-/** Correo para Resend: texto plano + HTML simple con todos los campos escapados. */
-function buildEmail(d: ContactData, to: string) {
-  const rows: [string, string][] = [
-    ['Nombre', d.nombre], ['Empresa', d.empresa || '—'], ['Email', d.email], ['Tipo de proyecto', d.tipo],
-    ['Presupuesto', d.presupuesto || '—'], ['Mensaje', d.mensaje || '—'],
-  ];
-  const html = '<!doctype html><html><body style="font-family:Arial,Helvetica,sans-serif;color:#111">'
-    + '<h2 style="margin:0 0 12px">Nuevo brief desde southsoftware.cl</h2>'
-    + `<table cellpadding="6" style="border-collapse:collapse">${rows.map(([k, v]) => `<tr><td style="vertical-align:top"><b>${esc(k)}</b></td><td>${esc(v).replace(/\n/g, '<br>')}</td></tr>`).join('')}</table>`
-    + '</body></html>';
-  const text = `Nuevo brief desde southsoftware.cl\n\n${rows.map(([k, v]) => `${k}: ${v}`).join('\n')}\n`;
-  return { from: FROM, to: [to], reply_to: d.email, subject: oneLine(`Brief: ${d.tipo} — ${d.nombre}`).slice(0, 150), html, text };
+type Email = { from: string; to: string[]; reply_to: string; subject: string; html: string; text: string };
+
+/** Aviso interno (plantilla de marca) + auto-reply al visitante (desde contacto@, sin repetir su mensaje). */
+function buildEmails(d: ContactData, to: string): { notification: Email; autoReply: Email } {
+  const n = renderContactNotification(d);
+  const a = renderAutoReply(d);
+  return {
+    notification: { from: FROM, to: [to], reply_to: d.email, ...n },
+    autoReply: { from: AUTOREPLY_FROM, to: [d.email], reply_to: BRAND.email, ...a },
+  };
 }
 
-async function sendWithResend(email: ReturnType<typeof buildEmail>, apiKey: string) {
+async function sendWithResend(email: Email, apiKey: string) {
   const r = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
@@ -104,7 +106,10 @@ export async function POST(req: NextRequest) {
   const parsed = contactSchema.safeParse(body);
   if (!parsed.success) {
     const fields: Record<string, string> = {};
-    for (const iss of parsed.error.issues) { const k = String(iss.path[0]); if (!fields[k]) fields[k] = iss.message; }
+    for (const iss of parsed.error.issues) {
+      const k = String(iss.path[0]);
+      if (!fields[k]) fields[k] = iss.code === 'invalid_type' ? MISSING[k] || 'Campo no válido' : iss.message;
+    }
     return json({ ok: false, error: 'Revisa los campos marcados.', fields }, 422);
   }
   const data = parsed.data;
@@ -117,11 +122,12 @@ export async function POST(req: NextRequest) {
     return json({ ok: false, error: 'No pudimos verificar que eres una persona. Intenta de nuevo.' }, 400);
   }
 
-  const email = buildEmail(data, (process.env.CONTACT_TO_EMAIL || '').trim() || DEFAULT_TO);
+  const { notification, autoReply } = buildEmails(data, (process.env.CONTACT_TO_EMAIL || '').trim() || DEFAULT_TO);
+  const sendAutoReply = process.env.CONTACT_AUTOREPLY !== '0';
 
   // Solo tests: nunca en producción de Vercel
   if (process.env.CONTACT_DRY_RUN === '1' && process.env.VERCEL_ENV !== 'production') {
-    return json({ ok: true, dryRun: { from: email.from, to: email.to, reply_to: email.reply_to, subject: email.subject, text: email.text, html: email.html } });
+    return json({ ok: true, dryRun: notification, autoReply: sendAutoReply ? autoReply : null });
   }
 
   const apiKey = (process.env.RESEND_API_KEY || '').trim();
@@ -129,7 +135,9 @@ export async function POST(req: NextRequest) {
     console.error('[contact] Falta RESEND_API_KEY: el mensaje no se envió');
     return json({ ok: false, error: `No pudimos enviar tu mensaje en este momento. ${FALLBACK}` }, 503);
   }
-  const sent = await sendWithResend(email, apiKey).catch((e) => { console.error('[contact] Error de red con Resend', String(e)); return false; });
+  const sent = await sendWithResend(notification, apiKey).catch((e) => { console.error('[contact] Error de red con Resend', String(e)); return false; });
   if (!sent) return json({ ok: false, error: `No pudimos enviar tu mensaje en este momento. ${FALLBACK}` }, 502);
+  // La confirmación al visitante es secundaria: si falla, el brief ya llegó y respondemos ok igual.
+  if (sendAutoReply) await sendWithResend(autoReply, apiKey).catch((e) => { console.error('[contact] Auto-reply falló', String(e)); return false; });
   return json({ ok: true });
 }
