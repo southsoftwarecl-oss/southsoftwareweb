@@ -119,9 +119,9 @@ export class LiquidEngine {
     this.points.frustumCulled = false;
 
     if (cfg.liquid) {
-      const rtOpts = { type: THREE.HalfFloatType, format: THREE.RGBAFormat, minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, depthBuffer: false };
+      const rtOpts = { type: THREE.HalfFloatType, format: THREE.RGBAFormat, minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, depthBuffer: false, generateMipmaps: false };
       const rtA = new THREE.WebGLRenderTarget(2, 2, { ...rtOpts, depthBuffer: true });
-      const rtB = new THREE.WebGLRenderTarget(2, 2, rtOpts), rtC = new THREE.WebGLRenderTarget(2, 2, rtOpts), rtD = new THREE.WebGLRenderTarget(2, 2, rtOpts);
+      const rtB = new THREE.WebGLRenderTarget(2, 2, rtOpts), rtC = new THREE.WebGLRenderTarget(2, 2, rtOpts), rtD = new THREE.WebGLRenderTarget(2, 2, { ...rtOpts, minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter }); // la composición a resolución completa interpola
       const halfU = () => ({ tPos: { value: null as THREE.Texture | null }, uDpr: { value: 0.5 }, uMix: { value: 0 }, uPxPerUnit: { value: 50 } });
       const depthMat = new THREE.ShaderMaterial({ uniforms: halfU(), vertexShader: DROP_VERT, fragmentShader: DEPTH_FRAG, depthTest: true, depthWrite: true });
       const thickMat = new THREE.ShaderMaterial({ uniforms: halfU(), vertexShader: DROP_VERT, fragmentShader: THICK_FRAG, depthTest: false, depthWrite: false, transparent: true, blending: THREE.AdditiveBlending });

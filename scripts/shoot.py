@@ -37,7 +37,7 @@ async def main():
                 pg.on('pageerror', lambda e: errs.append(str(e)))
                 await pg.goto(BASE + r, wait_until='load')
                 if not mobile: await pg.mouse.move(900, 380)
-                await pg.wait_for_timeout(7500 if mobile else 4200)  # móvil: el 3D se carga diferido
+                await pg.wait_for_timeout(int(os.environ.get('SHOOT_WAIT_M' if mobile else 'SHOOT_WAIT', 15000 if mobile else 25000)))  # swiftshader: la simulación avanza a pocos fps; en GPU real basta ~4 s
                 await pg.screenshot(path=f'{OUT}/{s}-{name}-hero.png')
                 if '--full' in os.environ.get('SHOOT', ''):
                     img = await full(pg, r, vp['width'], vp['height'])
