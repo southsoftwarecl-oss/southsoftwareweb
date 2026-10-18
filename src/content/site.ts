@@ -52,7 +52,7 @@ export const NAV = [
   { href: '/contacto', label: 'Contacto' },
 ];
 
-export type IconName = 'code' | 'monitor' | 'globe' | 'phone' | 'shield' | 'chart';
+export type IconName = 'code' | 'monitor' | 'globe' | 'phone' | 'shield' | 'chart' | 'cart';
 
 export const SERVICES: {
   slug: string; icon: IconName; title: string; short: string; desc: string; tags: string[]; includes: string[];

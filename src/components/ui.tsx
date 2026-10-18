@@ -42,6 +42,7 @@ const ANIC: Record<IconName, ReactNode> = {
   phone: <><rect pathLength={1} x="5" y="2" width="14" height="20" rx="3" /><path pathLength={1} d="M10 18h4" /></>,
   shield: <><path pathLength={1} d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><path pathLength={1} d="m9 12 2 2 4-4" /></>,
   chart: <><path pathLength={1} d="M3 3v18h18" /><path pathLength={1} d="m7 15 4-4 3 3 6-7" /></>,
+  cart: <><path pathLength={1} d="M2 3h3l2.4 11.2a2 2 0 0 0 2 1.6h8.2a2 2 0 0 0 2-1.5L21 7H6" /><circle pathLength={1} cx="10" cy="20" r="1.4" /><circle pathLength={1} cx="17" cy="20" r="1.4" /></>,
 };
 export const AIcon = ({ name }: { name: IconName }) => (
   <svg className="aicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{ANIC[name]}</svg>

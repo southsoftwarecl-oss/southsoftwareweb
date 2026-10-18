@@ -21,7 +21,8 @@ const csp = [
   "worker-src 'self' blob:",
   "object-src 'none'",
   "base-uri 'self'",
-  "form-action 'self'",
+  // mailto: fallback del brief de /contacto cuando no hay JavaScript
+  "form-action 'self' mailto:",
   "frame-ancestors 'none'",
   "manifest-src 'self'",
   ...(isDev ? [] : ['upgrade-insecure-requests']),

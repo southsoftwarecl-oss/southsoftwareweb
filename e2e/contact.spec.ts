@@ -19,26 +19,27 @@ test.describe('Formulario de contacto (UI)', () => {
     await page.goto('/contacto');
     await page.getByLabel('Nombre').fill('Prueba E2E');
     await page.getByLabel('Empresa').fill('Test SpA');
-    await page.getByLabel('Email').fill('prueba@example.com');
-    await page.getByLabel('Tipo de proyecto').selectOption('Software a medida');
-    await page.getByLabel('Presupuesto').selectOption('Aún no lo sé');
+    await page.getByLabel('Email', { exact: true }).fill('prueba@example.com');
+    await page.getByRole('radio', { name: 'Software a medida' }).check();
+    await page.getByRole('radio', { name: 'Aún no lo sé' }).check();
     await page.getByLabel('Cuéntanos tu idea').fill('Necesito un sistema de inventario.');
     const resP = page.waitForResponse('**/api/contact');
     await page.getByRole('button', { name: 'Enviar brief' }).click();
     const res = await resP;
     expect(res.status()).toBe(200);
-    await expect(page.getByRole('status')).toContainText('¡Listo!');
-    await expect(page.getByRole('status')).toContainText('Modo demo');
+    const ok = page.locator('form.brief .recv');
+    await expect(ok).toContainText('Recibido', { timeout: 15000 });
+    await expect(ok).toContainText('Modo demo');
     await expect(page.locator('form.brief')).toHaveClass(/done/);
   });
 
   test('email inválido marca solo ese campo', async ({ page }) => {
     await page.goto('/contacto');
     await page.getByLabel('Nombre').fill('Ana');
-    await page.getByLabel('Email').fill('ana@');
-    await page.getByLabel('Tipo de proyecto').selectOption('App móvil');
+    await page.getByLabel('Email', { exact: true }).fill('ana@');
+    await page.getByRole('radio', { name: 'App móvil' }).check();
     await page.getByRole('button', { name: 'Enviar brief' }).click();
-    await expect(page.getByLabel('Email')).toHaveAttribute('aria-invalid', 'true');
+    await expect(page.getByLabel('Email', { exact: true })).toHaveAttribute('aria-invalid', 'true');
     await expect(page.getByLabel('Nombre')).not.toHaveAttribute('aria-invalid', 'true');
   });
 });

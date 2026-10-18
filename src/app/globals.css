@@ -175,7 +175,7 @@ section{position:relative}.sec{padding:160px 0}
 .final .glow{position:absolute;width:900px;height:900px;left:50%;top:40%;transform:translate(-50%,-50%);background:radial-gradient(closest-side,rgba(var(--accent-deep-rgb),.18),transparent);pointer-events:none}
 .final .g12{position:relative;width:100%;align-items:start;row-gap:60px}
 .final .l{grid-column:1/7}.final form{grid-column:8/13}
-.final h2{font-family:var(--font-display);font-weight:500;font-size:clamp(56px,8vw,136px);line-height:.88;letter-spacing:-.055em}
+.final h1,.final h2{font-family:var(--font-display);font-weight:500;font-size:clamp(56px,8vw,136px);line-height:.88;letter-spacing:-.055em}
 .final .l p{color:var(--muted);font-size:18px;max-width:420px;margin-top:28px}
 .orb{margin-top:56px;width:168px;height:168px;border-radius:50%;background:linear-gradient(160deg,#fff 0%,var(--chrome-1) 28%,var(--chrome-2) 62%,var(--chrome-3) 100%);color:#0A0A0B;display:grid;place-items:center;text-align:center;font-weight:500;font-size:15px;line-height:1.25;box-shadow:0 0 0 1px rgba(255,255,255,.35) inset,0 30px 80px -24px rgba(var(--accent-deep-rgb),.7);will-change:transform;position:relative}
 .orb::after{content:"";position:absolute;inset:-14px;border-radius:50%;border:1px solid rgba(164,173,184,.35)}
@@ -276,7 +276,7 @@ html{overflow-x:clip}
  .hero-meta .wrap>span:not(.scroll){display:none}.hero-meta .wrap{justify-content:center}
  .hero .spec,.hero .coord,.hero .quote,.hero .tags3d,#labels{display:none}
  .nav .btn{--h:36px;padding:0 14px;font-size:12.5px}
- .final h2{font-size:clamp(52px,15vw,80px)}
+ .final h1,.final h2{font-size:clamp(52px,15vw,80px)}
  .giant{margin-top:56px;margin-bottom:36px}
 }
 
@@ -453,7 +453,7 @@ html.rm .marquee .track,html.rm .hero-meta .scroll i::after{animation:none}
  /* CTA final: orbe junto al párrafo para no apilar 170px extra */
  .final{padding:56px 0}
  .final .g12{row-gap:28px}
- .final h2{font-size:clamp(40px,11.5vw,64px)}
+ .final h1,.final h2{font-size:clamp(40px,11.5vw,64px)}
  .final .l p{margin-top:20px}
  .final .l{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:20px;align-items:center}
  .final .l>*{grid-column:1/-1}
@@ -466,7 +466,7 @@ html.rm .marquee .track,html.rm .hero-meta .scroll i::after{animation:none}
 @media (min-width:1025px) and (max-height:760px){.sec,.final{padding:96px 0}}
 /* CTA final compacto (desktop): titular a 2–3 líneas y orbe junto al párrafo */
 @media (min-width:1025px){
- .final h2{font-size:clamp(56px,7vw,112px)}
+ .final h1,.final h2{font-size:clamp(56px,7vw,112px)}
  .final .l{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:40px;align-items:center}
  .final .l>*{grid-column:1/-1}
  .final .l>p{grid-column:1}
