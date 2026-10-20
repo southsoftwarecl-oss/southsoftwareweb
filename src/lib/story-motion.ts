@@ -1,5 +1,7 @@
 /**
- * Story v3 — "Del commit al cliente". Timeline maestro normalizado a 1.0, scrubbed por scroll:
+ * Story v3 — "Del commit al cliente". Timeline maestro normalizado a 1.0, reproducido POR TIEMPO
+ *   (no depende del scroll): arranca al entrar en viewport, dura LOOP_S s, mantiene HOLD_S s el final y
+ *   vuelve a empezar. Clic en una pestaña salta a esa etapa. Se pausa fuera de pantalla o con la pestaña oculta.
  *   labels codigo 0 · interfaz .36 · producto .68 · fin 1
  *   Paso 1 0→.34 (tipeo SplitText chars + caret + toast) · 1→2 .30→.42 (tokens → UI con Flip.fit)
  *   Paso 2 .36→.66 (la UI se arma en capas) · 2→3 .62→.74 (paquete + aviso WhatsApp + cambio de layout)
@@ -14,6 +16,10 @@ import { gsap, ScrollTrigger, SplitText, Flip } from '@/lib/gsap';
 type Lenis = { scrollTo: (t: number, o?: { duration?: number }) => void } | null;
 const clp = (n: number) => '$' + Math.round(n).toLocaleString('es-CL');
 const LABELS = { codigo: 0, interfaz: 0.36, producto: 0.68, fin: 1 };
+/** duración de una vuelta completa (s). Antes era scrub de scroll (pin 180vh, ~80vh de scroll ≈ 14 s a ritmo
+ * de lectura); ahora ~1.4x más lento y constante. */
+const LOOP_S = 20;
+const HOLD_S = 3.5;
 const TOKENS = ['crearPedido', 'cliente', 'items', 'total', 'notificar'];
 
 export function startStory(story: HTMLElement, STATIC: boolean, getLenis: () => Lenis): () => void {
@@ -114,11 +120,11 @@ export function startStory(story: HTMLElement, STATIC: boolean, getLenis: () => 
     tl.time(t, true); D.style.transform = tr;
   };
 
-  const snap = navigator.webdriver ? undefined : { snapTo: 'labelsDirectional' as const, duration: { min: 0.25, max: 0.6 }, ease: 'south', delay: 0.05 };
-  let active = -1, lastRow = -1;
+  let active = -1, lastRow = -1, hold: gsap.core.Tween | null = null, running = false, seen = false, inView = false;
   const tl = gsap.timeline({
     defaults: { ease: 'none' },
-    scrollTrigger: { trigger: story, start: 'top top', end: 'bottom bottom', scrub: 0.6, snap, onRefresh: () => measure() },
+    paused: true,
+    onComplete: () => { hold = gsap.delayedCall(HOLD_S, () => { hold = null; tl.restart(); }); if (!running) hold.pause(); },
     onUpdate: () => {
       const t = tl.time();
       // caret + línea activa
@@ -210,17 +216,32 @@ export function startStory(story: HTMLElement, STATIC: boolean, getLenis: () => 
       .fromTo(meta[i + 1], { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.04, ease: 'south' }, sw + 0.025);
   });
 
-  const st = tl.scrollTrigger!;
-  // botones del indicador → label del timeline
-  btns.forEach((b, i) => { const go = () => { const y = st.start + (st.end - st.start) * [0, 0.36, 0.68][i] + 2; const l = getLenis(); if (l) l.scrollTo(y, { duration: 1.2 }); else window.scrollTo(0, y); };
+  void getLenis;
+  tl.timeScale(1 / LOOP_S);
+  // reproducción por tiempo: play solo si la sección está en pantalla y la pestaña visible
+  const sync = () => {
+    const should = inView && !document.hidden;
+    if (should === running) return;
+    running = should;
+    if (should) { seen = true; if (hold) hold.resume(); else tl.resume(); }
+    else { tl.pause(); hold?.pause(); }
+  };
+  const io = new IntersectionObserver((es) => { inView = es.some((e) => e.isIntersecting); sync(); }, { threshold: 0.35 });
+  io.observe(story); off.push(() => io.disconnect());
+  const vis = () => sync(); document.addEventListener('visibilitychange', vis); off.push(() => document.removeEventListener('visibilitychange', vis));
+  const onRefresh = () => measure(); ScrollTrigger.addEventListener('refresh', onRefresh); off.push(() => ScrollTrigger.removeEventListener('refresh', onRefresh));
+  off.push(() => { hold?.kill(); tl.kill(); });
+  // botones del indicador → saltan a la etapa (y siguen reproduciéndose desde ahí)
+  btns.forEach((b, i) => { const go = () => { hold?.kill(); hold = null; tl.seek([0, 0.36, 0.68][i] + 0.001); if (running) tl.resume(); };
     b.addEventListener('click', go); off.push(() => b.removeEventListener('click', go)); });
 
-  // caret parpadea solo con el scroll quieto; blur se apaga con <50 fps sostenidos
+  // caret parpadea cuando no está tipeando; blur se apaga con <50 fps sostenidos
   let acc = 0, frames = 0, low = 0, blurOn = true, blink = false;
+  const typeEnd = 0.02 + each * n;
   const tick = (_t: number, dt: number) => {
-    const still = st.isActive && Math.abs(st.getVelocity()) < 5;
+    const still = !running || tl.time() > typeEnd || tl.time() < 0.02;
     if (still !== blink) { caret.classList.toggle('blink', still); blink = still; }
-    if (!blurOn || !st.isActive) return;
+    if (!blurOn || !running || !seen) return;
     acc += dt; frames++;
     if (acc >= 1000) { const fps = (frames * 1000) / acc; low = fps < 50 ? low + 1 : 0; acc = 0; frames = 0;
       if (low >= 2) { blurOn = false; blurTw.kill(); gsap.set(codeL, { filter: 'none' }); story.dataset.blur = 'off'; } }
