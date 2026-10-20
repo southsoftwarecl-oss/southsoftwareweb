@@ -598,8 +598,8 @@ html.rm .marquee .track,html.rm .hero-meta .scroll i::after{animation:none}
 .c-dash .kpis{gap:6px}.c-dash .kpi{padding:7px 8px;font-size:8.5px}.c-dash .kpi b{font-size:16px}
 .c-dash .chart{min-height:96px}
 @media (min-width:1025px){
- .story{height:180vh}
- .story .pin{position:sticky;top:0;height:100vh;display:flex;align-items:center}
+ .story{height:auto}
+ .story .pin{position:relative;min-height:min(100vh,860px);padding:96px 0;display:flex;align-items:center}
  .story .copy{height:320px}
  .story .step{position:absolute;left:0;right:0;top:0}
  .story .step+.step{opacity:0}
