@@ -1,6 +1,6 @@
 /**
  * Historia "Del commit al cliente" (story v3): una sola ventana que vive tres vidas
- * (código → interfaz → producto), scrubbed por scroll en desktop (≥1025px, pin sticky 180vh).
+ * (código → interfaz → producto), reproducida por tiempo en desktop (≥1025px): avanza sola (~20 s + 3,5 s de pausa final), sin depender del scroll.
  * Bajo 1025px y con html.rm / html.capture se muestran tres tarjetas de paso (.cards).
  * La animación vive en lib/story-motion.ts. Todos los números del panel son DATOS DE EJEMPLO.
  */
