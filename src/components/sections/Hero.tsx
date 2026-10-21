@@ -1,11 +1,12 @@
-/** Hero del home: wordmark SVG nítido que se ensambla al cargar + titular 'Cada detalle, en su lugar.' */
-import HeroWordmark from './HeroWordmark';
+/** Hero del home: partículas 3D + titular con reveal por palabra (preview 10, 1:1). */
+import HeroCanvas from '../three/HeroCanvas';
 import { Btn } from '../ui';
+import { michromaFamily } from '@/lib/fonts';
 
 export default function Hero() {
   return (
     <section className="hero" id="hero">
-      <HeroWordmark />
+      <HeroCanvas font={michromaFamily} />
       <div className="shade-b" />
       <div className="hx">
         <div className="wrap">

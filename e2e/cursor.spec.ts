@@ -110,14 +110,16 @@ test.describe('Cursor nativo · 1440×900', () => {
     await expect.poll(() => orb.locator('.ic').evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).m41), { timeout: 3000 }).toBeCloseTo(4, 0);
   });
 
-  test('hero: wordmark SVG sin seguidor visual', async ({ page }) => {
+  test('hero 3D: el metal líquido reacciona al puntero sin seguidor visual', async ({ page }) => {
     const errs = collectErrors(page);
-    await page.goto('/');
+    await page.goto('/?gl=mid');
     await settle(page);
-    await expect(page.locator('.hero .hero-wm')).toHaveCount(1);
+    await page.waitForFunction(() => !!(window as unknown as { __liq?: { engine: unknown } }).__liq?.engine, null, { timeout: 15000 });
+    const before = await page.evaluate(() => (window as unknown as { __liq: { cursor: number } }).__liq.cursor);
     for (let i = 0; i < 12; i++) await page.mouse.move(500 + i * 25, 260 + (i % 3) * 10);
+    await expect.poll(() => page.evaluate(() => (window as unknown as { __liq: { cursor: number } }).__liq.cursor), { timeout: 8000 }).toBeGreaterThan(Math.max(0.5, before));
     expect(await page.evaluate(() => document.querySelectorAll('.cursor, .cursor-ring, .cursor-dot').length)).toBe(0);
+    expect(await page.locator('.hero canvas').evaluate((el) => getComputedStyle(el).cursor)).not.toBe('none');
     expect(errs).toEqual([]);
   });
-
 });
