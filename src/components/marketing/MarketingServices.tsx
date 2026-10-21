@@ -6,7 +6,7 @@ export default function MarketingServices({ n, compact = false }: { n: number; c
   return (
     <section className={`sec mk-sec${compact ? ' mk-compact' : ''}`} id="marketing" aria-labelledby="marketing-t">
       <div className="wrap">
-        <SecHead n={n} eyebrow={`Marketing digital · liderado por ${MARKETING_LEAD}`}
+        <SecHead n={n} eyebrow="Marketing digital · Impulsamos tu negocio"
           title={<span id="marketing-t">Software &amp; Marketing.<br /><span className="dim">Tu web, y quien la haga crecer.</span></span>}
           lead={compact ? undefined : `Somos South Software: además de construir tu software, gestionamos tus redes, captamos clientes y administramos tus anuncios. El área de marketing la lidera ${MARKETING_LEAD}.`} />
         <div className="mk-grid">
