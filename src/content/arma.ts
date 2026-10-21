@@ -1,13 +1,13 @@
 /**
  * "Arma tu pack": precios tomados SOLO de PACKS, CUSTOM_PACK, MARKETING_PACKS y MARKETING_ONBOARDING (site.ts).
- * Regla combo (coherente con la propuesta, 10–15 %): si eliges al menos un servicio de software y al menos
- * un servicio mensual de marketing (plan o Meta Ads), la mensualidad total baja 10 % y el onboarding de marketing es gratis.
+ * Regla combo (elegida por Mathias: 15 %): si eliges al menos un servicio de software y al menos
+ * un servicio mensual de marketing (plan o Meta Ads), la mensualidad total baja 15 % y el onboarding de marketing es gratis.
  * El pago inicial de software no tiene descuento. La pauta publicitaria (lo que se paga a Meta) va siempre aparte.
  */
 import { CUSTOM_PACK, MARKETING_ONBOARDING, MARKETING_PACKS, PACKS } from './site';
 
-export const COMBO_DISCOUNT = 0.10;
-export const COMBO_RULE = 'Combo software + marketing: 10 % de descuento en la mensualidad total y onboarding de marketing gratis.';
+export const COMBO_DISCOUNT = 0.15;
+export const COMBO_RULE = 'Combo software + marketing: 15 % de descuento en la mensualidad total y onboarding de marketing gratis.';
 
 const num = (v: string) => Number(v.replace(/[^\d]/g, ''));
 const from = (v: string) => /^desde/i.test(v.trim());
@@ -54,5 +54,5 @@ export function quote(ids: string[]): Quote {
 export const fmt = (n: number, isFrom: boolean) => `${isFrom ? 'desde ' : ''}${clp(n)}`;
 
 export function quoteMessage(q: Quote) {
-  return `Hola, armé mi pack en la web: ${q.items.map((i) => i.label).join(', ')}. Pago inicial ${fmt(q.setup, q.from)} + ${fmt(q.monthly, q.from)}/mes${q.combo ? ' (con 10 % de descuento combo)' : ''}. ¿Conversamos?`;
+  return `Hola, armé mi pack en la web: ${q.items.map((i) => i.label).join(', ')}. Pago inicial ${fmt(q.setup, q.from)} + ${fmt(q.monthly, q.from)}/mes${q.combo ? ' (con 15 % de descuento combo)' : ''}. ¿Conversamos?`;
 }

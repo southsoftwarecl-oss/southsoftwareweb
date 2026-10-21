@@ -21,7 +21,7 @@ const totals = async (page: Page) => ({
 });
 const wa = async (page: Page) => new URL((await sec(page).locator('.atp-cta').getAttribute('href'))!).searchParams.get('text');
 
-test('lógica de precios: solo de site.ts, combo 10 % y onboarding gratis', () => {
+test('lógica de precios: solo de site.ts, combo 15 % y onboarding gratis', () => {
   const a = quote(['landing']);
   expect(a.setup).toBe(n(P('Emprende').setup)); expect(a.monthly).toBe(n(P('Emprende').monthly)); expect(a.combo).toBe(false);
   const b = quote(['pro', 'onboarding']);
@@ -29,11 +29,11 @@ test('lógica de precios: solo de site.ts, combo 10 % y onboarding gratis', () =
   const c = quote(['sitio-pyme', 'pro', 'onboarding']);
   expect(c.combo).toBe(true); expect(c.onboardingFree).toBe(true);
   expect(c.setup).toBe(n(P('Pyme').setup));
-  expect(c.monthly).toBe(Math.round((n(P('Pyme').monthly) + n(M('Marketing Pro').monthly)) * 0.9));
+  expect(c.monthly).toBe(Math.round((n(P('Pyme').monthly) + n(M('Marketing Pro').monthly)) * 0.85));
   const d = quote(['a-medida', 'meta-ads']);
   expect(d.from).toBe(true); expect(d.combo).toBe(true);
   expect(d.setup).toBe(n(CUSTOM_PACK.setup));
-  expect(d.monthly).toBe(Math.round((n(CUSTOM_PACK.monthly) + n(M('Solo Ads').monthly)) * 0.9));
+  expect(d.monthly).toBe(Math.round((n(CUSTOM_PACK.monthly) + n(M('Solo Ads').monthly)) * 0.85));
   expect(clp(1234567)).toBe('$1.234.567');
 });
 
@@ -53,7 +53,7 @@ test('totales en vivo, planes excluyentes y WhatsApp con servicios y totales', a
   const text = await wa(page);
   expect(text).toBe(quoteMessage(q));
   expect(text).toContain('Sitio pyme, Marketing Pro, Onboarding de marketing');
-  expect(text).toContain(`Pago inicial ${clp(q.setup)} + ${clp(q.monthly)}/mes (con 10 % de descuento combo)`);
+  expect(text).toContain(`Pago inicial ${clp(q.setup)} + ${clp(q.monthly)}/mes (con 15 % de descuento combo)`);
   const href = (await sec(page).locator('.atp-cta').getAttribute('href'))!;
   expect(href.startsWith(WA_URL.split('?')[0] + '?')).toBe(true);
   expect(href.match(/[?&]text=/g)?.length).toBe(1);
