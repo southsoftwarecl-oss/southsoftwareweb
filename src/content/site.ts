@@ -15,7 +15,7 @@ export const BRAND = {
   name: 'South Software',
   tagline: 'Software & Marketing',
   description:
-    'Somos South Software: Software & Marketing. Desarrollamos software a medida, apps y sitios web, y gestionamos redes sociales, captación de leads, Meta/Google Ads y contenido para pymes.',
+    'Somos South Software: Software & Marketing. Desarrollamos software a medida, apps y sitios web, y gestionamos redes sociales, captación de leads, Meta Ads y contenido para pymes.',
   email: 'contacto@southsoftware.cl',
   /** Teléfono / WhatsApp: `phone` para mostrar, `phoneE164` para tel: y JSON-LD. */
   phone: '+56 9 6471 0361',
@@ -95,8 +95,8 @@ export const MARKETING_SERVICES: { slug: string; title: string; desc: string; in
   { slug: 'captacion-de-leads', title: 'Captación de leads',
     desc: 'Campañas y landings pensadas para que los interesados te escriban por WhatsApp o formulario.',
     includes: ['Landing de captación', 'Formularios y WhatsApp conectados', 'Píxel de Meta y GA4', 'Seguimiento de leads'] },
-  { slug: 'meta-google-ads', title: 'Meta Ads y Google Ads',
-    desc: 'Creamos y optimizamos tus anuncios. La pauta (lo que se paga a Meta o Google) va siempre aparte.',
+  { slug: 'meta-ads', title: 'Meta Ads (Facebook e Instagram)',
+    desc: 'Creamos y optimizamos tus anuncios en Facebook e Instagram. La pauta (lo que se paga a Meta) va siempre aparte.',
     includes: ['Configuración de campañas', 'Segmentación y públicos', 'Optimización continua', 'Reporte de resultados'] },
   { slug: 'contenido', title: 'Contenido',
     desc: 'Piezas gráficas, reels y textos con la voz de tu marca, listos para publicar.',
@@ -142,13 +142,13 @@ export const MARKETING_PACKS: MktPack[] = [
   { name: 'Marketing Pro', setup: '$99.990', monthly: '$349.990', launch: '$299.990', featured: true,
     includes: ['Instagram + Facebook', '12 piezas al mes (2 reels) e historias semanales', 'Respuestas en 24 h', 'Gestión de 1 campaña de Meta Ads (pauta hasta $400.000)'] },
   { name: 'Marketing Full / Captación', setup: '$99.990', monthly: '$549.990', launch: '$489.990',
-    includes: ['Instagram + Facebook + TikTok', '16 piezas al mes (4 reels)', 'Meta Ads + Google Ads y landing de captación', 'Seguimiento de leads por WhatsApp y reunión mensual'] },
+    includes: ['Instagram + Facebook + TikTok', '16 piezas al mes (4 reels)', 'Meta Ads y landing de captación', 'Seguimiento de leads por WhatsApp y reunión mensual'] },
   { name: 'Solo Ads', setup: '$99.990', monthly: '$149.990', launch: null,
-    includes: ['Gestión de Meta Ads o Google Ads', 'Hasta 3 campañas', 'Pauta hasta $400.000', 'Sobre ese monto, +15 % de la pauta'] },
+    includes: ['Gestión de Meta Ads (Facebook e Instagram)', 'Hasta 3 campañas', 'Pauta hasta $400.000', 'Sobre ese monto, +15 % de la pauta'] },
 ];
 /** Software a medida (pack opcional de la propuesta). */
 export const CUSTOM_PACK = { name: 'Software a medida', setup: 'desde $1.900.000', monthly: 'desde $79.990' };
-export const ADS_NOTE = 'La pauta publicitaria (lo que se paga a Meta o Google) va siempre aparte.';
+export const ADS_NOTE = 'La pauta publicitaria (lo que se paga a Meta) va siempre aparte.';
 
 /** Proyectos / casos. `metrics` son PLACEHOLDER hasta que cada cliente valide cifras reales. */
 export type Case = {

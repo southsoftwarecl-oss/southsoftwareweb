@@ -770,3 +770,4 @@ select option { background-color: #0f172a; color: #f1f5f9; }
 @media (max-width:1024px){.mk-compact .mk-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.sec.mk-sec{padding:70px 0}}
 @media (max-width:760px){.mk-compact .mk-grid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;scrollbar-width:none}.mk-compact .mk-card{flex:0 0 78%;scroll-snap-align:center}
  .mk-sec:not(.mk-compact) .mk-grid{grid-template-columns:1fr 1fr;gap:10px}.mk-sec:not(.mk-compact) .mk-card{padding:16px}.mk-sec:not(.mk-compact) .mk-card p.mk-inc{display:none}}
+.mk-compact .sec-head{margin-bottom:14px}.mk-compact .mk-card{padding:16px 18px}.mk-compact .mk-card h3{font-size:16px;margin:6px 0 4px}.mk-compact .mk-card p{font-size:13px;line-height:1.45}.mk-compact .mk-link{margin-top:6px}

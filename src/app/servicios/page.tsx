@@ -17,7 +17,7 @@ import './servicios.css';
 
 export const metadata = pageMeta({
   title: 'Servicios',
-  description: 'Software & Marketing: software a medida, sitios web, apps, seguridad y datos, más gestión de redes sociales, captación de leads, Meta/Google Ads y contenido.',
+  description: 'Software & Marketing: software a medida, sitios web, apps, seguridad y datos, más gestión de redes sociales, captación de leads, Meta Ads y contenido.',
   path: '/servicios',
 });
 
