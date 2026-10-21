@@ -1,4 +1,5 @@
 /** Marketing digital (liderado por Ramón Ojeda): home y /servicios. Textos en content/site.ts. */
+import './marketing.css';
 import { MARKETING_LEAD, MARKETING_SERVICES } from '@/content/site';
 import { Btn, SecHead } from '../ui';
 

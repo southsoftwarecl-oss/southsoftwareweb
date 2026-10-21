@@ -1,5 +1,6 @@
 'use client';
 /** "Arma tu pack": calculadora con totales en vivo (lógica y precios en content/arma.ts). */
+import './marketing.css';
 import { useMemo, useState } from 'react';
 import { COMBO_RULE, EXTRA_ITEMS, PLAN_ITEMS, SOFTWARE_ITEMS, clp, fmt, quote, quoteMessage, type Item } from '@/content/arma';
 import { ADS_NOTE, waLink } from '@/content/site';
@@ -16,9 +17,10 @@ export default function ArmaTuPack() {
   const empty = q.items.length === 0;
 
   const Check = ({ i, list, set }: { i: Item; list: string[]; set: (v: string[]) => void }) => (
-    <label className="atp-opt">
-      <input type="checkbox" name={i.id} value={i.id} checked={list.includes(i.id)} onChange={() => toggle(list, set, i.id)} />
-      <span className="atp-l">{i.label}</span><span className="atp-p mono">{price(i)}</span>
+    <label className="atp-card">
+      <input type="checkbox" name={i.id} value={i.id} aria-label={i.label} checked={list.includes(i.id)} onChange={() => toggle(list, set, i.id)} />
+      <i className="atp-mk" aria-hidden="true" />
+      <span className="atp-name">{i.label}</span><span className="atp-price">{price(i)}</span><span className="atp-note">{i.note}</span>
     </label>
   );
 
@@ -33,20 +35,21 @@ export default function ArmaTuPack() {
           <div className="atp-form">
             <fieldset>
               <legend>Software</legend>
-              {SOFTWARE_ITEMS.map((i) => <Check key={i.id} i={i} list={sw} set={setSw} />)}
+              <div className="atp-grid">{SOFTWARE_ITEMS.map((i) => <Check key={i.id} i={i} list={sw} set={setSw} />)}</div>
             </fieldset>
             <fieldset>
               <legend>Marketing</legend>
-              <div role="radiogroup" aria-label="Plan de marketing (elige uno)" className="atp-plans">
-                <label className="atp-opt"><input type="radio" name="plan" value="" checked={plan === ''} onChange={() => setPlan('')} /><span className="atp-l">Sin plan de marketing</span><span className="atp-p" /></label>
+              <div role="radiogroup" aria-label="Plan de marketing (elige uno)" className="atp-seg">
+                <label className="atp-card"><input type="radio" name="plan" value="" aria-label="Sin plan de marketing" checked={plan === ''} onChange={() => setPlan('')} /><i className="atp-mk" aria-hidden="true" /><span className="atp-name">Sin plan</span><span className="atp-note">Solo software o solo extras</span></label>
                 {PLAN_ITEMS.map((i) => (
-                  <label className="atp-opt" key={i.id}>
-                    <input type="radio" name="plan" value={i.id} checked={plan === i.id} onChange={() => setPlan(i.id)} />
-                    <span className="atp-l">{i.label}</span><span className="atp-p mono">{price(i)}</span>
+                  <label className="atp-card" key={i.id}>
+                    <input type="radio" name="plan" value={i.id} aria-label={i.label} checked={plan === i.id} onChange={() => setPlan(i.id)} />
+                    <i className="atp-mk" aria-hidden="true" />
+                    <span className="atp-name">{i.label.replace('Marketing ', '')}</span><span className="atp-price">{price(i)}</span><span className="atp-note">{i.note}</span>
                   </label>
                 ))}
               </div>
-              {EXTRA_ITEMS.map((i) => <Check key={i.id} i={i} list={extra} set={setExtra} />)}
+              <div className="atp-grid">{EXTRA_ITEMS.map((i) => <Check key={i.id} i={i} list={extra} set={setExtra} />)}</div>
             </fieldset>
           </div>
           <aside className="atp-sum" aria-labelledby="atp-sum-t">

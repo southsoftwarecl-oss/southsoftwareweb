@@ -2,6 +2,7 @@
  * Franja de precios del home: "Desde $X" para los packs principales
  * (lista HOME_PACKS en content/site.ts; valores tomados tal cual de PACKS) + CTA a /packs.
  */
+import '../marketing/marketing.css';
 import { HOME_PACKS, PACKS } from '@/content/site';
 import { Btn } from '../ui';
 

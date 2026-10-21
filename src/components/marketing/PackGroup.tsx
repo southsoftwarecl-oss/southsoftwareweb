@@ -1,4 +1,5 @@
 /** Grupo de packs Combinados / Solo marketing (valores exactos de content/site.ts) con WhatsApp precargado. */
+import './marketing.css';
 import { packMessage, waLink, type MktPack } from '@/content/site';
 import { Btn } from '../ui';
 

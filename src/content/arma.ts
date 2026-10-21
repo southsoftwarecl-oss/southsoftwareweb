@@ -13,27 +13,28 @@ const num = (v: string) => Number(v.replace(/[^\d]/g, ''));
 const from = (v: string) => /^desde/i.test(v.trim());
 export const clp = (n: number) => '$' + String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 
-export type Item = { id: string; label: string; setup: number; monthly: number; from: boolean; group: 'software' | 'plan' | 'extra' };
+export type Item = { id: string; label: string; setup: number; monthly: number; from: boolean; group: 'software' | 'plan' | 'extra'; note: string };
 const pk = (name: string) => PACKS.find((p) => p.name === name)!;
-const sw = (id: string, label: string, p: { setup: string; monthly: string }): Item =>
-  ({ id, label, setup: num(p.setup), monthly: num(p.monthly), from: from(p.setup) || from(p.monthly), group: 'software' });
+const sw = (id: string, label: string, p: { setup: string; monthly: string }, note: string): Item =>
+  ({ id, label, setup: num(p.setup), monthly: num(p.monthly), from: from(p.setup) || from(p.monthly), group: 'software', note });
+const n0 = (name: string) => PACKS.find((p) => p.name === name)!.includes[0];
 const mk = (name: string) => MARKETING_PACKS.find((p) => p.name === name)!;
 
 export const SOFTWARE_ITEMS: Item[] = [
-  sw('landing', 'Landing', pk('Emprende')),
-  sw('sitio-pyme', 'Sitio pyme', pk('Pyme')),
-  sw('catalogo', 'Catálogo', pk('Automotora / Catálogo')),
-  sw('ecommerce', 'E-commerce', pk('E-commerce')),
-  sw('app', 'App', pk('App')),
-  sw('seguridad', 'Seguridad', pk('Seguridad')),
-  sw('datos', 'Datos', pk('Datos')),
-  sw('a-medida', 'Software a medida', CUSTOM_PACK),
+  sw('landing', 'Landing', pk('Emprende'), n0('Emprende')),
+  sw('sitio-pyme', 'Sitio pyme', pk('Pyme'), n0('Pyme')),
+  sw('catalogo', 'Catálogo', pk('Automotora / Catálogo'), n0('Automotora / Catálogo')),
+  sw('ecommerce', 'E-commerce', pk('E-commerce'), n0('E-commerce')),
+  sw('app', 'App', pk('App'), n0('App')),
+  sw('seguridad', 'Seguridad', pk('Seguridad'), n0('Seguridad')),
+  sw('datos', 'Datos', pk('Datos'), n0('Datos')),
+  sw('a-medida', 'Software a medida', CUSTOM_PACK, 'Sistema interno, reservas o portal'),
 ];
-const plan = (id: string, label: string, name: string): Item => ({ id, label, setup: 0, monthly: num(mk(name).monthly), from: false, group: 'plan' });
+const plan = (id: string, label: string, name: string): Item => ({ id, label, setup: 0, monthly: num(mk(name).monthly), from: false, group: 'plan', note: mk(name).includes[1] });
 export const PLAN_ITEMS: Item[] = [plan('basico', 'Marketing Básico', 'Marketing Básico'), plan('pro', 'Marketing Pro', 'Marketing Pro'), plan('full', 'Marketing Full / Captación', 'Marketing Full / Captación')];
 export const EXTRA_ITEMS: Item[] = [
-  { id: 'meta-ads', label: 'Meta Ads (Facebook e Instagram)', setup: 0, monthly: num(mk('Solo Ads').monthly), from: false, group: 'extra' },
-  { id: 'onboarding', label: 'Onboarding de marketing', setup: num(MARKETING_ONBOARDING.price), monthly: 0, from: false, group: 'extra' },
+  { id: 'meta-ads', label: 'Meta Ads (Facebook e Instagram)', setup: 0, monthly: num(mk('Solo Ads').monthly), from: false, group: 'extra', note: 'Hasta 3 campañas en Facebook e Instagram' },
+  { id: 'onboarding', label: 'Onboarding de marketing', setup: num(MARKETING_ONBOARDING.price), monthly: 0, from: false, group: 'extra', note: MARKETING_ONBOARDING.includes },
 ];
 export const ALL_ITEMS = [...SOFTWARE_ITEMS, ...PLAN_ITEMS, ...EXTRA_ITEMS];
 
