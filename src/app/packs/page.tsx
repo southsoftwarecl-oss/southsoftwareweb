@@ -3,6 +3,7 @@ import Page from '@/components/Page';
 import PageHero from '@/components/PageHero';
 import Packs from '@/components/sections/Packs';
 import Final from '@/components/sections/Final';
+import ArmaTuPack from '@/components/marketing/ArmaTuPack';
 import PackGroup from '@/components/marketing/PackGroup';
 import { ADS_NOTE, COMBO_PACKS, MARKETING_ONBOARDING, MARKETING_PACKS } from '@/content/site';
 import { JsonLd } from '@/components/ui';
@@ -20,8 +21,9 @@ export default function PacksPage() {
       <PageHero crumb={[{ href: '', label: 'Packs' }]} eyebrow="Packs y precios" title={<>Precio claro.<br /><span className="dim">Desde el primer día.</span></>}
         lead="Somos South Software: Software & Marketing. Elige un pack combinado, solo marketing o solo software. Valores brutos." />
       <nav className="wrap pk-groups" aria-label="Grupos de packs">
-        <a href="#combinados">Combinados</a><a href="#solo-marketing">Solo marketing</a><a href="#packs">Solo software</a>
+        <a href="#arma-tu-pack">Arma tu pack</a><a href="#combinados">Combinados</a><a href="#solo-marketing">Solo marketing</a><a href="#packs">Solo software</a>
       </nav>
+      <ArmaTuPack />
       <PackGroup id="combinados" title="Combinados" setupLabel="Pago inicial"
         lead="Web o app + marketing en un solo plan, más barato que contratarlos por separado. El onboarding de marketing va incluido."
         packs={COMBO_PACKS} note={`Precio de lanzamiento por los 3 primeros meses; después rige la mensualidad indicada. ${ADS_NOTE}`} />

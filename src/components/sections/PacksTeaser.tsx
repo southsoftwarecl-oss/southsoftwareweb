@@ -26,7 +26,7 @@ export default function PacksTeaser({ n = 4 }: { n?: number }) {
               </li>
             ))}
           </ul>
-          <div className="strip-cta" data-reveal><Btn href="/packs">Ver todos los packs</Btn></div>
+          <div className="strip-cta" data-reveal><Btn href="/packs">Ver todos los packs</Btn><Btn href="/packs#arma-tu-pack" variant="ghost">Arma tu pack</Btn></div>
         </div>
       </div>
     </section>
