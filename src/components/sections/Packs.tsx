@@ -4,7 +4,7 @@
  * el JS solo lo envuelve en columnas de odómetro (aria-hidden) y deja el valor en aria-label + texto sr-only.
  * Móvil (<760px): carrusel con scroll-snap, puntos y contador "n / 8" (aria-live).
  */
-import { FOUNDERS, FOUNDERS_MESSAGE, PACKS, packMessage, waLink } from '@/content/site';
+import { CUSTOM_PACK, FOUNDERS, FOUNDERS_MESSAGE, PACKS, packMessage, waLink } from '@/content/site';
 import { Btn, SecHead } from '../ui';
 
 /** "desde $1.490.000" → { from: true, amount: "$1.490.000" }. No cambia el valor, solo separa el prefijo. */
@@ -27,7 +27,7 @@ export default function Packs({ n = 5, head = true }: { n?: number; head?: boole
   const total = PACKS.length + 1;
   const start = Math.max(0, PACKS.findIndex((p) => p.featured));
   return (
-    <section className="sec sec-packs" id="packs" style={head ? undefined : { paddingTop: 40 }} aria-label={head ? undefined : 'Packs y precios'}>
+    <section className="sec sec-packs" id="packs" style={head ? undefined : { paddingTop: 40 }} aria-label={head ? undefined : 'Solo software'}>
       <div className="wrap">
         {head && <SecHead n={n} eyebrow="Packs y precios" title={<>Precio claro.<br /><span className="dim">Desde el primer día.</span></>}
           lead="Un pago inicial para construir y una mensualidad que cubre hosting, dominio, respaldos, cambios y soporte. Valores brutos con boleta de honorarios." />}
@@ -52,12 +52,12 @@ export default function Packs({ n = 5, head = true }: { n?: number; head?: boole
           <article className="pack">
             <i className="rim" aria-hidden="true"><i /></i>
             <div className="pk-c">
-              <H className="pn">Software a medida</H>
-              <small className="pl">Por alcance</small>
-              <div className="pr">Cotización</div>
-              <div className="mo">Escritorio, ERP, integraciones</div>
-              <ul>{['Levantamiento de procesos', 'Prototipo antes de programar', 'Pago por hitos', 'Soporte mensual opcional'].map((x) => <li key={x}><Check /><span>{x}</span></li>)}</ul>
-              <Btn href="/contacto" variant="ghost" icon={false}>Conversemos</Btn>
+              <H className="pn">{CUSTOM_PACK.name}</H>
+              <small className="pl">Pago inicial · desde</small>
+              <div className="pr">{splitPrice(CUSTOM_PACK.setup).amount}</div>
+              <div className="mo">+ <b>{CUSTOM_PACK.monthly}</b> / mes</div>
+              <ul>{['Sistema interno, reservas o portal', 'Prototipo antes de programar', 'Pago por hitos', 'Soporte mensual'].map((x) => <li key={x}><Check /><span>{x}</span></li>)}</ul>
+              <Btn href={waLink(packMessage(CUSTOM_PACK))} external variant="ghost" icon={false}>Conversemos</Btn>
             </div>
           </article>
         </div>

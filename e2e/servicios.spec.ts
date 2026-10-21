@@ -1,10 +1,10 @@
 import { expect, test, type Page } from '@playwright/test';
-import { PACKS, SERVICES, STACK } from '../src/content/site';
+import { MARKETING_SERVICES, PACKS, SERVICES, STACK } from '../src/content/site';
 import { NEEDS, SIZES, packFor } from '../src/content/servicios';
 
 /**
  * /servicios "vivos": selector con demos, configurador "Arma tu proyecto", proceso y stack interactivos.
- * Alturas: ≤ 6 × innerHeight en escritorio y ≤ 9 × en móvil. Precios EXACTOS de PACKS.
+ * Alturas: ≤ 7,5 × innerHeight en escritorio y ≤ 10 × en móvil (incluye la sección de marketing digital). Precios EXACTOS de PACKS.
  */
 async function open(page: Page, url = '/servicios', errors?: string[]) {
   if (errors) {
@@ -26,7 +26,7 @@ for (const vp of [{ width: 1440, height: 900 }, { width: 1280, height: 680 }]) {
     const res = await open(page, '/servicios', errors);
     expect(res?.status()).toBe(200);
     const m = await page.evaluate(() => ({ h: document.documentElement.scrollHeight, ih: innerHeight, sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }));
-    expect(m.h, `scrollHeight ${m.h} ≤ 6 × ${m.ih}`).toBeLessThanOrEqual(6 * m.ih);
+    expect(m.h, `scrollHeight ${m.h} ≤ 7.5 × ${m.ih}`).toBeLessThanOrEqual(7.5 * m.ih);
     expect(m.sw, 'sin overflow horizontal').toBeLessThanOrEqual(m.cw);
     // bloque del selector ≤ 1,25 vh; configurador ≤ 0,9 vh; proceso ≤ 0,9 vh
     const hs = await page.evaluate(() => ({ sv: document.querySelector('.sv')!.getBoundingClientRect().height, cfg: document.querySelector('.cfg')!.getBoundingClientRect().height, ps: document.querySelector('.ps-d')!.getBoundingClientRect().height + document.querySelector('.ps-head')!.getBoundingClientRect().height }));
@@ -44,7 +44,7 @@ test('altura, 200 y sin errores 390×844 @mobile', async ({ page }) => {
   const res = await open(page, '/servicios', errors);
   expect(res?.status()).toBe(200);
   const m = await page.evaluate(() => ({ h: document.documentElement.scrollHeight, ih: innerHeight, sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }));
-  expect(m.h, `scrollHeight ${m.h} ≤ 9 × ${m.ih}`).toBeLessThanOrEqual(9 * m.ih);
+  expect(m.h, `scrollHeight ${m.h} ≤ 10 × ${m.ih}`).toBeLessThanOrEqual(10 * m.ih);
   expect(m.sw, 'sin overflow horizontal').toBeLessThanOrEqual(m.cw);
   const sv = await page.locator('.sv').evaluate((e) => e.getBoundingClientRect().height);
   expect(sv, 'acordeón con un ítem abierto ≤ 2,6 vh').toBeLessThanOrEqual(2.6 * m.ih);
@@ -216,4 +216,13 @@ test('sin violeta y sin cursor seguidor', async ({ page }) => {
   });
   expect(purple).toEqual([]);
   await expect(page.locator('.cursor, .cursor-ring')).toHaveCount(0);
+});
+
+test('marketing digital en /servicios y en el home, liderado por Ramón Ojeda', async ({ request }) => {
+  for (const url of ['/servicios', '/']) {
+    const html = await (await request.get(url)).text();
+    for (const s of MARKETING_SERVICES) expect(html, url).toContain(s.title);
+    expect(html, url).toContain('liderado por Ramón Ojeda');
+    expect(html, url).toContain('Software &amp; Marketing');
+  }
 });

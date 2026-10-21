@@ -13,7 +13,7 @@ export default function Footer() {
         <div className="ft">
           <div className="about">
             <Logo />
-            <p>Software a medida, apps, web, seguridad y datos. Para empresas de todo Chile.</p>
+            <p>Software &amp; Marketing. Software a medida, apps, web, seguridad, datos y marketing digital.</p>
           </div>
           <div className="col">
             <h2 className="h5">Servicios</h2>

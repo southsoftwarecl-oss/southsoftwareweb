@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 const PAGES = [
   { link: 'Packs', url: '/packs', h1: /Precio claro/ },
-  { link: 'Servicios', url: '/servicios', h1: /Seis disciplinas/ },
+  { link: 'Servicios', url: '/servicios', h1: /Software & Marketing/ },
   { link: 'Proyectos', url: '/proyectos', h1: /Hecho en el sur/ },
   { link: 'Nosotros', url: '/nosotros', h1: /Software hecho/ },
   { link: 'Contacto', url: '/contacto', h1: /Agenda una/ },
@@ -92,7 +92,7 @@ test.describe('Navegación', () => {
     await menu.getByRole('link', { name: /Servicios/ }).click();
     await expect(page).toHaveURL(/\/servicios$/);
     await expect(menu).toBeHidden();
-    await expect(page.locator('h1:visible')).toContainText('Seis disciplinas');
+    await expect(page.locator('h1:visible')).toContainText('Software & Marketing');
   });
 
   test('sin overflow horizontal en móvil @mobile', async ({ page, isMobile }) => {

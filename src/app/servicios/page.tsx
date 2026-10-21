@@ -10,13 +10,14 @@ import Selector from '@/components/servicios/Selector';
 import Configurator from '@/components/servicios/Configurator';
 import ProcessLive from '@/components/servicios/ProcessLive';
 import StackLive from '@/components/servicios/StackLive';
+import MarketingServices from '@/components/marketing/MarketingServices';
 import { JsonLd } from '@/components/ui';
 import { pageMeta, servicesJsonLd } from '@/lib/seo';
 import './servicios.css';
 
 export const metadata = pageMeta({
   title: 'Servicios',
-  description: 'Software a medida, software de escritorio, sitios web, apps móviles, seguridad informática y ciencia de datos. Desarrollo para empresas de todo Chile.',
+  description: 'Software & Marketing: software a medida, sitios web, apps, seguridad y datos, más gestión de redes sociales, captación de leads, Meta/Google Ads y contenido.',
   path: '/servicios',
 });
 
@@ -24,8 +25,8 @@ export default function Servicios() {
   return (
     <Page>
       <div className="svp">
-        <PageHero crumb={[{ href: '', label: 'Servicios' }]} eyebrow="Servicios" title={<>Seis disciplinas.<br /><span className="dim">Un solo equipo.</span></>}
-          lead="Diseñamos, programamos, protegemos y medimos. Todo bajo el mismo techo, con un solo interlocutor que responde por el resultado." />
+        <PageHero crumb={[{ href: '', label: 'Servicios' }]} eyebrow="Servicios" title={<>Software &amp; Marketing.<br /><span className="dim">Un solo equipo.</span></>}
+          lead="Somos South Software. Diseñamos, programamos, protegemos y medimos, y además hacemos crecer tu marca con marketing digital. Todo bajo el mismo techo." />
         <section className="sec sv-sec" id="detalle" aria-label="Detalle de servicios">
           <div className="wrap">
             <div className="eyebrow sv-eyebrow"><b>(01)</b>Servicios · elige uno para verlo en acción</div>
@@ -33,9 +34,10 @@ export default function Servicios() {
             <Configurator />
           </div>
         </section>
-        <ProcessLive n={2} />
-        <StackLive n={3} />
-        <Final n={4} />
+        <MarketingServices n={2} />
+        <ProcessLive n={3} />
+        <StackLive n={4} />
+        <Final n={5} />
       </div>
       <JsonLd data={servicesJsonLd} />
     </Page>

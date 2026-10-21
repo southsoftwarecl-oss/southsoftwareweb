@@ -1,8 +1,8 @@
 /** Helpers SEO: metadata por página y JSON-LD (Organization / ProfessionalService / Service). */
 import type { Metadata } from 'next';
-import { BRAND, PACKS, SERVICES, SITE_URL } from '@/content/site';
+import { BRAND, MARKETING_SERVICES, PACKS, SERVICES, SITE_URL } from '@/content/site';
 
-const OG_IMAGE = { url: '/opengraph-image.jpg', width: 1200, height: 630, alt: 'South Software — desarrollo de software para todo Chile' };
+const OG_IMAGE = { url: '/opengraph-image.jpg', width: 1200, height: 630, alt: 'South Software — Software & Marketing' };
 
 export function pageMeta({ title, description, path }: { title: string; description: string; path: string }): Metadata {
   return {
@@ -26,7 +26,7 @@ export const orgJsonLd = {
   telephone: BRAND.phoneE164,
   address: { '@type': 'PostalAddress', addressCountry: 'CL' },
   areaServed: { '@type': 'Country', name: 'Chile' },
-  knowsAbout: SERVICES.map((s) => s.title),
+  knowsAbout: [...SERVICES.map((s) => s.title), ...MARKETING_SERVICES.map((s) => s.title)],
   sameAs: [BRAND.instagram.url],
 };
 
@@ -36,6 +36,10 @@ const clp = (s: string) => Number(s.replace(/[^\d]/g, ''));
 export const servicesJsonLd = {
   '@context': 'https://schema.org',
   '@graph': [
+    ...MARKETING_SERVICES.map((s) => ({
+      '@type': 'Service', '@id': `${SITE_URL}/servicios#mk-${s.slug}`, name: s.title, description: s.desc, serviceType: 'Marketing digital',
+      provider: { '@id': `${SITE_URL}/#org` }, areaServed: { '@type': 'Country', name: 'Chile' },
+    })),
     ...SERVICES.map((s) => ({
       '@type': 'Service', '@id': `${SITE_URL}/servicios#${s.slug}`, name: s.title, description: s.desc, serviceType: s.title,
       provider: { '@id': `${SITE_URL}/#org` }, areaServed: { '@type': 'Country', name: 'Chile' },
@@ -56,8 +60,8 @@ export const packsJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Service',
   '@id': `${SITE_URL}/packs#service`,
-  name: 'Packs de desarrollo web y software',
-  serviceType: 'Desarrollo de sitios web, apps y software',
+  name: 'Packs de software y marketing',
+  serviceType: 'Desarrollo de sitios web, apps, software y marketing digital',
   provider: { '@id': `${SITE_URL}/#org` },
   areaServed: { '@type': 'Country', name: 'Chile' },
   url: `${SITE_URL}/packs`,

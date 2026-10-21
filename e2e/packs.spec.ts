@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { PACKS, WA_URL } from '../src/content/site';
+import { COMBO_PACKS, CUSTOM_PACK, MARKETING_PACKS, PACKS, WA_URL } from '../src/content/site';
 
 /**
  * Packs v3 — "Forja de cromo" (/packs). Precios exactos de PACKS tras la animación, una sola línea de precio,
@@ -107,7 +107,8 @@ test('WhatsApp precargado: cada "Elegir pack" lleva su pack y precios exactos', 
     const text = new URL(h).searchParams.get('text');
     expect(text).toBe(`Hola, me interesa el pack ${p.name} (pago inicial ${p.setup} + ${p.monthly}/mes). ¿Conversamos?`);
   });
-  expect(hrefs[PACKS.length].href).toBe('/contacto'); // Software a medida
+  // Software a medida (desde $1.900.000 + desde $79.990): WhatsApp precargado
+  expect(new URL(hrefs[PACKS.length].href).searchParams.get('text')).toBe(`Hola, me interesa el pack ${CUSTOM_PACK.name} (pago inicial ${CUSTOM_PACK.setup} + ${CUSTOM_PACK.monthly}/mes). ¿Conversamos?`);
   const cupo = await page.locator('#packs .founders .btn').getAttribute('href');
   expect(new URL(cupo!).searchParams.get('text')).toBe('Quiero reservar un cupo de Cliente Fundador');
   expect(cupo!.match(/[?&]text=/g)?.length).toBe(1);
@@ -188,5 +189,28 @@ test('/packs responde 200 a 390×844 sin errores de consola @mobile', async ({ p
   await page.setViewportSize({ width: 390, height: 844 });
   const errors = await open(page);
   await page.waitForTimeout(1500);
+  expect(errors).toEqual([]);
+});
+
+test('grupos Combinados / Solo marketing / Solo software: precios exactos, lanzamiento y WhatsApp precargado', async ({ page }) => {
+  const errors = await open(page);
+  for (const id of ['combinados', 'solo-marketing', 'packs']) await expect(page.locator(`.pk-groups a[href="#${id}"]`)).toBeVisible();
+  for (const [id, list] of [['combinados', COMBO_PACKS], ['solo-marketing', MARKETING_PACKS]] as const) {
+    const cards = page.locator(`#${id} .mkp`);
+    await expect(cards).toHaveCount(list.length);
+    for (const [i, p] of list.entries()) {
+      const c = cards.nth(i);
+      await expect(c.locator('.mkp-n')).toHaveText(p.name);
+      await expect(c.locator('.mkp-setup')).toHaveText(p.setup);
+      await expect(c.locator('.mkp-mo b')).toHaveText(p.monthly);
+      if (p.launch) await expect(c.locator('.mkp-launch')).toContainText(`Precio de lanzamiento: ${p.launch}/mes`);
+      else await expect(c.locator('.mkp-launch')).toHaveCount(0);
+      const h = (await c.locator('.mkp-btn').getAttribute('href'))!;
+      expect(h.startsWith(WA_URL.split('?')[0] + '?')).toBe(true);
+      expect(h.match(/[?&]text=/g)?.length).toBe(1);
+      expect(new URL(h).searchParams.get('text')).toBe(`Hola, me interesa el pack ${p.name} (pago inicial ${p.setup} + ${p.monthly}/mes). ¿Conversamos?`);
+    }
+    await expect(page.locator(`#${id} .fine`)).toContainText('pauta publicitaria');
+  }
   expect(errors).toEqual([]);
 });

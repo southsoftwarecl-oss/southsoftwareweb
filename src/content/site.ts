@@ -13,9 +13,9 @@ export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://southsoftw
 
 export const BRAND = {
   name: 'South Software',
-  tagline: 'Desarrollo de software para todo Chile',
+  tagline: 'Software & Marketing',
   description:
-    'South Software construye software a medida, apps, sitios web, ciberseguridad y ciencia de datos para empresas de todo Chile.',
+    'Somos South Software: Software & Marketing. Desarrollamos software a medida, apps y sitios web, y gestionamos redes sociales, captación de leads, Meta/Google Ads y contenido para pymes.',
   email: 'contacto@southsoftware.cl',
   /** Teléfono / WhatsApp: `phone` para mostrar, `phoneE164` para tel: y JSON-LD. */
   phone: '+56 9 6471 0361',
@@ -84,6 +84,25 @@ export const SERVICES: {
     includes: ['Conexión a tus fuentes de datos', 'Indicadores clave definidos contigo', 'Actualización automática', 'Capacitación al equipo'] },
 ];
 
+/**
+ * MARKETING DIGITAL — liderado por Ramón Ojeda (ver TEAM). Servicios sin cifras ni resultados inventados.
+ */
+export const MARKETING_LEAD = 'Ramón Ojeda';
+export const MARKETING_SERVICES: { slug: string; title: string; desc: string; includes: string[] }[] = [
+  { slug: 'redes-sociales', title: 'Gestión de redes sociales',
+    desc: 'Planificamos, diseñamos y publicamos en Instagram, Facebook y TikTok, y respondemos a tu comunidad.',
+    includes: ['Calendario mensual de publicaciones', 'Posts, historias y reels', 'Respuesta a comentarios y mensajes', 'Reporte mensual'] },
+  { slug: 'captacion-de-leads', title: 'Captación de leads',
+    desc: 'Campañas y landings pensadas para que los interesados te escriban por WhatsApp o formulario.',
+    includes: ['Landing de captación', 'Formularios y WhatsApp conectados', 'Píxel de Meta y GA4', 'Seguimiento de leads'] },
+  { slug: 'meta-google-ads', title: 'Meta Ads y Google Ads',
+    desc: 'Creamos y optimizamos tus anuncios. La pauta (lo que se paga a Meta o Google) va siempre aparte.',
+    includes: ['Configuración de campañas', 'Segmentación y públicos', 'Optimización continua', 'Reporte de resultados'] },
+  { slug: 'contenido', title: 'Contenido',
+    desc: 'Piezas gráficas, reels y textos con la voz de tu marca, listos para publicar.',
+    includes: ['Diseño de posts y carruseles', 'Edición de reels', 'Textos y llamados a la acción', 'Línea gráfica coherente'] },
+];
+
 /** Packs: precios exactos (CLP, valores brutos). */
 /** Packs que se muestran en la franja de precios del home (por nombre, deben existir en PACKS). */
 export const HOME_PACKS = ['Emprende', 'Pyme', 'E-commerce'] as const;
@@ -97,6 +116,39 @@ export const PACKS: { name: string; setup: string; monthly: string; featured?: b
   { name: 'Seguridad', setup: '$249.990', monthly: '$29.990', includes: ['Diagnóstico de web y correo', 'Informe ejecutivo y plan de remediación', 'Monitoreo y alertas por WhatsApp', 'Escaneo mensual de vulnerabilidades'] },
   { name: 'Datos', setup: 'desde $390.000', monthly: 'desde $39.990', includes: ['Dashboard con 1–2 fuentes de datos', 'Hasta 8 indicadores clave', 'Actualización automática', 'Capacitación incluida'] },
 ];
+
+/**
+ * Packs combinados (web/app + marketing) y solo marketing: valores EXACTOS de precios/packs-marketing.md.
+ * `launch` = precio de lanzamiento mensual por los 3 primeros meses. La pauta publicitaria va siempre aparte.
+ */
+export type MktPack = { name: string; tag?: string; setup: string; monthly: string; launch: string | null; featured?: boolean; includes: string[]; ideal?: string };
+export const COMBO_PACKS: MktPack[] = [
+  { name: 'Despega', tag: 'Emprende + Marketing Básico', setup: '$149.990', monthly: '$189.990', launch: '$169.990',
+    includes: ['Landing de 1 página, WhatsApp, dominio, hosting y SSL', '2 redes, 8 posts y 4 historias al mes', 'Respuestas en 48 h', 'Reporte mensual'], ideal: 'Emprendedor que parte de cero' },
+  { name: 'Crece', tag: 'Pyme + Marketing Pro', setup: '$349.990', monthly: '$329.990', launch: '$299.990', featured: true,
+    includes: ['Sitio de 6 secciones, SEO local y 2 correos', '12 piezas al mes (2 reels) e historias semanales', 'Respuestas en 24 h', 'Gestión de 1 campaña de Meta Ads'], ideal: 'Pyme de servicios que quiere clientes constantes' },
+  { name: 'Catálogo + Leads', tag: 'Automotora / Catálogo + Ads', setup: '$549.990', monthly: '$269.990', launch: '$239.990',
+    includes: ['Catálogo autoadministrable', 'Campañas Meta de leads a WhatsApp o formulario', 'Píxel de Meta', 'Reporte de leads'], ideal: 'Automotoras, corredoras y venta por catálogo' },
+  { name: 'Vende', tag: 'E-commerce + Marketing Pro + Ads', setup: '$699.990', monthly: '$479.990', launch: '$429.990',
+    includes: ['Tienda con Webpay o Mercado Pago, 50 productos', 'Marketing Pro', 'Catálogo de Meta y remarketing'], ideal: 'Tienda que quiere vender online' },
+  { name: 'Total', tag: 'Web + App + Marketing Full', setup: 'desde $1.790.000', monthly: 'desde $599.990', launch: 'desde $549.990',
+    includes: ['Sitio Pyme', 'App MVP/PWA con pago por hitos', 'Marketing Full con lanzamiento de la app'], ideal: 'Negocio que lanza una app o plataforma' },
+];
+/** Onboarding único de los planes solo marketing (gratis en los combinados). */
+export const MARKETING_ONBOARDING = { price: '$99.990', includes: 'Auditoría de redes, perfil y bio, píxel de Meta y GA4' };
+export const MARKETING_PACKS: MktPack[] = [
+  { name: 'Marketing Básico', setup: '$99.990', monthly: '$189.990', launch: '$149.990',
+    includes: ['Instagram + Facebook', '8 posts y 4 historias al mes', 'Respuestas en 48 h', 'Reporte mensual'] },
+  { name: 'Marketing Pro', setup: '$99.990', monthly: '$349.990', launch: '$299.990', featured: true,
+    includes: ['Instagram + Facebook', '12 piezas al mes (2 reels) e historias semanales', 'Respuestas en 24 h', 'Gestión de 1 campaña de Meta Ads (pauta hasta $400.000)'] },
+  { name: 'Marketing Full / Captación', setup: '$99.990', monthly: '$549.990', launch: '$489.990',
+    includes: ['Instagram + Facebook + TikTok', '16 piezas al mes (4 reels)', 'Meta Ads + Google Ads y landing de captación', 'Seguimiento de leads por WhatsApp y reunión mensual'] },
+  { name: 'Solo Ads', setup: '$99.990', monthly: '$149.990', launch: null,
+    includes: ['Gestión de Meta Ads o Google Ads', 'Hasta 3 campañas', 'Pauta hasta $400.000', 'Sobre ese monto, +15 % de la pauta'] },
+];
+/** Software a medida (pack opcional de la propuesta). */
+export const CUSTOM_PACK = { name: 'Software a medida', setup: 'desde $1.900.000', monthly: 'desde $79.990' };
+export const ADS_NOTE = 'La pauta publicitaria (lo que se paga a Meta o Google) va siempre aparte.';
 
 /** Proyectos / casos. `metrics` son PLACEHOLDER hasta que cada cliente valide cifras reales. */
 export type Case = {
@@ -168,14 +220,14 @@ export const MARQUEE = ['Next.js', 'React', 'TypeScript', 'Node.js', 'Flutter', 
 
 /** Contadores: SOLO datos reales y verificables. */
 export const COUNTERS = [
-  { value: 6, label: 'Especialidades: software, escritorio, web, apps, seguridad y datos' },
-  { value: 7, label: 'Packs con precio publicado, sin “cotiza para saber”' },
+  { value: 7, label: 'Especialidades: software, escritorio, web, apps, seguridad, datos y marketing digital' },
+  { value: 17, label: 'Packs con precio publicado, sin “cotiza para saber”' },
   { value: 10, label: 'Cupos Clientes Fundadores hasta el 30/11/2026' },
 ];
 
 export const WHY = [
   ['Todo queda a tu nombre', 'Dominio, código, contenidos y cuentas te pertenecen. Nunca secuestramos tu marca.'],
-  ['Precio publicado', 'Siete packs con valores visibles. Sabes cuánto cuesta antes de la primera reunión.'],
+  ['Precio publicado', 'Packs de software y marketing con valores visibles. Sabes cuánto cuesta antes de la primera reunión.'],
   ['Sin permanencia', 'Mensualidad mes a mes con 30 días de aviso en los planes con pago inicial.'],
   ['Trato directo', 'Trabajamos con empresas de todo Chile, por videollamada o en persona.'],
   ['Seguridad desde el día uno', 'HTTPS, respaldos automáticos y buenas prácticas en cada proyecto.'],
@@ -200,7 +252,7 @@ export const MANIFESTO_KEYS = ['misma calidad técnica', 'publicamos nuestros pr
 export const MANIFESTO_SIDE = [
   ['Cobertura', 'Todo Chile · remoto y presencial'],
   ['Atención', 'Directa, con quien programa tu proyecto'],
-  ['Especialidades', 'Software, escritorio, web, apps, seguridad y datos'],
+  ['Especialidades', 'Software, web, apps, seguridad, datos y marketing digital'],
 ] as const;
 
 /**

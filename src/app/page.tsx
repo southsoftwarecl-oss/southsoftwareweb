@@ -11,6 +11,7 @@ import Story from '@/components/sections/Story';
 import { FeaturedCases } from '@/components/sections/Cases';
 import PacksTeaser from '@/components/sections/PacksTeaser';
 import Final from '@/components/sections/Final';
+import MarketingServices from '@/components/marketing/MarketingServices';
 import LegacyHash from '@/components/LegacyHash';
 
 export default function Home() {
@@ -20,10 +21,11 @@ export default function Home() {
       <Hero />
       <Proof />
       <Services n={1} teaser />
+      <MarketingServices n={2} compact />
       <Story />
-      <FeaturedCases n={2} />
-      <PacksTeaser n={3} />
-      <Final n={4} />
+      <FeaturedCases n={3} />
+      <PacksTeaser n={4} />
+      <Final n={5} />
     </Page>
   );
 }

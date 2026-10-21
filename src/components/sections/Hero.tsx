@@ -16,7 +16,7 @@ export default function Hero() {
               <h1 data-split="words">Cada detalle,<br />en su lugar.</h1>
             </div>
             <div style={{ gridColumn: '9/13' }}>
-              <p className="sub" data-in=".55">Software a medida, apps y sitios web construidos con obsesión por el detalle, para empresas de todo Chile.</p>
+              <p className="sub" data-in=".55">Somos South Software: Software &amp; Marketing. Construimos software, apps y sitios web, y hacemos crecer tu marca con redes, leads y anuncios.</p>
               <div className="actions" data-in=".7">
                 <Btn href="#contacto">Agenda una reunión</Btn>
                 <Btn href="/proyectos" variant="ghost">Ver proyectos</Btn>
@@ -27,9 +27,9 @@ export default function Hero() {
       </div>
       <div className="hero-meta">
         <div className="wrap">
-          <span>Chile · Software a medida</span>
+          <span>South Software · Software &amp; Marketing</span>
           <span className="scroll">Desliza<i /></span>
-          <span>Software · Web · Apps · Seguridad · Datos</span>
+          <span>Software · Web · Apps · Datos · Marketing</span>
         </div>
       </div>
     </section>
