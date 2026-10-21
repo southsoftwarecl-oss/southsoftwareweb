@@ -72,3 +72,11 @@
   .mkp-grid>.mkp{flex:0 0 84%;scroll-snap-align:start}
 }
 @media (prefers-reduced-motion:reduce){.clients .track{animation:none!important}.tm-l2,.tm-rule,.trust-c,.case .media{transition:none}}
+/* Hero: wordmark SVG (reemplaza las partículas) */
+.hero-wm{position:absolute;z-index:1;left:50%;top:clamp(84px,13vh,140px);transform:translateX(-50%);width:min(860px,78vw);height:auto;pointer-events:none;overflow:visible}
+.hw-l{font-family:var(--ff-michroma),sans-serif;font-size:76px;fill:#D5DAE1;transform-box:fill-box}
+.hw-rule{stroke:#3A3E45;stroke-width:1;transform-box:fill-box}
+.hero .hx{position:relative;z-index:2}
+@media (max-width:760px){.hero-wm{top:96px;width:92vw}}
+@media (max-height:720px) and (min-width:761px){.hero-wm{width:min(720px,70vw);top:84px}}
+.mf.is-anim .kw.on{background:none;-webkit-background-clip:border-box;background-clip:border-box;color:#fff;text-decoration:underline 1px rgba(238,242,246,.4);text-underline-offset:.16em}

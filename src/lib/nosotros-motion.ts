@@ -53,8 +53,9 @@ export function startNosotros(root: HTMLElement, { STATIC, animateHero }: Opts):
       if (useFilter) gsap.set(words, { opacity: 0.25, y: '0.14em' });
       else gsap.set(words, { clipPath: 'inset(0% 0% 100% 0%)', y: '0.14em' });
       const lead = $('.fh-lead', hero)!;
-      const lines = new SplitText(lead, { type: 'lines', mask: 'lines', linesClass: 'sl', aria: 'none' }).lines;
-      gsap.set(lines, { yPercent: 110 });
+      // Móvil: sin SplitText en el lead (es el LCP); entra solo con transform.
+      const lines = innerWidth < 760 ? [lead] : new SplitText(lead, { type: 'lines', mask: 'lines', linesClass: 'sl', aria: 'none' }).lines;
+      gsap.set(lines, innerWidth < 760 ? { yPercent: 8 } : { yPercent: 110 });
 
       off.push(onIntro(() => {
         // h1: un único filtro (en el h1) 60→0 con 'mercury'; palabras con stagger .12; luego filter:none

@@ -57,8 +57,9 @@ test.describe('Home v2 · desktop 1440×900', () => {
     const errs = collectErrors(page);
     await page.goto('/');
     await settle(page);
-    await expect(page.locator('.hero canvas')).toHaveCount(1, { timeout: 15000 });
-    await expect(page.locator('.hero canvas')).toHaveAttribute('aria-hidden', 'true');
+    await expect(page.locator('.hero .hero-wm')).toHaveCount(1);
+    await expect(page.locator('.hero .hero-wm')).toHaveAttribute('aria-hidden', 'true');
+    await expect(page.locator('.hero canvas')).toHaveCount(0);
     await page.mouse.move(700, 300); await page.mouse.move(720, 320);
     // cursor nativo: no existe ningún seguidor (punto/anillo) en el DOM
     expect(await page.evaluate(() => document.querySelectorAll('.cursor, .cursor-ring, .cursor-dot').length)).toBe(0);
@@ -80,31 +81,21 @@ test.describe('Home v2 · desktop 1440×900', () => {
     expect(b.tall).toEqual([]);
   });
 
-  test('viewport bajo (680px): ≥32px entre el wordmark 3D y .status', async ({ page }) => {
+  test('viewport bajo (680px): ≥32px entre el wordmark SVG y .status; letras ensambladas y nítidas', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 680 });
-    await page.goto('/?gl=mid');
+    await page.goto('/');
     await settle(page);
-    await page.waitForFunction(() => !!(window as unknown as { __liq?: { engine: unknown } }).__liq?.engine, null, { timeout: 15000 });
-    await page.waitForTimeout(800);
-    const gap = await page.evaluate(() => {
-      const st = (window as unknown as { __liq: { fr: { scale: number; posY: number }; engine: { bounds: { minY: number } } } }).__liq;
-      const h = innerHeight, ppw = h / (2 * 13 * Math.tan((20 * Math.PI) / 180));
-      const bottom = h / 2 - (st.fr.posY + st.fr.scale * st.engine.bounds.minY) * ppw;
-      const hero = document.querySelector('.hero')!.getBoundingClientRect().top;
-      const b = st.engine.bounds as unknown as { minX: number; maxX: number };
-      return { gap: document.querySelector('.hero .status')!.getBoundingClientRect().top - hero - bottom, center: (b.minX + b.maxX) / 2 };
+    await page.waitForTimeout(2500);
+    const r = await page.evaluate(() => {
+      const wm = document.querySelector('.hero-wm')!.getBoundingClientRect();
+      const st = document.querySelector('.hero .status')!.getBoundingClientRect();
+      const ops = Array.from(document.querySelectorAll('.hw-l')).map((e) => +getComputedStyle(e).opacity);
+      return { gap: st.top - wm.bottom, ops, center: Math.abs(wm.left + wm.width / 2 - innerWidth / 2) };
     });
-    expect(gap.gap).toBeGreaterThanOrEqual(32);
-    expect(Math.abs(gap.center)).toBeLessThan(0.6); // el wordmark muestreado está centrado
-  });
-
-  test('sin seguidor visual, la interacción con las partículas sigue activa (empuje/onda)', async ({ page }) => {
-    await page.goto('/?gl=mid');
-    await settle(page);
-    await page.waitForFunction(() => !!(window as unknown as { __liq?: { engine: unknown } }).__liq?.engine, null, { timeout: 15000 });
-    for (let i = 0; i < 12; i++) await page.mouse.move(500 + i * 25, 260 + (i % 3) * 10);
-    await expect.poll(() => page.evaluate(() => (window as unknown as { __liq: { cursor: number } }).__liq.cursor), { timeout: 8000 }).toBeGreaterThan(0.5);
-    expect(await page.evaluate(() => document.querySelectorAll('.cursor, .cursor-ring, .cursor-dot').length)).toBe(0);
+    expect(r.gap).toBeGreaterThanOrEqual(32);
+    expect(r.center).toBeLessThan(2);
+    expect(r.ops.length).toBe(13);
+    r.ops.forEach((o) => expect(o).toBe(1));
   });
 
   test('/packs responde 200 y NAV "Packs" lleva a /packs', async ({ page, request }) => {
@@ -134,10 +125,10 @@ test.describe('Home v2 · desktop 1440×900', () => {
 
 test.describe('Home v2 · reduced motion', () => {
   test.use({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
-  test('un solo frame estático del texto cromado (sin cambios en 2s)', async ({ page }) => {
+  test('wordmark estático con movimiento reducido (sin cambios en 2s)', async ({ page }) => {
     await page.goto('/');
-    const canvas = page.locator('.hero canvas');
-    await expect(canvas).toHaveCount(1, { timeout: 15000 });
+    const canvas = page.locator('.hero .hero-wm');
+    await expect(canvas).toHaveCount(1);
     await page.waitForTimeout(3500);
     const a = await canvas.screenshot();
     await page.waitForTimeout(2000);
@@ -149,11 +140,11 @@ test.describe('Home v2 · reduced motion', () => {
 test.describe('Home v2 · móvil 390×844', () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
-  test('canvas, sin seguidor de cursor, sin errores ni violeta @mobile', async ({ page }) => {
+  test('wordmark SVG, sin seguidor de cursor, sin errores ni violeta @mobile', async ({ page }) => {
     const errs = collectErrors(page);
     await page.goto('/');
     await settle(page);
-    await expect(page.locator('.hero canvas')).toHaveCount(1, { timeout: 20000 });
+    await expect(page.locator('.hero .hero-wm')).toHaveCount(1);
     expect(await page.evaluate(() => document.querySelectorAll('.cursor, .cursor-ring, .cursor-dot').length)).toBe(0);
     expect(await purpleHits(page)).toEqual([]);
     expect(errs).toEqual([]);

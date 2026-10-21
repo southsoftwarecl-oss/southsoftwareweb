@@ -109,7 +109,9 @@ export function startRoute(root: HTMLElement): () => void {
       /* ---- elementos de entrada del hero ---- */
       $$('.hero [data-in]').forEach((el) => {
         if (!animateHero) return;
-        gsap.set(el, { opacity: 0, y: 24 });
+        // Móvil: solo transform (sin opacity 0) para no retrasar el LCP con un re-pintado tardío.
+        const lcpSafe = innerWidth < 760;
+        gsap.set(el, lcpSafe ? { y: 24 } : { opacity: 0, y: 24 });
         off.push(onIntro(() => gsap.to(el, { opacity: 1, y: 0, duration: 1.2, delay: parseFloat(el.dataset.in || '.3') })));
       });
     });
@@ -144,7 +146,7 @@ export function startRoute(root: HTMLElement): () => void {
     const rest = () => { if (!alive) return; split(false); ctx.add(() => {
       if (!STATIC) {
         $$('[data-reveal]').forEach((el) =>
-          gsap.fromTo(el, { opacity: 0, y: 40 }, { ...REVEAL_END, duration: 1.2, scrollTrigger: { trigger: el, start: 'top 88%' } }));
+          gsap.fromTo(el, el.closest('.hero, .phero') && innerWidth < 760 ? { y: 24 } : { opacity: 0, y: 40 }, { ...REVEAL_END, duration: 1.2, scrollTrigger: { trigger: el, start: 'top 88%' } }));
         $$('[data-stagger]').forEach((g) =>
           gsap.fromTo(g.children, { opacity: 0, y: 50 }, { ...REVEAL_END, duration: 1.1, stagger: 0.07, scrollTrigger: { trigger: g, start: 'top 85%' } }));
         $$('[data-parallax]').forEach((el) =>
