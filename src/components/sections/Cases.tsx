@@ -64,7 +64,7 @@ export function FeaturedCases({ n = 2 }: { n?: number }) {
             <article className="case case-sm" key={c.slug}>
               <Link className="media" href={`/proyectos/${c.slug}`} aria-label={`${c.url}: ver caso ${c.name}`}><CaseMedia c={c} /><CaseCue /></Link>
               <div className="info">
-                <span className="idx">0{i + 1} / 0{CASES.length} — {c.meta}</span>
+                <span className="idx">0{i + 1} / 0{Math.min(3, CASES.length)} — {c.meta}</span>
                 <h3><Link href={`/proyectos/${c.slug}`}>{c.name}</Link></h3>
                 <p>{c.summary}</p>
               </div>

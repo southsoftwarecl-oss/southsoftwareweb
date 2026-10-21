@@ -132,6 +132,12 @@ export const CASES: Case[] = [
     built: ['Catálogo con stock disponible y precios', 'Comparador de vehículos', 'Secciones de consignación y financiamiento', 'Botón de WhatsApp y aviso de cookies'],
     challenge: null,
     metrics: [{ label: 'Consultas mensuales', value: null }, { label: 'Tiempo de carga (LCP)', value: null }, { label: 'Vehículos publicados', value: null }] },
+  { slug: 'suertu2s', name: 'Suertu2s', meta: 'Ilustraciones digitales · Premios', url: 'suertu2s.cl', image: '/cases/suertu2s.jpg',
+    summary: 'Tienda de packs de ilustraciones digitales que regalan tickets para una campaña de premios, con cuenta regresiva, pago con Flow y consulta de tickets por correo.',
+    stack: ['Next.js', 'Flow'], service: 'Plataforma web', year: '2026',
+    built: ['Packs de ilustraciones con carrito y pago con Flow', 'Tickets de participación enviados por correo', 'Consulta de tickets con el correo de compra', 'Cuenta regresiva a la premiación y preguntas frecuentes'],
+    challenge: null,
+    metrics: [{ label: 'Packs vendidos', value: null }, { label: 'Tiempo de carga (LCP)', value: null }, { label: 'Visitas desde celular', value: null }] },
 ];
 
 export const STEPS = [
@@ -213,6 +219,8 @@ export type TeamMember = {
 export const TEAM: TeamMember[] = [
   { name: 'Mathias Jara', role: 'Fundador', ready: true, photo: null, links: [],
     bio: 'Diseña y desarrolla cada proyecto de South Software. Trabaja directo contigo, sin intermediarios, desde la primera conversación hasta la puesta en producción, para empresas de todo Chile.' },
+  { name: 'Ramón Ojeda', role: 'Experto en marketing', ready: true, photo: null, links: [],
+    bio: 'Lidera la marca, las redes sociales y las campañas de South Software. Se encarga de que cada proyecto llegue a las personas correctas, con un mensaje claro y una comunicación cercana con cada cliente.' },
 ];
 /** Personas publicables: `ready`, no reservadas y sin marcadores [..] en nombre, cargo ni bio. */
 export const isTeamMemberReady = (m: TeamMember) =>
