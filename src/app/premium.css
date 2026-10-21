@@ -73,3 +73,12 @@
 }
 @media (prefers-reduced-motion:reduce){.clients .track{animation:none!important}.tm-l2,.tm-rule,.trust-c,.case .media{transition:none}}
 .mf.is-anim .kw.on{background:none!important;-webkit-background-clip:border-box!important;background-clip:border-box!important;color:#fff!important}
+
+/* Móvil: reserva la franja del logotipo 3D bajo el header (en pantallas bajas el logo se metía bajo la barra) */
+@media (max-width:760px){
+ .hero .hx{padding-top:calc(104px + 40vw)}
+ .gl-ph{top:104px}
+}
+/* Sin animación pedida: el relevo logo estático → 3D es instantáneo */
+@media (prefers-reduced-motion:reduce){.gl-ph{transition:none}}
+html.rm .gl-ph{transition:none}
