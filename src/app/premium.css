@@ -79,4 +79,4 @@
 .hero .hx{position:relative;z-index:2}
 @media (max-width:760px){.hero-wm{top:96px;width:92vw}}
 @media (max-height:720px) and (min-width:761px){.hero-wm{width:min(720px,70vw);top:84px}}
-.mf.is-anim .kw.on{background:none;-webkit-background-clip:border-box;background-clip:border-box;color:#fff;text-decoration:underline 1px rgba(238,242,246,.4);text-underline-offset:.16em}
+.mf.is-anim .kw.on{background:none!important;-webkit-background-clip:border-box!important;background-clip:border-box!important;color:#fff!important}
