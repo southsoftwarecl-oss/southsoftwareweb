@@ -1,18 +1,18 @@
-/** Testimonios: PLACEHOLDER visible. Reemplazar solo con testimonios reales y autorizados. */
+/** Testimonios: solo con datos reales y autorizados (TESTIMONIALS). Vacío → no se renderiza. */
+import { TESTIMONIALS } from '@/content/site';
 import { SecHead } from '../ui';
 
 export default function Testimonials({ n = 7 }: { n?: number }) {
+  if (!TESTIMONIALS.length) return null;
   return (
-    <section className="sec" style={{ paddingTop: 40 }}>
+    <section className="sec">
       <div className="wrap">
-        <SecHead n={n} eyebrow="Testimonios" title={<>Lo que dirán<br /><span className="dim">nuestros clientes.</span></>}
-          lead="No inventamos opiniones. Estos espacios se completan con testimonios reales y autorizados." />
+        <SecHead n={n} eyebrow="Testimonios" title={<>Lo que dicen<br /><span className="dim">nuestros clientes.</span></>} />
         <div className="testi" data-stagger>
-          {[0, 1, 2].map((i) => (
-            <figure className="tq" key={i}>
-              <span className="pill">Espacio reservado</span>
-              <blockquote className="q">“Aquí irá el testimonio real de un cliente, publicado con su autorización.”</blockquote>
-              <figcaption className="who"><span className="av" /><span>Nombre del cliente<br />Empresa · Cargo</span></figcaption>
+          {TESTIMONIALS.map((t) => (
+            <figure className="tq" key={t.name}>
+              <blockquote className="q">“{t.quote}”</blockquote>
+              <figcaption className="who"><span>{t.name}<br />{t.company}</span></figcaption>
             </figure>
           ))}
         </div>

@@ -13,12 +13,12 @@ import Monoliths from '@/components/nosotros/Monoliths';
 import Team, { hasTeam } from '@/components/nosotros/Team';
 import StepsStrip from '@/components/nosotros/StepsStrip';
 import Final from '@/components/sections/Final';
-import { MAP_ATTRIBUTION } from '@/components/ChileMap';
+import Timeline from '@/components/nosotros/Timeline';
 import { pageMeta } from '@/lib/seo';
 
 export const metadata = pageMeta({
   title: 'Nosotros',
-  description: 'South Software es un estudio chileno de desarrollo de software. Software a medida, web, apps, seguridad y datos con precio publicado y trato directo.',
+  description: 'Somos South Software: Software & Marketing. Software a medida, web y apps, más redes sociales, leads y Meta Ads, con precio publicado y trato directo.',
   path: '/nosotros',
 });
 
@@ -30,9 +30,9 @@ export default function Nosotros() {
         <Manifesto n={1} />
         <Monoliths n={2} />
         {hasTeam && <Team n={3} />}
-        <StepsStrip n={hasTeam ? 4 : 3} />
-        <Final n={hasTeam ? 5 : 4} />
-        <p className="map-credit mono"><span className="wrap">{MAP_ATTRIBUTION}</span></p>
+        <Timeline n={hasTeam ? 4 : 3} />
+        <StepsStrip n={hasTeam ? 5 : 4} />
+        <Final n={hasTeam ? 6 : 5} />
       </div>
     </Page>
   );

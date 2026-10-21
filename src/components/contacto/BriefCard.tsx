@@ -17,7 +17,7 @@ export const budgetClause = (b: Budget | '') =>
 
 /** Texto plano del brief (WhatsApp y resumen accesible). */
 export function briefText(d: BriefData) {
-  const parts = [`Hola, soy ${d.nombre.trim() || '—'}${d.empresa.trim() ? ` de ${d.empresa.trim()}` : ''}.`];
+  const parts = [d.nombre.trim() ? `Hola, soy ${d.nombre.trim()}${d.empresa.trim() ? ` de ${d.empresa.trim()}` : ''}.` : 'Hola, quiero cotizar un proyecto con South Software.'];
   if (d.tipo) { const [pre, v] = budgetClause(d.presupuesto); parts.push(`Necesito ${TYPE_PHRASE[d.tipo]}${d.presupuesto ? ` ${pre}${v}` : ''}.`); }
   if (d.mensaje.trim()) parts.push(clip(d.mensaje.trim()));
   return parts.join(' ');

@@ -5,6 +5,7 @@
  */
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
+import './premium.css';
 import { fontVars } from '@/lib/fonts';
 import { BRAND, SITE_URL } from '@/content/site';
 import { orgJsonLd } from '@/lib/seo';

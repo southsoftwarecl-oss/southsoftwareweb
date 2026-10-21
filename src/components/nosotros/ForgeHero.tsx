@@ -6,7 +6,6 @@
  * - Hora de Chile en vivo (America/Santiago). Sin ciudades ni coordenadas (decisión de Mathias).
  */
 import Link from 'next/link';
-import ChileMap from '../ChileMap';
 import LocalClock from '../LocalClock';
 
 export default function ForgeHero() {
@@ -22,9 +21,6 @@ export default function ForgeHero() {
           <stop offset="0" stopColor="#EEF2F6" /><stop offset=".45" stopColor="#7F8894" /><stop offset=".7" stopColor="#EEF2F6" /><stop offset="1" stopColor="#A4ADB8" />
         </linearGradient>
       </svg>
-      <div className="fh-map">
-        <ChileMap />
-      </div>
       <div className="fh-clock"><LocalClock className="mono" /></div>
       <div className="wrap">
         <nav className="crumb mono" aria-label="Ruta" data-in=".05">
@@ -39,7 +35,7 @@ export default function ForgeHero() {
               <span className="fw">en</span> <span className="fw">el</span> <span className="fw">sur.</span>
             </h1>
           </div>
-          <p className="lead ph-r fh-lead">Somos un estudio chileno de desarrollo. Construimos software, web y apps para empresas de todo el país que quieren crecer sin depender de nadie más que de sí mismas.</p>
+          <p className="lead ph-r fh-lead">Somos South Software: Software &amp; Marketing. Construimos software, web y apps, y hacemos crecer tu marca con redes, leads y Meta Ads, para empresas de todo Chile.</p>
         </div>
       </div>
     </section>

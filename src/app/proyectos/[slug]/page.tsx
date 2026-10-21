@@ -1,4 +1,4 @@
-/** Página de caso: RG Motors Chile, Salgado Automotriz, Frío Austral. Solo se muestran métricas validadas (value != null). */
+/** Página de caso (desafío, solución, lo construido, captura real y CTA). Solo se muestran métricas validadas (value != null). */
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -6,8 +6,8 @@ import Page from '@/components/Page';
 import PageHero from '@/components/PageHero';
 import { CaseMedia } from '@/components/sections/Cases';
 import Final from '@/components/sections/Final';
-import { ArrowIcon, SecHead } from '@/components/ui';
-import { CASES, SITE_URL } from '@/content/site';
+import { ArrowIcon, Btn, SecHead } from '@/components/ui';
+import { CASES, SITE_URL, waLink } from '@/content/site';
 import { pageMeta } from '@/lib/seo';
 import { JsonLd } from '@/components/ui';
 
@@ -42,10 +42,18 @@ export default async function CasePage({ params }: { params: Promise<{ slug: str
       <section className="case case-hero" aria-label={`Captura de ${c.name}`}>
         <div className="wrap"><div className="media"><CaseMedia c={c} priority /></div></div>
       </section>
+      {c.challenge && (
+        <section className="sec cs-ds">
+          <div className="wrap cs-ds-g" data-stagger>
+            <div className="cs-b"><span className="eyebrow-s mono">Desafío</span><p>{c.challenge}</p></div>
+            {c.solution && <div className="cs-b"><span className="eyebrow-s mono">Solución</span><p>{c.solution}</p></div>}
+          </div>
+        </section>
+      )}
       <section className="sec">
         <div className="wrap">
           <SecHead n={1} eyebrow="Lo que construimos" title={<>Cada pieza,<br /><span className="dim">con un propósito.</span></>}
-            lead={c.challenge ?? undefined} />
+            lead={`Resultado: ${c.built.length} funcionalidades en producción con ${c.stack.join(', ')}.`} />
           <div className="why" data-stagger>
             {c.built.map((b, k) => <div className="w" key={b}><span className="mono">0{k + 1}</span><h3 className="h4">{b}</h3></div>)}
           </div>
@@ -59,7 +67,7 @@ export default async function CasePage({ params }: { params: Promise<{ slug: str
               {metrics.map((m) => <div className="counter" key={m.label}><b>{m.value}</b><span>{m.label}</span></div>)}
             </div>
           </>}
-          {c.note && <p className="fine">{c.note}</p>}
+          <div className="cs-cta"><Btn href={waLink(`Hola, vi el caso ${c.name} y quiero cotizar un proyecto con South Software`)} external>Quiero un proyecto así</Btn></div>
           <Link className="next-case" href={`/proyectos/${next.slug}`}>
             <span className="mono">Siguiente proyecto</span><span className="nc-t">{next.name}<ArrowIcon /></span>
           </Link>

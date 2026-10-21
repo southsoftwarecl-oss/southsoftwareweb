@@ -26,7 +26,7 @@ const rects = (page: Page, sel: string) => page.locator(sel).evaluateAll((els) =
 const hit = (a: R, b: R) => a.l < b.r && b.l < a.r && a.t < b.b && b.t < a.b;
 
 async function checkPacks(page: Page) {
-  await page.goto('/packs');
+  await page.goto('/packs#solo-software');
   await settle(page);
   await scrollThrough(page);
   const [founders] = await rects(page, '#packs .founders');

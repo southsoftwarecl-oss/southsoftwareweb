@@ -12,9 +12,10 @@ const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2)
 /** Monograma de cromo (sin foto): iniciales con degradé acero en el mismo marco 4:5. */
 function Monogram({ name }: { name: string }) {
   return (
-    <svg className="tm-mono" viewBox="0 0 160 200" aria-hidden="true" focusable="false">
-      <text x="80" y="100" textAnchor="middle" dominantBaseline="central" fill="url(#tm-mono-g)" stroke="rgba(238,242,246,.35)" strokeWidth=".6">{initials(name)}</text>
-    </svg>
+    <div className="tm-mono2" aria-hidden="true">
+      <span className="tm-l">{initials(name)[0]}</span><span className="tm-l tm-l2">{initials(name)[1]}</span>
+      <i className="tm-rule" />
+    </div>
   );
 }
 

@@ -61,7 +61,7 @@ test.describe('Navegación', () => {
   });
 
   test('/packs: precios exactos y JSON-LD', async ({ page }) => {
-    const res = await page.goto('/packs');
+    const res = await page.goto('/packs#solo-software');
     expect(res?.status()).toBe(200);
     await expect(page).toHaveTitle(/Packs y precios · South Software/);
     for (const price of ['$149.990', '$349.990', '$549.990', '$699.990', 'desde $1.490.000', '$249.990', 'desde $390.000']) {

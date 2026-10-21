@@ -5,7 +5,7 @@ import type { ReactNode } from 'react';
 export default function PageHero({ crumb, eyebrow, title, lead, children }: { crumb?: { href: string; label: string }[]; eyebrow: string; title: ReactNode; lead?: ReactNode; children?: ReactNode }) {
   return (
     <section className="phero hero-lite">
-      <div className="glow" aria-hidden="true" />
+      <div className="fine-lines" aria-hidden="true" />
       <div className="wrap">
         {crumb && (
           <nav className="crumb mono" aria-label="Ruta" data-in=".05">

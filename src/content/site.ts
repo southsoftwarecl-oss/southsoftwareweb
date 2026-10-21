@@ -154,7 +154,8 @@ export const ADS_NOTE = 'La pauta publicitaria (lo que se paga a Meta) va siempr
 export type Case = {
   slug: string; name: string; meta: string; url: string; image: string; summary: string;
   stack: string[]; service: string; year: string; built: string[];
-  challenge: string | null; // null => se muestra marcador "por completar"
+  challenge: string | null;
+  solution?: string;
   metrics: { label: string; value: string | null }[]; // value null => marcador
   note?: string;
 };
@@ -163,32 +164,36 @@ export const CASES: Case[] = [
     summary: 'Plataforma de venta de vehículos con catálogo en vivo, consignación, comparador y visor 360° propio.',
     stack: ['Next.js', 'Supabase', 'Three.js'], service: 'Plataforma web', year: '2026',
     built: ['Catálogo de vehículos en vivo administrado desde un panel', 'Flujo de consignación de vehículos', 'Comparador de modelos', 'Visor 360° de interiores desarrollado a medida con Three.js'],
-    challenge: null,
+    challenge: 'Una automotora necesitaba mostrar su stock real, recibir vehículos en consignación y ayudar a comparar modelos sin depender de portales externos.',
+    solution: 'Construimos una plataforma propia con catálogo administrable desde un panel, flujo de consignación, comparador y un visor 360° de interiores hecho a medida.',
     metrics: [{ label: 'Consultas mensuales', value: null }, { label: 'Tiempo de carga (LCP)', value: null }, { label: 'Vehículos publicados', value: null }] },
   { slug: 'salgado-automotriz', name: 'Salgado Automotriz', meta: 'Automotora', url: 'salgadoautomotriz.cl', image: '/cases/salgado.jpg',
     summary: 'Sitio con inventario, buscador por marca/modelo, comparador, financiamiento y consignación.',
     stack: ['Next.js', 'Tailwind', 'Supabase'], service: 'Plataforma web', year: '2026',
     built: ['Inventario con buscador por marca y modelo', 'Comparador de vehículos', 'Secciones de financiamiento y consignación', 'Diseño adaptado a celular'],
-    challenge: null,
+    challenge: 'Ordenar un inventario de vehículos para que cualquier persona encuentre lo que busca desde el celular y pueda consultar financiamiento o consignación.',
+    solution: 'Un sitio con buscador por marca y modelo, comparador de vehículos y secciones de financiamiento y consignación, diseñado primero para celular.',
     metrics: [{ label: 'Consultas mensuales', value: null }, { label: 'Tiempo de carga (LCP)', value: null }, { label: 'Visitas desde celular', value: null }] },
-  { slug: 'frio-austral', name: 'Frío Austral', meta: 'Climatización · Taller + academia', url: 'frio-austral · propuesta', image: '/cases/frioaustral.jpg',
-    summary: 'Sitio con los cursos primero: portada con video real del técnico del taller, academia de A/C automotriz en video + PDF con pago en Hotmart, taller y tienda.',
-    stack: ['HTML/CSS/JS', 'Video', 'Hotmart'], service: 'Sitio + tienda', year: '2026',
-    built: ['Portada con video real del técnico explicando en el taller', 'Cursos primero: academia en video + PDF con compra en Hotmart', 'Página del taller con servicios, horario y mapa', 'Tienda de herramientas e insumos con aviso de apertura'],
-    challenge: null,
-    metrics: [{ label: 'Inscripciones a cursos', value: null }, { label: 'Ventas en tienda', value: null }, { label: 'Tiempo de carga (LCP)', value: null }],
-    note: 'Propuesta de diseño. Ubicación y alcance por confirmar con el cliente.' },
+  { slug: 'frio-austral', name: 'Frío Austral', meta: 'Climatización · Taller + academia', url: 'Frío Austral · próximo lanzamiento', image: '/cases/frioaustral.jpg',
+    summary: 'Academia online de aire acondicionado automotriz con video real del técnico en la portada, cursos en video + PDF con pago en Hotmart, recursos gratis, comunidad, planes de consulta técnica, taller y tienda.',
+    stack: ['HTML/CSS/JS', 'Video', 'Hotmart'], service: 'Sitio + academia', year: '2026',
+    built: ['Portada con video real del técnico explicando en el taller', 'Cursos en video + PDF con compra segura en Hotmart', 'Recursos gratis y comunidad con reels y opiniones de alumnos', 'Planes mensuales para consultar al equipo técnico, con historial de consultas', 'Página del taller con servicios y atención por orden de llegada', 'Tienda de herramientas e insumos con aviso de apertura y panel de administración'],
+    challenge: 'Un taller de climatización que también enseña: había que poner los cursos al frente sin perder el taller ni la tienda.',
+    solution: 'Una academia con los cursos primero: video real del técnico en la portada, cursos con pago en Hotmart, recursos gratis, comunidad, planes de consulta técnica, taller y tienda.',
+    metrics: [{ label: 'Inscripciones a cursos', value: null }, { label: 'Ventas en tienda', value: null }, { label: 'Tiempo de carga (LCP)', value: null }] },
   { slug: 'unidades-chile', name: 'Unidades Chile', meta: 'Automotora', url: 'unidadeschile.cl', image: '/cases/unidadeschile.jpg',
     summary: 'Sitio de automotora con stock disponible, comparador, consignación y financiamiento, y contacto directo por WhatsApp.',
     stack: ['React', 'Supabase'], service: 'Plataforma web', year: '2026',
     built: ['Catálogo con stock disponible y precios', 'Comparador de vehículos', 'Secciones de consignación y financiamiento', 'Botón de WhatsApp y aviso de cookies'],
-    challenge: null,
+    challenge: 'Mostrar el stock disponible con precios claros y convertir visitas en conversaciones directas.',
+    solution: 'Catálogo con stock y precios, comparador, secciones de consignación y financiamiento, y contacto directo por WhatsApp.',
     metrics: [{ label: 'Consultas mensuales', value: null }, { label: 'Tiempo de carga (LCP)', value: null }, { label: 'Vehículos publicados', value: null }] },
   { slug: 'suertu2s', name: 'Suertu2s', meta: 'Ilustraciones digitales · Premios', url: 'suertu2s.cl', image: '/cases/suertu2s.jpg',
     summary: 'Tienda de packs de ilustraciones digitales que regalan tickets para una campaña de premios, con cuenta regresiva, pago con Flow y consulta de tickets por correo.',
     stack: ['Next.js', 'Flow'], service: 'Plataforma web', year: '2026',
     built: ['Packs de ilustraciones con carrito y pago con Flow', 'Tickets de participación enviados por correo', 'Consulta de tickets con el correo de compra', 'Cuenta regresiva a la premiación y preguntas frecuentes'],
-    challenge: null,
+    challenge: 'Vender packs de ilustraciones digitales con una campaña de premios transparente, pagos locales y tickets que cada comprador pueda verificar.',
+    solution: 'Tienda con carrito y pago con Flow, tickets enviados por correo, consulta de tickets con el correo de compra y cuenta regresiva a la premiación.',
     metrics: [{ label: 'Packs vendidos', value: null }, { label: 'Tiempo de carga (LCP)', value: null }, { label: 'Visitas desde celular', value: null }] },
 ];
 
@@ -220,10 +225,17 @@ export const MARQUEE = ['Next.js', 'React', 'TypeScript', 'Node.js', 'Flutter', 
 
 /** Contadores: SOLO datos reales y verificables. */
 export const COUNTERS = [
-  { value: 7, label: 'Especialidades: software, escritorio, web, apps, seguridad, datos y marketing digital' },
-  { value: 17, label: 'Packs con precio publicado, sin “cotiza para saber”' },
-  { value: 10, label: 'Cupos Clientes Fundadores hasta el 30/11/2026' },
+  { value: CASES.length, label: 'Proyectos reales en nuestro portafolio, con capturas de los sitios' },
 ];
+/** Propuestas de valor (sin cifras inventadas) que acompañan al contador real. */
+export const VALUE_PROPS = [
+  ['Software & Marketing', 'Un solo equipo construye tu web o app y la hace crecer en redes y Meta Ads.'],
+  ['Todo a tu nombre', 'Dominio, código, contenidos y cuentas te pertenecen.'],
+] as const;
+/** Clientes reales (franja de prueba social). */
+export const CLIENTS = ['RG Motors Chile', 'Salgado Automotriz', 'Frío Austral', 'Suertu2s', 'Unidades Chile'] as const;
+/** Testimonios: vacío hasta que Mathias entregue testimonios reales y autorizados (la sección no se muestra). */
+export const TESTIMONIALS: { quote: string; name: string; company: string }[] = [];
 
 export const WHY = [
   ['Todo queda a tu nombre', 'Dominio, código, contenidos y cuentas te pertenecen. Nunca secuestramos tu marca.'],
@@ -248,11 +260,13 @@ export const FOUNDERS = {
  * `MANIFESTO_KEYS`: frases que se "cromean" al completarse (deben aparecer tal cual en MANIFESTO).
  */
 export const MANIFESTO = 'Creemos que cualquier pyme, esté donde esté, merece la misma calidad técnica que una gran empresa. Por eso publicamos nuestros precios, dejamos todo a tu nombre y te atiende quien programa.';
+/** Manifiesto en frases para el scrollytelling (mismo texto, partido). */
+export const MANIFESTO_LINES = ['Cualquier pyme merece la misma calidad técnica que una gran empresa.', 'Por eso publicamos nuestros precios.', 'Dejamos todo a tu nombre.', 'Y te atiende quien programa.'] as const;
 export const MANIFESTO_KEYS = ['misma calidad técnica', 'publicamos nuestros precios', 'todo a tu nombre', 'te atiende quien programa'] as const;
 export const MANIFESTO_SIDE = [
   ['Cobertura', 'Todo Chile · remoto y presencial'],
   ['Atención', 'Directa, con quien programa tu proyecto'],
-  ['Especialidades', 'Software, web, apps, seguridad, datos y marketing digital'],
+  ['Especialidades', 'Software, web, apps, seguridad, datos y marketing digital (Meta Ads)'],
 ] as const;
 
 /**

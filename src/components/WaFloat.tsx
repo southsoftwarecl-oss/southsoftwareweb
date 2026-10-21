@@ -1,11 +1,21 @@
-/** Botón flotante de WhatsApp (aparece tras el hero vía MotionRoot). Número en content/site.ts (WHATSAPP_NUMBER) */
-import { WA_URL } from '@/content/site';
+'use client';
+/** WhatsApp flotante único (aparece tras el hero vía MotionRoot) y se oculta cuando el footer entra en pantalla. */
+import { useEffect, useRef } from 'react';
+import { waLink } from '@/content/site';
 import { WaIcon } from './ui';
 
 export default function WaFloat() {
+  const ref = useRef<HTMLAnchorElement>(null);
+  useEffect(() => {
+    const ft = document.querySelector('footer');
+    if (!ft || !ref.current) return;
+    const io = new IntersectionObserver(([e]) => ref.current?.classList.toggle('over-ft', e.isIntersecting));
+    io.observe(ft);
+    return () => io.disconnect();
+  }, []);
   return (
-    <a className="wa-float" href={WA_URL} target="_blank" rel="noopener noreferrer" aria-label="Escribir por WhatsApp">
-      <WaIcon /><span>WhatsApp</span>
+    <a ref={ref} className="wa-float" href={waLink('Hola, quiero cotizar un proyecto con South Software')} target="_blank" rel="noopener noreferrer" aria-label="Escribir por WhatsApp">
+      <WaIcon />
     </a>
   );
 }

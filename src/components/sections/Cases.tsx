@@ -22,7 +22,7 @@ export default function Cases({ n = 2, title, as = 'h2' }: { n?: number; title?:
     <section className="sec" id="proyectos">
       <div className="wrap">
         <SecHead n={n} as={as} eyebrow="Proyectos" title={title ?? <>Hecho en el sur.<br /><span className="dim">Funcionando hoy.</span></>}
-          lead="Proyectos reales construidos por nuestro equipo. Las métricas se publicarán cuando cada cliente las valide." />
+          lead="Proyectos reales construidos por nuestro equipo, funcionando hoy." />
         <div className="cases">
           {CASES.map((c, i) => (
             <article className="case" key={c.slug}>
@@ -58,7 +58,7 @@ export function FeaturedCases({ n = 2 }: { n?: number }) {
     <section className="sec sec-teaser" id="proyectos">
       <div className="wrap">
         <SecHead n={n} eyebrow="Proyectos" title={<>Hecho en el sur.<br /><span className="dim">Funcionando hoy.</span></>}
-          lead="Proyectos reales construidos por nuestro equipo. Las métricas se publicarán cuando cada cliente las valide." />
+          lead="Proyectos reales construidos por nuestro equipo, funcionando hoy." />
         <div className="cases-feat" data-stagger>
           {CASES.slice(0, 3).map((c, i) => (
             <article className="case case-sm" key={c.slug}>

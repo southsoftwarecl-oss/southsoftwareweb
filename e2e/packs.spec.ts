@@ -9,7 +9,7 @@ import { COMBO_PACKS, CUSTOM_PACK, MARKETING_PACKS, PACKS, WA_URL } from '../src
 type G = { globalTimeline: { getChildren: (n: boolean, t: boolean, tl: boolean) => { targets?: () => Element[] }[] }; getProperty: (e: Element, p: string) => number };
 const AMOUNT = (v: string) => v.replace(/^desde\s+/i, '');
 
-async function open(page: Page, path = '/packs') {
+async function open(page: Page, path = '/packs#solo-software') {
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
   page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
@@ -193,17 +193,18 @@ test('/packs responde 200 a 390×844 sin errores de consola @mobile', async ({ p
 });
 
 test('grupos Combinados / Solo marketing / Solo software: precios exactos, lanzamiento y WhatsApp precargado', async ({ page }) => {
-  const errors = await open(page);
-  for (const id of ['combinados', 'solo-marketing', 'packs']) await expect(page.locator(`.pk-groups a[href="#${id}"]`)).toBeVisible();
+  const errors = await open(page, '/packs');
+  await expect(page.getByRole('tab')).toHaveCount(3);
   for (const [id, list] of [['combinados', COMBO_PACKS], ['solo-marketing', MARKETING_PACKS]] as const) {
+    await page.locator(`.pk-tab[aria-controls="${id}"]`).click();
     const cards = page.locator(`#${id} .mkp`);
     await expect(cards).toHaveCount(list.length);
     for (const [i, p] of list.entries()) {
       const c = cards.nth(i);
       await expect(c.locator('.mkp-n')).toHaveText(p.name);
       await expect(c.locator('.mkp-setup')).toHaveText(p.setup);
-      await expect(c.locator('.mkp-mo b')).toHaveText(p.monthly);
-      if (p.launch) await expect(c.locator('.mkp-launch')).toContainText(`Precio de lanzamiento: ${p.launch}/mes`);
+      await expect(c.locator('.mkp-mo b')).toHaveText(p.launch ?? p.monthly);
+      if (p.launch) await expect(c.locator('.mkp-launch')).toContainText(`luego ${p.monthly}/mes`);
       else await expect(c.locator('.mkp-launch')).toHaveCount(0);
       const h = (await c.locator('.mkp-btn').getAttribute('href'))!;
       expect(h.startsWith(WA_URL.split('?')[0] + '?')).toBe(true);

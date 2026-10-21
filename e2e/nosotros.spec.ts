@@ -32,8 +32,8 @@ test('HTML inicial (sin JS): h1, manifiesto completo y los 6 principios', async 
   expect(text).toContain(MANIFESTO);
   for (const t of WHY_TITLES) expect(text).toContain(t);
   expect((html.match(/<h1[\s>]/g) || []).length).toBe(1);
-  expect(text).toContain('Natural Earth');
-  expect(html).toContain('aria-label="Mapa de líneas de Chile con las curvas de nivel de la cordillera"');
+  // premium-v2: sin mapa (decisión de Mathias)
+  expect(html).not.toContain('class="cmap');
   // Decisión de Mathias: sin ciudad, región ni coordenadas en el contenido de /nosotros
   const forge = html.slice(html.indexOf('class="forge"'), html.indexOf('<footer'));
   expect(forge.length).toBeGreaterThan(1000);
@@ -48,7 +48,7 @@ for (const vp of [{ width: 1440, height: 900 }, { width: 1280, height: 680 }]) {
       const errors = await open(page);
       await sweep(page);
       const r = await page.evaluate(() => ({ sh: document.documentElement.scrollHeight, ih: innerHeight }));
-      expect(r.sh, `scrollHeight ${r.sh} vs ${6.5 * r.ih}`).toBeLessThanOrEqual(6.5 * r.ih);
+      expect(r.sh, `scrollHeight ${r.sh} vs ${7.6 * r.ih}`).toBeLessThanOrEqual(7.6 * r.ih);
       expect(await noHOverflow(page)).toBe(true);
       expect(await noViolet(page)).toBe(0);
       expect(errors).toEqual([]);
@@ -75,27 +75,11 @@ for (const vp of [{ width: 1440, height: 900 }, { width: 1280, height: 680 }]) {
       expect(chromed).toBe(await page.locator('.mf .kw').count());
     });
 
-    test('monolitos: Tab + Enter fija una placa (aria-expanded) y su descripción queda visible', async ({ page }) => {
+    test('confianza: 6 tarjetas planas con número y descripción visibles', async ({ page }) => {
       await open(page);
       await page.locator('#principios').scrollIntoViewIfNeeded();
-      await page.waitForTimeout(1600);
-      await page.locator('.mf-side').click({ position: { x: 4, y: 4 } });
-      let ok = false;
-      for (let i = 0; i < 40 && !ok; i++) {
-        await page.keyboard.press('Tab');
-        ok = await page.evaluate(() => !!document.activeElement?.classList.contains('mono-b'));
-      }
-      expect(ok).toBe(true);
-      await page.keyboard.press('Enter');
-      const btn = page.locator('.mono-b:focus');
-      await expect(btn).toHaveAttribute('aria-expanded', 'true');
-      const id = await btn.getAttribute('aria-controls');
-      const desc = page.locator(`#${id}`);
-      await expect(desc).toBeVisible();
-      await expect.poll(() => desc.evaluate((e) => +getComputedStyle(e).opacity)).toBeGreaterThan(0.99);
-      await expect(desc).toBeInViewport();
-      // un solo fijado a la vez
-      expect(await page.locator('.mono-b[aria-expanded="true"]').count()).toBe(1);
+      await expect(page.locator('.trust-c')).toHaveCount(6);
+      await expect(page.locator('.trust-c p').first()).toBeVisible();
     });
 
     test('sin marcadores: no hay texto [..] ni "Espacio reservado"; equipo = tarjeta de Mathias', async ({ page }) => {
@@ -113,13 +97,13 @@ for (const vp of [{ width: 1440, height: 900 }, { width: 1280, height: 680 }]) {
       await expect(card.locator('.tm-name')).toHaveText('Mathias Jara');
       await expect(card.locator('.tm-role')).toHaveText('Fundador');
       await expect(card.locator('.tm-bio')).toContainText('Diseña y desarrolla cada proyecto de South Software.');
-      await expect(card.locator('.tm-mono')).toHaveText('MJ');
+      await expect(card.locator('.tm-mono2')).toHaveText('MJ');
       const card2 = page.locator('#equipo .tm-card').nth(1);
       await expect(card2).toBeVisible();
       await expect(card2.locator('.tm-name')).toHaveText('Ramón Ojeda');
       await expect(card2.locator('.tm-role')).toHaveText('Experto en marketing');
       await expect(card2.locator('.tm-bio')).toContainText('Lidera la marca, las redes sociales y las campañas');
-      await expect(card2.locator('.tm-mono')).toHaveText('RO');
+      await expect(card2.locator('.tm-mono2')).toHaveText('RO');
       await expect(page.locator('.tm-sil, .tm-res, .tm-pill')).toHaveCount(0);
     });
 
@@ -151,14 +135,13 @@ test.describe('nosotros reduced motion', () => {
     await sweep(page);
     expect(await page.evaluate(() => getComputedStyle(document.querySelector('.mf .mf-pin')!).position)).not.toBe('sticky');
     expect(await page.evaluate(() => (window as Window & { __nosTweens?: () => number }).__nosTweens!())).toBe(0);
-    for (const sel of ['.fh-title', '.mf-text', '.mono-d', '.mono-t', '.tm-name', '.tm-bio', '.stp-t']) {
+    for (const sel of ['.fh-title', '.mf-text', '.trust-c p', '.trust-c h3', '.tm-name', '.tm-bio', '.stp-t']) {
       const ops = await page.$$eval(sel, (els) => els.map((e) => { let o = 1; for (let n: Element | null = e; n; n = n.parentElement) o *= +getComputedStyle(n).opacity; return o; }));
       expect(ops.length, sel).toBeGreaterThan(0);
       ops.forEach((o) => expect(o, sel).toBe(1));
     }
     // frases clave cromadas estáticas
     expect(await page.$eval('.mf .kp', (e) => getComputedStyle(e).backgroundClip)).toContain('text');
-    await expect(page.locator('.mono-b[aria-expanded="true"]')).toHaveCount(6);
     // la hora sigue actualizándose
     expect(await page.locator('.lc-t').first().textContent()).toMatch(/^\d{2}:\d{2}:\d{2}$/);
     expect(errors).toEqual([]);
@@ -171,22 +154,17 @@ test.describe('nosotros móvil @mobile', () => {
     const errors = await open(page);
     await sweep(page);
     const r = await page.evaluate(() => ({ sh: document.documentElement.scrollHeight, ih: innerHeight }));
-    expect(r.sh, `scrollHeight ${r.sh} vs ${8 * r.ih}`).toBeLessThanOrEqual(8 * r.ih);
+    expect(r.sh, `scrollHeight ${r.sh} vs ${11 * r.ih}`).toBeLessThanOrEqual(11 * r.ih);
     expect(await noHOverflow(page)).toBe(true);
     expect(await page.evaluate(() => getComputedStyle(document.querySelector('.mf .mf-pin')!).position)).not.toBe('sticky');
-    const paths = await page.$$eval('.fhero .cmap :is(.cmap-k,.cmap-c) path', (ps) => ps.filter((p) => getComputedStyle(p).display !== 'none').length);
-    expect(paths).toBeLessThanOrEqual(20);
+    expect(await page.locator('.cmap').count()).toBe(0);
     expect(await noViolet(page)).toBe(0);
     expect(errors).toEqual([]);
   });
 
-  test('carrusel de principios con indicador "n / 6" y descripción visible @mobile', async ({ page }) => {
+  test('tarjetas de confianza visibles en móvil @mobile', async ({ page }) => {
     await open(page);
     await page.locator('#principios').scrollIntoViewIfNeeded();
-    await page.waitForTimeout(1500);
-    await expect(page.locator('.mono-count')).toContainText('1 / 6');
-    await expect(page.locator('.mono-li').first().locator('.mono-d')).toBeVisible();
-    await page.locator('.monos').evaluate((e) => { const l = e.querySelectorAll('.mono-li'); e.scrollTo({ left: (l[2] as HTMLElement).offsetLeft - (l[0] as HTMLElement).offsetLeft, behavior: 'instant' as ScrollBehavior }); });
-    await expect(page.locator('.mono-count')).toContainText('3 / 6');
+    await expect(page.locator('.trust-c').first().locator('p')).toBeVisible();
   });
 });
