@@ -105,14 +105,21 @@ for (const vp of [{ width: 1440, height: 900 }, { width: 1280, height: 680 }]) {
       expect(body).not.toMatch(/\[[^\]]*\]/);
       expect(body).not.toContain('Espacio reservado');
       expect(body).not.toMatch(/por completar/i);
-      // equipo: una sola tarjeta real (Mathias), con monograma y sin silueta ni marcadores
-      await expect(page.locator('#equipo .tm')).toHaveCount(1);
-      const card = page.locator('#equipo .tm-card');
+      // equipo: dos tarjetas reales (Mathias y Ramón), con monograma y sin silueta ni marcadores
+      await expect(page.locator('#equipo .tm')).toHaveCount(2);
+      await expect(page.locator('#equipo .team.duo')).toHaveCount(1);
+      const card = page.locator('#equipo .tm-card').nth(0);
       await expect(card).toBeVisible();
       await expect(card.locator('.tm-name')).toHaveText('Mathias Jara');
       await expect(card.locator('.tm-role')).toHaveText('Fundador');
       await expect(card.locator('.tm-bio')).toContainText('Diseña y desarrolla cada proyecto de South Software.');
       await expect(card.locator('.tm-mono')).toHaveText('MJ');
+      const card2 = page.locator('#equipo .tm-card').nth(1);
+      await expect(card2).toBeVisible();
+      await expect(card2.locator('.tm-name')).toHaveText('Ramón Ojeda');
+      await expect(card2.locator('.tm-role')).toHaveText('Experto en marketing');
+      await expect(card2.locator('.tm-bio')).toContainText('Lidera la marca, las redes sociales y las campañas');
+      await expect(card2.locator('.tm-mono')).toHaveText('RO');
       await expect(page.locator('.tm-sil, .tm-res, .tm-pill')).toHaveCount(0);
     });
 

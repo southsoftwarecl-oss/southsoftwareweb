@@ -112,8 +112,13 @@
   .tm-card:is(:hover,:focus-visible,:focus-within){transform:perspective(900px) rotateY(var(--tilt)) rotateX(2deg)}
   .tm-card:is(:hover,:focus-visible,:focus-within) .tm-duo{opacity:0}
   .tm-card:is(:hover,:focus-visible,:focus-within) .tm-mono{transform:translateY(-3px)}
-  .team.solo .tm-bio{opacity:1;transform:none}
+  .team.solo .tm-bio,.team.duo .tm-bio{opacity:1;transform:none}
 }
+/* dos personas: dos retratos parejos */
+.team.duo{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;grid-column:6/13}
+.team.duo .tm{max-width:none}
+.team.duo .tm-ph{aspect-ratio:auto;height:min(26vh,300px)}
+.team.duo .tm-bio{-webkit-line-clamp:unset;display:block;font-size:14px;line-height:1.5;color:var(--muted);margin-top:10px}
 /* una sola persona: retrato + texto, intencional (no una grilla con huecos) */
 .team.solo{display:block;grid-column:6/13}
 .team.solo .tm{max-width:none}
@@ -159,7 +164,7 @@
   .team-head{grid-column:1/-1;margin-bottom:28px}
   .team{grid-column:1/-1}
   .tm{max-width:none}
-  .team.solo{grid-column:1/-1}
+  .team.solo,.team.duo{grid-column:1/-1}
   .steps{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:24px}
   .steps-rail{display:none}
 }
@@ -175,6 +180,11 @@
   .team::-webkit-scrollbar{display:none}
   .tm{flex:0 0 64vw;scroll-snap-align:start}
   .team.solo{display:block;margin:0;padding:0}
+  .team.duo{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0;padding:0;overflow:visible}
+  .team.duo .tm{flex:none}
+  .team.duo .tm-ph{height:auto;aspect-ratio:1/1}
+  .team.duo .tm-mono{font-size:48px}
+  .team.duo .tm-bio{font-size:13px}
   .team.solo .tm-card{grid-template-columns:128px minmax(0,1fr);grid-template-rows:1fr auto auto;column-gap:18px}
   .team.solo .tm-ph{grid-row:1/3}
   .team.solo .tm-name{grid-row:1;align-self:end}

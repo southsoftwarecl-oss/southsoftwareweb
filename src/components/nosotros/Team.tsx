@@ -47,7 +47,7 @@ export default function Team({ n = 3 }: { n?: number }) {
           <div className="eyebrow" data-reveal><b>({String(n).padStart(2, '0')})</b>Equipo</div>
           <h2 id="equipo-t" className="fx-h" data-split="words">Las personas <span className="dim">detrás del código.</span></h2>
         </div>
-        <ul className={`team${TEAM_READY.length === 1 ? ' solo' : ''}`} role="list">
+        <ul className={`team${TEAM_READY.length === 1 ? ' solo' : TEAM_READY.length === 2 ? ' duo' : ''}`} role="list">
           {TEAM_READY.map((m, i) => (
             <li key={i} className="tm" style={{ ['--tilt' as string]: i % 2 ? '-3deg' : '3deg' }}>
               <article className="tm-card" tabIndex={0} aria-labelledby={`tm-n${i}`} aria-describedby={`tm-b${i}`}>
