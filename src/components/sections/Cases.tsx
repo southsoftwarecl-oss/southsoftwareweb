@@ -60,7 +60,7 @@ export function FeaturedCases({ n = 2 }: { n?: number }) {
         <SecHead n={n} eyebrow="Proyectos" title={<>Hecho en el sur.<br /><span className="dim">Funcionando hoy.</span></>}
           lead="Proyectos reales construidos por nuestro equipo. Las métricas se publicarán cuando cada cliente las valide." />
         <div className="cases-feat" data-stagger>
-          {CASES.map((c, i) => (
+          {CASES.slice(0, 3).map((c, i) => (
             <article className="case case-sm" key={c.slug}>
               <Link className="media" href={`/proyectos/${c.slug}`} aria-label={`${c.url}: ver caso ${c.name}`}><CaseMedia c={c} /><CaseCue /></Link>
               <div className="info">

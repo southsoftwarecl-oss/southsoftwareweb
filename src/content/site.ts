@@ -126,6 +126,12 @@ export const CASES: Case[] = [
     challenge: null,
     metrics: [{ label: 'Inscripciones a cursos', value: null }, { label: 'Ventas en tienda', value: null }, { label: 'Tiempo de carga (LCP)', value: null }],
     note: 'Propuesta de diseño. Ubicación y alcance por confirmar con el cliente.' },
+  { slug: 'unidades-chile', name: 'Unidades Chile', meta: 'Automotora', url: 'unidadeschile.cl', image: '/cases/unidadeschile.jpg',
+    summary: 'Sitio de automotora con stock disponible, comparador, consignación y financiamiento, y contacto directo por WhatsApp.',
+    stack: ['React', 'Supabase'], service: 'Plataforma web', year: '2026',
+    built: ['Catálogo con stock disponible y precios', 'Comparador de vehículos', 'Secciones de consignación y financiamiento', 'Botón de WhatsApp y aviso de cookies'],
+    challenge: null,
+    metrics: [{ label: 'Consultas mensuales', value: null }, { label: 'Tiempo de carga (LCP)', value: null }, { label: 'Vehículos publicados', value: null }] },
 ];
 
 export const STEPS = [
