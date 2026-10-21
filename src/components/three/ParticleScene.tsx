@@ -107,7 +107,7 @@ function Liquid({ lines, font, cfg, tokens }: { lines: Lines; font: string; cfg:
     setupGsap();
     const st = S.current;
     let tw: gsap.core.Tween | null = null;
-    const off = onIntro(() => { tw = gsap.to(st.intro, { v: 1, duration: 2.4, ease: 'south' }); });
+    const off = onIntro(() => { tw = gsap.to(st.intro, { v: 1, duration: 1.2, ease: 'south' }); });
     return () => { off(); tw?.kill(); };
   }, []);
 
@@ -230,7 +230,7 @@ function VisibilityLoop() {
   return null;
 }
 
-export default function ParticleScene({ lines = LOGO_LINES, font, tier, tokens }: { lines?: Lines; font: string; tier: Tier; tokens: Tokens }) {
+export default function ParticleScene({ lines = LOGO_LINES, font, tier, tokens, onReady }: { lines?: Lines; font: string; tier: Tier; tokens: Tokens; onReady?: () => void }) {
   // degradación progresiva: 0 = completo, 1 = sin fluido, 2 = DPR 1, 3 = menos partículas
   const [level, setLevel] = useState(0);
   const eff = effectiveCfg(tier, level);
@@ -246,7 +246,7 @@ export default function ParticleScene({ lines = LOGO_LINES, font, tier, tokens }
       dpr={dpr}
       gl={{ antialias: false, powerPreference: 'high-performance', alpha: false, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1, outputColorSpace: THREE.SRGBColorSpace }}
       camera={{ fov: 40, near: 0.1, far: 100, position: [0, 0, 13] }}
-      onCreated={({ gl }) => { gl.setClearColor(tokens.bg); gl.domElement.classList.add('gl'); gl.domElement.setAttribute('aria-hidden', 'true'); }}
+      onCreated={({ gl }) => { gl.setClearColor(tokens.bg); gl.domElement.classList.add('gl'); gl.domElement.setAttribute('aria-hidden', 'true'); if (onReady) requestAnimationFrame(() => requestAnimationFrame(onReady)); }}
       aria-hidden
       fallback={<div className="gl-fallback" aria-hidden="true" />}
     >

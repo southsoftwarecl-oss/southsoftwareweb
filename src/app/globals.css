@@ -294,11 +294,11 @@ html{overflow-x:clip}
 .gl-fallback{position:absolute;inset:0;background:radial-gradient(60% 50% at 50% 40%,rgba(var(--accent-deep-rgb),.18),transparent 70%)}
 
 /* ---- Preloader 100% CSS (equivale al timeline GSAP del preview, total 1,5 s) ---- */
-.pre{animation:pre-out .45s cubic-bezier(.65,0,.35,1) 1.05s both}
-.pre text{animation:pre-draw .85s cubic-bezier(.45,0,.55,1) both,pre-fill .35s cubic-bezier(.33,1,.68,1) .7s both}
-.pre text+text{animation-delay:.08s,.7s}
-.pre svg{animation:pre-svg .45s cubic-bezier(.55,0,.75,.06) 1s both}
-.pre .bar b{animation:pre-bar .95s cubic-bezier(.45,0,.55,1) both}
+.pre{animation:pre-out .3s cubic-bezier(.65,0,.35,1) .35s both}
+.pre text{animation:pre-draw .3s cubic-bezier(.45,0,.55,1) both,pre-fill .15s cubic-bezier(.33,1,.68,1) .2s both}
+.pre text+text{animation-delay:.04s,.2s}
+.pre svg{animation:pre-svg .3s cubic-bezier(.55,0,.75,.06) .3s both}
+.pre .bar b{animation:pre-bar .35s cubic-bezier(.45,0,.55,1) both}
 @keyframes pre-draw{to{stroke-dashoffset:0}}
 @keyframes pre-fill{to{fill:#e8ecf1;stroke-opacity:0}}
 @keyframes pre-svg{to{transform:scale(1.6);opacity:0;filter:blur(8px)}}
@@ -396,7 +396,7 @@ html.rm .marquee .track,html.rm .hero-meta .scroll i::after{animation:none}
 @media (prefers-reduced-motion:reduce){::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}}
 
 /* ---- Placeholder del logo en puntos (móvil, antes de cargar el 3D) ---- */
-.gl-ph{position:absolute;left:0;right:0;top:calc(27% - 60px);display:flex;flex-direction:column;align-items:center;gap:6px;font-family:var(--font-logo);line-height:1;pointer-events:none;transition:opacity 1.2s var(--ease)}
+.gl-ph{position:absolute;left:0;right:0;top:calc(27% - 60px);display:flex;flex-direction:column;align-items:center;gap:6px;font-family:var(--font-logo);line-height:1;pointer-events:none;transition:opacity .9s var(--ease);z-index:0}
 .gl-ph span{font-size:min(17vw,96px);background:radial-gradient(circle,rgba(200,205,220,.85) 0 1px,transparent 1.4px) 0 0/4px 4px;-webkit-background-clip:text;background-clip:text;color:transparent;opacity:.75}
 .gl-ph span+span{font-size:min(9.4vw,53px)}
 .gl-ph.out{opacity:0}

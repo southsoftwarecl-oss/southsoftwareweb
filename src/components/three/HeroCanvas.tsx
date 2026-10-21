@@ -14,7 +14,8 @@ import type { LOGO_LINES } from './ParticleScene';
 import type { Tokens } from './engine';
 import { detectTier, type Tier } from './tiers';
 
-const ParticleScene = dynamic(() => import('./ParticleScene'), { ssr: false });
+const loadScene = () => import('./ParticleScene');
+const ParticleScene = dynamic(loadScene, { ssr: false });
 
 type Nav = Navigator & { connection?: { saveData?: boolean }; deviceMemory?: number };
 /** Chequeo barato (sin crear un contexto: eso cuesta ~40 ms en móviles). R3F maneja el fallo real. */
@@ -33,10 +34,9 @@ function readTokens(): Tokens {
 
 export default function HeroCanvas({ font, lines }: { font: string; lines?: typeof LOGO_LINES }) {
   const [boot, setBoot] = useState<{ tier: Tier; tokens: Tokens } | null>(null);
-  const ready = !!boot;
+  const [ready, setReady] = useState(false);
   // Capacidades del dispositivo (constantes): en SSR se asume WebGL y equipo normal
   const ok = useSyncExternalStore(noop, hasWebGL, () => true);
-  const low = useSyncExternalStore(noop, isLowEnd, () => false);
 
   useEffect(() => {
     if (!hasWebGL()) return;
@@ -45,17 +45,20 @@ export default function HeroCanvas({ font, lines }: { font: string; lines?: type
     type RIC = (cb: () => void, o?: { timeout: number }) => number;
     const ric = (window as Window & { requestIdleCallback?: RIC }).requestIdleCallback;
     const idle = (ms: number) => (ric ? ric(go, { timeout: ms }) : window.setTimeout(go, 50));
+    // descarga el chunk de three en paralelo (sin bloquear el render)
+    const pre = () => { loadScene().catch(() => {}); };
+    if (ric) ric(pre, { timeout: 600 }); else window.setTimeout(pre, 200);
 
     if (isLowEnd()) {
-      // primera interacción o 3,5 s después de `load`
+      // primera interacción o poco después de `load`
       const evs = ['pointerdown', 'touchstart', 'scroll', 'keydown', 'mousemove'];
       const trigger = () => { evs.forEach((e) => window.removeEventListener(e, trigger)); go(); };
       evs.forEach((e) => window.addEventListener(e, trigger, { passive: true, once: true }));
       off.push(() => evs.forEach((e) => window.removeEventListener(e, trigger)));
-      const later = () => { const t = window.setTimeout(() => idle(1500), 3500); off.push(() => clearTimeout(t)); };
+      const later = () => { const t = window.setTimeout(() => idle(600), 300); off.push(() => clearTimeout(t)); };
       if (document.readyState === 'complete') later(); else { window.addEventListener('load', later, { once: true }); off.push(() => window.removeEventListener('load', later)); }
     } else {
-      off.push(onIntro(() => idle(400)));
+      off.push(onIntro(() => idle(150)));
     }
     return () => { cancel = true; off.forEach((f) => f()); };
   }, []);
@@ -63,8 +66,8 @@ export default function HeroCanvas({ font, lines }: { font: string; lines?: type
   if (!ok) return <div className="gl-fallback" aria-hidden="true" />;
   return (
     <>
-      {low && <div className={`gl-ph${ready ? ' out' : ''}`} aria-hidden="true">{(lines ?? [{ text: 'SOUTH' }, { text: 'SOFTWARE' }]).map((l, i) => <span key={i}>{l.text}</span>)}</div>}
-      {boot && <ParticleScene font={font} lines={lines} tier={boot.tier} tokens={boot.tokens} />}
+      <div className={`gl-ph${ready ? ' out' : ''}`} aria-hidden="true">{(lines ?? [{ text: 'SOUTH' }, { text: 'SOFTWARE' }]).map((l, i) => <span key={i}>{l.text}</span>)}</div>
+      {boot && <ParticleScene font={font} lines={lines} tier={boot.tier} tokens={boot.tokens} onReady={() => setReady(true)} />}
     </>
   );
 }

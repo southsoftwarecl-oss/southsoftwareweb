@@ -47,8 +47,8 @@ export const capDpr = () => Math.min(window.devicePixelRatio || 1, innerWidth < 
 
 /* ---------- Sincronización con el preloader CSS (idempotente) ---------- */
 /** Momento (ms desde que arranca la animación CSS del preloader) en que se abre la cortina. */
-export const INTRO_AT = 1050;
-export const PRE_TOTAL = 1500;
+export const INTRO_AT = 350;
+export const PRE_TOTAL = 650;
 let introInit: { remaining: number } | null = null;
 /**
  * Lee el tiempo real de la animación del preloader y agenda la intro.
@@ -61,7 +61,7 @@ export function initIntro() {
   const pre = document.querySelector<HTMLElement>('.pre');
   const anim = pre?.getAnimations?.().find((a) => (a as CSSAnimation).animationName === 'pre-out') ?? pre?.getAnimations?.()[0];
   const elapsed = anim && typeof anim.currentTime === 'number' ? anim.currentTime : performance.now();
-  if (pre && !RT.static && elapsed < INTRO_AT - 120) {
+  if (pre && !RT.static && elapsed < INTRO_AT - 60) {
     window.setTimeout(fireIntro, INTRO_AT - elapsed);
     introInit = { remaining: PRE_TOTAL - elapsed };
   } else {
