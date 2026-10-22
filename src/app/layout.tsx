@@ -20,6 +20,15 @@ import { GA_ID, GSC_VERIFICATION } from '@/lib/analytics';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  // Favicon con URLs estables (sin hash): public/favicon.ico, favicon.svg, apple-touch-icon.png
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: '48x48' },
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+    ],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180' }],
+  },
+  manifest: '/manifest.webmanifest',
   title: { default: `South Software — ${BRAND.tagline}`, template: '%s · South Software' },
   description: BRAND.description,
   applicationName: 'South Software',

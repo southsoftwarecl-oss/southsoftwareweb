@@ -46,14 +46,6 @@ export default function Footer() {
       {/* Wordmark completo en SVG: textLength lo ajusta exacto al ancho (sin recortes en ningún viewport) */}
       <div className="giant" aria-hidden="true"><div className="wrap">
         <svg viewBox="0 0 1000 256" role="presentation" focusable="false">
-          <defs>
-            <linearGradient id="giant-chrome" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" className="gc1" />
-              <stop offset=".46" className="gc2" />
-              <stop offset=".54" className="gc3" />
-              <stop offset="1" className="gc1" />
-            </linearGradient>
-          </defs>
           <text x="500" y="140" textAnchor="middle" fontSize="180" textLength="992" lengthAdjust="spacingAndGlyphs">SOUTH</text>
           <text x="500" y="244" textAnchor="middle" fontSize="97" textLength="992" lengthAdjust="spacingAndGlyphs">SOFTWARE</text>
         </svg>
