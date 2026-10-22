@@ -106,7 +106,7 @@ export const MARKETING_SERVICES: { slug: string; title: string; desc: string; in
 /** Packs que se muestran en la franja de precios del home (por nombre, deben existir en PACKS). */
 export const HOME_PACKS = ['Emprende', 'Pyme', 'E-commerce'] as const;
 
-/** Límite de productos del pack Vitrina Digital (pendiente de confirmar por Mathias; cambiar solo aquí). */
+/** Límite de productos del pack Vitrina Digital (cambiar solo aquí). */
 export const VITRINA_MAX_PRODUCTS = 100;
 
 export const PACKS: { name: string; setup: string; monthly: string; featured?: boolean; includes: string[] }[] = [
