@@ -7,7 +7,7 @@
  *   flotante de WhatsApp, scroll suave a anclas y sincronización con el preloader.
  * startRoute(root): reveals SplitText con máscara, [data-in], [data-reveal],
  *   [data-stagger], parallax, contadores, historia fijada, línea de proceso,
- *   spotlight, tilt, botones magnéticos y distorsión de imágenes, limitados a `root`.
+ *   spotlight, tilt y botones magnéticos, limitados a `root`.
  * Ambas devuelven una función de limpieza (gsap.context().revert()).
  */
 import Lenis from 'lenis';
@@ -213,22 +213,6 @@ export function startRoute(root: HTMLElement): () => void {
           const zone = isOrb && el.parentElement ? el.parentElement : el;
           listen(zone, 'pointermove', ((e: PointerEvent) => { const r = el.getBoundingClientRect(); qx((e.clientX - r.left - r.width / 2) * s); qy((e.clientY - r.top - r.height / 2) * s); }) as EventListener);
           listen(zone, 'pointerleave', () => { gsap.to(el, { x: 0, y: 0, duration: 1.1, ease: 'elastic.out(1,.45)' }); });
-        });
-        /* ---- distorsión SVG al pasar sobre los casos ---- */
-        $$('.case .media').forEach((m, i) => {
-          const id = `dz${Math.random().toString(36).slice(2, 8)}${i}`; const NS = 'http://www.w3.org/2000/svg';
-          const svg = document.createElementNS(NS, 'svg'); svg.setAttribute('width', '0'); svg.setAttribute('height', '0'); svg.setAttribute('aria-hidden', 'true'); svg.style.position = 'absolute';
-          const filter = document.createElementNS(NS, 'filter'); filter.id = id;
-          const turb = document.createElementNS(NS, 'feTurbulence');
-          Object.entries({ type: 'fractalNoise', baseFrequency: '0.012 0.04', numOctaves: '2', seed: String(i + 3), result: 'n' }).forEach(([k, v]) => turb.setAttribute(k, v));
-          const dm = document.createElementNS(NS, 'feDisplacementMap');
-          Object.entries({ in: 'SourceGraphic', in2: 'n', scale: '0', xChannelSelector: 'R', yChannelSelector: 'G' }).forEach(([k, v]) => dm.setAttribute(k, v));
-          filter.append(turb, dm); svg.append(filter); document.body.appendChild(svg); off.push(() => svg.remove());
-          const img = m.querySelector('img'); const o = { s: 0 };
-          if (img) listen(m, 'pointerenter', () => {
-            img.style.filter = `url(#${id})`;
-            gsap.fromTo(o, { s: 0 }, { s: 18, duration: 0.35, ease: 'power2.out', yoyo: true, repeat: 1, onUpdate: () => dm.setAttribute('scale', String(o.s)), onComplete: () => { img.style.filter = ''; } });
-          });
         });
       }
     });

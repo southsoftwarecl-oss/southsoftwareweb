@@ -121,8 +121,7 @@ section{position:relative}.sec{padding:160px 0}
 .case .media .top i{width:8px;height:8px;border-radius:50%;background:#2a2a2e}
 .case .media .top span{margin:0 auto;font-family:var(--font-mono);font-size:10.5px;color:var(--dim)}
 .case .media .img{position:absolute;inset:30px 0 0;overflow:hidden}
-.case .media img{width:100%;height:100%;object-fit:cover;object-position:top;transform:scale(1.08);transition:transform 1.4s var(--ease)}
-.case:hover .media img{transform:scale(1.02)}
+.case .media img{width:100%;height:100%;object-fit:cover;object-position:top;transform:scale(1.08)}
 .case .info{grid-column:9/13}
 .case .idx{font-family:var(--font-mono);font-size:12px;color:var(--dim)}
 .case h3,.case h2.cn{font-family:var(--font-display);font-weight:500;font-size:clamp(36px,3.6vw,56px);letter-spacing:-.045em;line-height:1;margin:18px 0 16px}

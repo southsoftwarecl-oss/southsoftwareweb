@@ -1,4 +1,4 @@
-/** Casos en marcos de navegador con distorsión al hover. Métricas = marcadores. */
+/** Casos en marcos de navegador sin deformación al hover (solo borde y leve elevación). Métricas = marcadores. */
 import Link from 'next/link';
 import Image from 'next/image';
 import type { ReactNode } from 'react';
@@ -51,7 +51,7 @@ export default function Cases({ n = 2, title, as = 'h2' }: { n?: number; title?:
 
 /**
  * Proyectos destacados del home: los 3 casos en una grilla compacta
- * (misma tarjeta de navegador con distorsión al hover) + enlace a /proyectos.
+ * (misma tarjeta de navegador sin deformación al hover (solo borde y leve elevación)) + enlace a /proyectos.
  */
 export function FeaturedCases({ n = 2 }: { n?: number }) {
   return (

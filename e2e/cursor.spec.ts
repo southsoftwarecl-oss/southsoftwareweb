@@ -87,6 +87,13 @@ test.describe('Cursor nativo · 1440×900', () => {
     await expect.poll(() => media.locator('.cue .ic').evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).m41), { timeout: 3000 }).toBeCloseTo(4, 0);
     const accent = await page.evaluate(() => { const d = document.createElement('i'); d.style.color = 'var(--accent)'; document.body.append(d); const c = getComputedStyle(d).color; d.remove(); return c; });
     await expect.poll(() => media.evaluate((el) => getComputedStyle(el).borderTopColor), { timeout: 3000 }).toBe(accent);
+    // la captura del proyecto no se deforma: sin filtro SVG ni zoom al pasar el puntero
+    const img = media.locator('img');
+    const before = await img.evaluate((el) => getComputedStyle(el).transform);
+    await page.waitForTimeout(800);
+    expect(await img.evaluate((el) => getComputedStyle(el).filter)).toBe('none');
+    expect(await img.evaluate((el) => getComputedStyle(el).transform)).toBe(before);
+    expect(await page.locator('feDisplacementMap').count()).toBe(await page.locator('.forge feDisplacementMap').count());
 
     const item = page.locator('.svc .item').first();
     await item.scrollIntoViewIfNeeded();
