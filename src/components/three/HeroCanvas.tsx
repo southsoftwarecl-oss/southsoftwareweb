@@ -32,6 +32,22 @@ function readTokens(): Tokens {
   return { bg: v('--bg'), accent: v('--accent'), deep: v('--accent-deep'), chrome1: v('--chrome-1'), chrome2: v('--chrome-2'), chrome3: v('--chrome-3') };
 }
 
+/**
+ * Póster estático del logo armado en partículas (render real del canvas, AVIF/WebP < 40 KB): es el LCP del primer
+ * paint y se funde en 400 ms al canvas cuando su primer frame WebGL está listo. Es la mitad superior del canvas
+ * (mismo ancho y escala; cubrir todo el viewport haría que Chrome lo trate como fondo y no como LCP); absoluto → CLS 0.
+ */
+function Poster({ ready }: { ready: boolean }) {
+  return (
+    <div className={`gl-ph${ready ? ' out' : ''}`} aria-hidden="true" style={{ position: 'absolute', left: 0, right: 0, top: 0, height: '50%', display: 'block', transition: 'opacity .4s ease', zIndex: 0 }}><picture>
+      <source media="(max-width: 759px)" type="image/avif" srcSet="/hero/poster-m.avif" />
+      <source media="(max-width: 759px)" type="image/webp" srcSet="/hero/poster-m.webp" />
+      <source type="image/avif" srcSet="/hero/poster-d.avif" />
+      <img src="/hero/poster-d.webp" alt="" width={1440} height={450} fetchPriority="high" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: '50% 0', display: 'block' }} />
+    </picture></div>
+  );
+}
+
 export default function HeroCanvas({ font, lines }: { font: string; lines?: typeof LOGO_LINES }) {
   const [boot, setBoot] = useState<{ tier: Tier; tokens: Tokens } | null>(null);
   const [ready, setReady] = useState(false);
@@ -47,26 +63,26 @@ export default function HeroCanvas({ font, lines }: { font: string; lines?: type
     const idle = (ms: number) => (ric ? ric(go, { timeout: ms }) : window.setTimeout(go, 50));
     // descarga el chunk de three en paralelo (sin bloquear el render)
     const pre = () => { loadScene().catch(() => {}); };
-    if (ric) ric(pre, { timeout: 600 }); else window.setTimeout(pre, 200);
-
     if (isLowEnd()) {
       // primera interacción o poco después de `load`
       const evs = ['pointerdown', 'touchstart', 'scroll', 'keydown', 'mousemove'];
       const trigger = () => { evs.forEach((e) => window.removeEventListener(e, trigger)); go(); };
       evs.forEach((e) => window.addEventListener(e, trigger, { passive: true, once: true }));
       off.push(() => evs.forEach((e) => window.removeEventListener(e, trigger)));
-      const later = () => { const t = window.setTimeout(() => idle(600), 300); off.push(() => clearTimeout(t)); };
-      if (document.readyState === 'complete') later(); else { window.addEventListener('load', later, { once: true }); off.push(() => window.removeEventListener('load', later)); }
+      // (sin temporizador: el póster ya muestra el logo armado; three no compite con el LCP ni suma TBT)
     } else {
+      // desktop: el chunk se baja en idle tras el LCP y la escena arranca al terminar la intro
+      if (ric) ric(pre, { timeout: 1500 }); else window.setTimeout(pre, 600);
       off.push(onIntro(() => idle(150)));
     }
     return () => { cancel = true; off.forEach((f) => f()); };
   }, []);
 
-  if (!ok) return <div className="gl-fallback" aria-hidden="true" />;
+  const poster = !lines; // el póster es el logo de la home (otras páginas usan su propio texto en puntos)
+  if (!ok) return poster ? <Poster ready={false} /> : <div className="gl-fallback" aria-hidden="true" />;
   return (
     <>
-      <div className={`gl-ph${ready ? ' out' : ''}`} aria-hidden="true">{(lines ?? [{ text: 'SOUTH' }, { text: 'SOFTWARE' }]).map((l, i) => <span key={i}>{l.text}</span>)}</div>
+      {poster ? <Poster ready={ready} /> : <div className={`gl-ph${ready ? ' out' : ''}`} aria-hidden="true">{lines.map((l, i) => <span key={i}>{l.text}</span>)}</div>}
       {boot && <ParticleScene font={font} lines={lines} tier={boot.tier} tokens={boot.tokens} onReady={() => setReady(true)} />}
     </>
   );

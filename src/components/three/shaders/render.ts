@@ -57,7 +57,7 @@ const ENV_HEAD = /* glsl */ `
 
 /** Gotas impostoras: tamaño 2.2–4.0 px a DPR 1 (variación por rnd), se aplanan con la profundidad en la esfera. */
 export const DROP_VERT = /* glsl */ `
-uniform sampler2D tPos;uniform float uDpr,uMix,uPxPerUnit;
+uniform sampler2D tPos;uniform float uDpr,uMix,uPxPerUnit,uDof;
 attribute vec2 ref;attribute float rnd;
 varying float vRnd;varying float vFlat;varying float vRad;varying float vEye;varying float vSx;
 void main(){
@@ -67,7 +67,7 @@ void main(){
   vRnd=rnd;vEye=d;
   vFlat=uMix*clamp((d-11.5)/3.5,0.,1.);
   // "DOF": las gotas que pasan cerca de la cámara (estallidos) crecen como bokeh
-  float px=mix(2.2,4.,rnd)*uDpr*(13./d)*(1.+clamp((10.5-d)*.3,0.,1.6));
+  float px=mix(2.2,4.,rnd)*uDpr*(13./d)*(1.+uDof*clamp((10.5-d)*.3,0.,1.6)); // sin DOF en gama baja
   gl_PointSize=px;
   vRad=.5*px/(uPxPerUnit*13./d); // radio en unidades de mundo (para la pasada de profundidad)
   gl_Position=projectionMatrix*mv;

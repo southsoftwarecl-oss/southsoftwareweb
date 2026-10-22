@@ -7,7 +7,7 @@
  * Render: gotas metálicas impostoras + (gama alta) superficie de fluido en pantalla.
  * Colores = tokens CSS (props desde HeroCanvas). Niveles: ./tiers.ts.
  */
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { PerformanceMonitor } from '@react-three/drei';
 import * as THREE from 'three';
@@ -16,6 +16,7 @@ import { gsap, ScrollTrigger, setupGsap } from '@/lib/gsap';
 import { RT, onIntro } from '@/lib/runtime';
 import { FOV, LiquidEngine, makeMatcap, VIS_H, type FrameInput, type Tokens } from './engine';
 import { Dust } from './dust';
+import { targetsKernel, targetsWorker, type Targets } from './targets';
 import { effectiveCfg, forcedTier, type Tier, type TierCfg } from './tiers';
 
 type Lines = { text: string; size: number; y: number }[];
@@ -35,10 +36,12 @@ function sampleText(lines: Lines, font: string) {
     (on(x - 3, y) && on(x + 3, y) && on(x, y - 3) && on(x, y + 3) ? fill : edge).push(p);
   }
   // muestreo ponderado al contorno (60 % borde / 40 % relleno) → letras con bordes definidos
-  if (!edge.length || !fill.length) return [...edge, ...fill];
+  if (!edge.length || !fill.length) return new Float32Array([...edge, ...fill].flat());
   const rep = Math.max(1, Math.round((0.6 / 0.4) * fill.length / edge.length));
-  const pts = [...fill]; for (let r = 0; r < rep; r++) pts.push(...edge);
-  return pts;
+  const out = new Float32Array((fill.length + edge.length * rep) * 2); let o = 0;
+  for (const p of fill) { out[o++] = p[0]; out[o++] = p[1]; }
+  for (let r = 0; r < rep; r++) for (const p of edge) { out[o++] = p[0]; out[o++] = p[1]; }
+  return out;
 }
 
 const damp = THREE.MathUtils.damp;
@@ -86,7 +89,7 @@ function frameText(out: { scale: number; posY: number }, w: number, h: number, b
   out.scale = scale; out.posY = posY;
 }
 
-function Liquid({ lines, font, cfg, tokens }: { lines: Lines; font: string; cfg: TierCfg; tokens: Tokens }) {
+function Liquid({ lines, font, cfg, tokens, onFirst }: { lines: Lines; font: string; cfg: TierCfg; tokens: Tokens; onFirst: () => void }) {
   const { gl, scene, camera, size, viewport, invalidate } = useThree();
   const group = useRef<THREE.Group>(null);
   // estado mutable del frame (sin setState en useFrame, sin asignaciones por frame)
@@ -119,25 +122,37 @@ function Liquid({ lines, font, cfg, tokens }: { lines: Lines; font: string; cfg:
     grp?.add(engine.points);
     const dust = new Dust(cfg.dust, tokens.chrome1); st.dust = dust; scene.add(dust.points);
     const qtl = new URLSearchParams(location.search).get('tl'); st.fixedTl = qtl !== null && forcedTier() ? Number(qtl) : null; st.rec = !!forcedTier() && /[?&]rec\b/.test(location.search); // QA: congelar el loop en un instante
-    const fill = (first: boolean) => {
-      // estático (sin simulación): las posiciones deben seguir al texto re-muestreado al cargar la fuente
-      engine.setTargets(sampleText(lines, font), RT.static ? 'text' : first ? (st.intro.v > 0.5 ? 'text' : 'scatter') : undefined);
-      invalidate();
+    // destinos: se rasteriza el texto (una vez, con la fuente ya cargada) y el resto se calcula en un Worker
+    let alive = true, worker: Worker | null = null;
+    const apply = (r: Targets) => {
+      if (!alive) return;
+      engine.applyTargets(r, RT.static || st.intro.v > 0.5 ? 'text' : 'scatter');
+      engine.points.visible = true; invalidate();
+      requestAnimationFrame(() => requestAnimationFrame(() => { if (alive) onFirst(); }));
     };
-    fill(true);
-    let alive = true;
-    document.fonts.load(`200px ${font}`).then(() => { if (alive) fill(false); }).catch(() => {});
+    engine.points.visible = false;
+    const run = () => {
+      if (!alive) return;
+      const pts = sampleText(lines, font), { N, count } = engine.size;
+      const local = () => apply(targetsKernel()(pts, N, count)); // respaldo (sin Worker)
+      worker = targetsWorker();
+      if (!worker) { local(); return; }
+      worker.onmessage = (e: MessageEvent<{ r: Targets }>) => { apply(e.data.r); worker?.terminate(); worker = null; };
+      worker.onerror = () => { worker?.terminate(); worker = null; local(); };
+      worker.postMessage({ id: 1, pts: pts.slice(), N, count }); // copia: `pts` queda para el respaldo
+    };
+    Promise.race([document.fonts.load(`200px ${font}`), new Promise((r) => setTimeout(r, 1500))]).then(run, run);
     st.f = {
       dt: 0, t: 0, mix: 0, intro: st.intro.v, live: RT.static ? 0 : 1, scale: 1, mouseLocal: st.mouseL, mouseVel: st.velL, cursor: 0, radius: 1,
       ripO: st.ripO, ripT: 9, ripA: 0, mouseUv: st.mouseUv, liquid: 0.85, rUv: 0.1, static: RT.static,
       a: 0, b: 0, u: 0, burst: 0, sweep: -9,
     };
     return () => {
-      alive = false; grp?.remove(engine.points); engine.dispose(); st.engine = null;
+      alive = false; worker?.terminate(); grp?.remove(engine.points); engine.dispose(); st.engine = null;
       scene.remove(dust.points); dust.dispose(); st.dust = null;
       env?.dispose(); matcap?.dispose();
     };
-  }, [gl, scene, cfg, tokens, lines, font, invalidate]);
+  }, [gl, scene, cfg, tokens, lines, font, invalidate, onFirst]);
 
   // intro: uIn 0→1 en 2,4 s (ease 'south') cuando se abre el preloader
   useEffect(() => {
@@ -313,6 +328,11 @@ function VisibilityLoop() {
 export default function ParticleScene({ lines = LOGO_LINES, font, tier, tokens, onReady }: { lines?: Lines; font: string; tier: Tier; tokens: Tokens; onReady?: () => void }) {
   // degradación progresiva: 0 = completo, 1 = sin fluido, 2 = DPR 1, 3 = menos partículas
   const [level, setLevel] = useState(0);
+  // fundido de 400 ms póster → canvas cuando el primer frame WebGL con el logo está listo
+  const [shown, setShown] = useState(false);
+  const readyRef = useRef(onReady);
+  useEffect(() => { readyRef.current = onReady; }, [onReady]);
+  const first = useCallback(() => { setShown(true); readyRef.current?.(); }, []);
   const eff = effectiveCfg(tier, level);
   const key = `${eff.tex}|${eff.count}|${eff.liquid}|${eff.matcap}`;
   // el motor solo se recrea si cambia algo estructural (no por el DPR)
@@ -322,17 +342,17 @@ export default function ParticleScene({ lines = LOGO_LINES, font, tier, tokens, 
   return (
     <Canvas
       className="gl-wrap"
-      style={{ position: 'absolute', inset: 0 }}
+      style={{ position: 'absolute', inset: 0, opacity: shown ? 1 : 0, transition: 'opacity .4s ease' }}
       dpr={dpr}
       gl={{ antialias: false, powerPreference: 'high-performance', alpha: false, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1, outputColorSpace: THREE.SRGBColorSpace }}
       camera={{ fov: FOV, near: 0.1, far: 100, position: [0, 0, 13] }}
-      onCreated={({ gl }) => { gl.setClearColor(tokens.bg); gl.domElement.classList.add('gl'); gl.domElement.setAttribute('aria-hidden', 'true'); if (onReady) requestAnimationFrame(() => requestAnimationFrame(onReady)); }}
+      onCreated={({ gl }) => { gl.setClearColor(tokens.bg); gl.domElement.classList.add('gl'); gl.domElement.setAttribute('aria-hidden', 'true'); }}
       aria-hidden
       fallback={<div className="gl-fallback" aria-hidden="true" />}
     >
       <PerformanceMonitor onDecline={() => { if (!forcedTier()) setLevel((l) => Math.min(l + 1, 3)); }} flipflops={3} bounds={() => [45, 58]} ms={250} iterations={8} onFallback={() => { if (!forcedTier()) setLevel(3); }} />
       <VisibilityLoop />
-      <Liquid lines={lines} font={font} cfg={cfg} tokens={tokens} />
+      <Liquid lines={lines} font={font} cfg={cfg} tokens={tokens} onFirst={first} />
     </Canvas>
   );
 }

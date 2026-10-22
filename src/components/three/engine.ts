@@ -11,7 +11,8 @@ import { GPUComputationRenderer, type Variable } from 'three/examples/jsm/misc/G
 import { SIM_POS, SIM_VEL } from './shaders/sim';
 import { BLUR_FRAG, COMP_FRAG, DEPTH_FRAG, DROP_FRAG, DROP_VERT, QUAD_VERT, THICK_FRAG } from './shaders/render';
 import type { TierCfg } from './tiers';
-import { buildShapes, CY } from './shapes';
+import { CY } from './targets';
+import type { Targets } from './targets';
 
 export type Tokens = { bg: string; accent: string; deep: string; chrome1: string; chrome2: string; chrome3: string };
 export type Bounds = { minX: number; maxX: number; minY: number; maxY: number };
@@ -114,7 +115,7 @@ export class LiquidEngine {
     const shading = {
       uRim: { value: color(tk.accent) }, uBackRim: { value: color(tk.deep) }, uEnvI: { value: 1.15 }, uKey: { value: 1.6 },
       envMap: { value: env }, tMatcap: { value: matcap },
-      uSweep: { value: -9 }, uBg: { value: color(tk.bg) }, uFog: { value: 0.06 }, uTime: { value: 0 }, uAccent: { value: color(tk.accent) },
+      uSweep: { value: -9 }, uDof: { value: cfg.tex <= 64 ? 0 : 1 }, uBg: { value: color(tk.bg) }, uFog: { value: 0.06 }, uTime: { value: 0 }, uAccent: { value: color(tk.accent) },
     };
     const defines: Record<string, string> = {};
     if (cfg.matcap || !env) defines.USE_MATCAP = '';
@@ -136,7 +137,7 @@ export class LiquidEngine {
       const rtOpts = { type: THREE.HalfFloatType, format: THREE.RGBAFormat, minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, depthBuffer: false, generateMipmaps: false };
       const rtA = new THREE.WebGLRenderTarget(2, 2, { ...rtOpts, depthBuffer: true });
       const rtB = new THREE.WebGLRenderTarget(2, 2, rtOpts), rtC = new THREE.WebGLRenderTarget(2, 2, rtOpts), rtD = new THREE.WebGLRenderTarget(2, 2, { ...rtOpts, minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter }); // la composición a resolución completa interpola
-      const halfU = () => ({ tPos: { value: null as THREE.Texture | null }, uDpr: { value: 0.5 }, uMix: { value: 0 }, uPxPerUnit: { value: 50 } });
+      const halfU = () => ({ tPos: { value: null as THREE.Texture | null }, uDpr: { value: 0.5 }, uMix: { value: 0 }, uPxPerUnit: { value: 50 }, uDof: { value: cfg.tex <= 64 ? 0 : 1 } });
       const depthMat = new THREE.ShaderMaterial({ uniforms: halfU(), vertexShader: DROP_VERT, fragmentShader: DEPTH_FRAG, depthTest: true, depthWrite: true });
       const thickMat = new THREE.ShaderMaterial({ uniforms: halfU(), vertexShader: DROP_VERT, fragmentShader: THICK_FRAG, depthTest: false, depthWrite: false, transparent: true, blending: THREE.AdditiveBlending });
       const blurMat = new THREE.ShaderMaterial({ uniforms: { tA: { value: null }, tB: { value: null }, uDir: { value: new THREE.Vector2() }, uFirst: { value: 1 } }, vertexShader: QUAD_VERT, fragmentShader: BLUR_FRAG, depthTest: false, depthWrite: false });
@@ -153,40 +154,19 @@ export class LiquidEngine {
     }
   }
 
-  /** Destinos: texto (muestreado), esfera, nube inicial, retardos e índices de vecinos. */
-  setTargets(pts: [number, number][], reset?: 'text' | 'scatter') {
-    const N = this.N, tot = N * N, T = this.tex;
-    const a = T.text.image.data as Float32Array, c = T.scatter.image.data as Float32Array, nb = T.nbr.image.data as Float32Array;
-    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-    for (const q of pts) { if (q[0] < minX) minX = q[0]; if (q[0] > maxX) maxX = q[0]; if (q[1] < minY) minY = q[1]; if (q[1] > maxY) maxY = q[1]; }
-    if (!pts.length) { minX = -1; maxX = 1; minY = 0; maxY = 0; }
-    const w = Math.max(maxX - minX, 1e-3);
-    // orden espacial (celdas de .2) para que los vecinos por índice sean vecinos reales
-    const order = Array.from({ length: this.count }, (_, i) => i);
-    const sample = order.map(() => pts[Math.floor(Math.random() * pts.length)] || [0, 0]);
-    const key = (q: [number, number]) => Math.floor((q[1] + 10) / 0.2) * 1000 + Math.floor((q[0] + 20) / 0.2);
-    order.sort((i, j) => key(sample[i]) - key(sample[j]));
-    for (let k = 0; k < tot; k++) {
-      const i = k < this.count ? k : k % this.count;
-      const q = sample[order[i]];
-      const rnd = Math.random();
-      a[k * 4] = q[0] + (Math.random() - 0.5) * 0.03; a[k * 4 + 1] = q[1] + 1.3 + (Math.random() - 0.5) * 0.03; a[k * 4 + 2] = (Math.random() - 0.5) * 0.3; // grosor Z ±.15
-      a[k * 4 + 3] = 0.5 * (0.55 * rnd + 0.45 * ((q[0] - minX) / w)); // retardo: rnd*.5 + onda izq→der
-      c[k * 4] = (Math.random() - 0.5) * 26; c[k * 4 + 1] = (Math.random() - 0.5) * 16; c[k * 4 + 2] = (Math.random() - 0.5) * 10;
-      c[k * 4 + 3] = Math.random() * 0.16; // retardo del morph: 0–.25 s de un tramo de ~1,5 s
-      for (let n = 0; n < 4; n++) {
-        let j = i + Math.round((Math.random() * 2 - 1) * 10); if (j === i) j = i + 1;
-        nb[k * 4 + n] = Math.min(Math.max(j, 0), this.count - 1);
-      }
-    }
-    // formas del loop (0 = logo sin el retardo de intro)
-    const logo = new Float32Array(a); for (let k = 0; k < tot; k++) logo[k * 4 + 3] = 0;
-    this.shapes = [logo, ...buildShapes(logo, this.count, tot)];
+  /** Aplica destinos ya calculados (en un Worker: ./targets.ts) — texto, nube inicial, vecinos y formas del loop. */
+  applyTargets(r: Targets, reset?: 'text' | 'scatter') {
+    const T = this.tex;
+    (T.text.image.data as Float32Array).set(r.a); (T.scatter.image.data as Float32Array).set(r.c); (T.nbr.image.data as Float32Array).set(r.nb);
+    this.shapes = r.shapes;
     const { a: sa, b: sb } = this.slot; this.slot.a = this.slot.b = -1; this.setMorph(Math.max(sa, 0), Math.max(sb, 0));
     T.text.needsUpdate = T.scatter.needsUpdate = T.nbr.needsUpdate = true;
-    Object.assign(this.bounds, { minX, maxX, minY: minY + 1.3, maxY: maxY + 1.3 });
-    if (reset) this.resetPositions(reset === 'text' ? a : c);
+    Object.assign(this.bounds, r.bounds);
+    if (reset) this.resetPositions(reset === 'text' ? r.a : r.c);
+    this.ready = true;
   }
+  ready = false;
+  get size() { return { N: this.N, count: this.count }; }
 
   /** Carga las formas origen/destino en tA/tB (solo cuando cambian: ~2 subidas por transición). */
   setMorph(a: number, b: number) {
