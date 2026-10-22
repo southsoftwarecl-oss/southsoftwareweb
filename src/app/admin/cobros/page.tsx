@@ -20,7 +20,7 @@ export default function Cobros() {
       </section>
       <section className="adm-section">
         <h2>Simulador de calendario</h2>
-        <p className="adm-note">Calcula con los precios publicados. Supuesto por confirmar: la primera mensualidad se cobra un mes después del alta.</p>
+        <p className="adm-note">Calcula con los precios publicados. El pago inicial se cobra en la fecha de alta. La primera mensualidad cae en el día de cobro elegido, al menos un mes después del lanzamiento (si no eliges lanzamiento, se usa la fecha de alta).</p>
         <Suspense fallback={null}><Sim /></Suspense>
       </section>
     </AdminShell>

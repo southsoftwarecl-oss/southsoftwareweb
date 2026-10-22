@@ -53,7 +53,7 @@ export default function Packs({ n = 5, head = true }: { n?: number; head?: boole
                       <ul>{p.includes.slice(SHORT).map((x) => <li key={x}><Check /><span>{x}</span></li>)}</ul>
                     </details>
                   )}
-                  <Btn href={waLink(packMessage(p))} external variant={p.featured ? 'primary' : 'ghost'} icon={false}>Elegir pack</Btn>
+                  <Btn href={waLink(packMessage(p))} external variant={p.featured ? 'primary' : 'ghost'} icon={false} lead={{ channel: 'elegir_pack', pack: p.name }}>Elegir pack</Btn>
                 </div>
               </article>
             );
@@ -66,7 +66,7 @@ export default function Packs({ n = 5, head = true }: { n?: number; head?: boole
               <div className="pr">{splitPrice(CUSTOM_PACK.setup).amount}</div>
               <div className="mo">+ <b>{CUSTOM_PACK.monthly}</b> / mes</div>
               <ul>{['Sistema interno, reservas o portal', 'Prototipo antes de programar', 'Pago por hitos', 'Soporte mensual'].map((x) => <li key={x}><Check /><span>{x}</span></li>)}</ul>
-              <Btn href={waLink(packMessage(CUSTOM_PACK))} external variant="ghost" icon={false}>Conversemos</Btn>
+              <Btn href={waLink(packMessage(CUSTOM_PACK))} external variant="ghost" icon={false} lead={{ channel: 'elegir_pack', pack: CUSTOM_PACK.name }}>Conversemos</Btn>
             </div>
           </article>
         </div>
@@ -81,7 +81,7 @@ export default function Packs({ n = 5, head = true }: { n?: number; head?: boole
         </div>
         <div className="founders" data-reveal>
           <div><b>{FOUNDERS.title}</b><p>{FOUNDERS.text}</p></div>
-          <Btn href={waLink(FOUNDERS_MESSAGE)} external>Reservar cupo</Btn>
+          <Btn href={waLink(FOUNDERS_MESSAGE)} external lead={{ channel: 'reservar_cupo' }}>Reservar cupo</Btn>
         </div>
         <p className="fine">Mensualidad sin permanencia con 30 días de aviso. Comisiones de pasarelas de pago y cuentas de desarrollador (Apple/Google) se cobran aparte.</p>
       </div>

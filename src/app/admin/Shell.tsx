@@ -24,7 +24,7 @@ export default function AdminShell({ current, title, children }: { current: stri
             </nav>
             <form action={logout}><button type="submit" className="adm-btn ghost">Salir</button></form>
           </header>
-          <div className="adm-banner" role="note">Fase 1 · vista previa local. Aún no hay base de datos conectada: las secciones sin datos muestran su estado vacío real. El catálogo se lee del sitio publicado.</div>
+          <div className="adm-banner" role="note">Vista previa · fase 2. Solicitudes con datos reales; clientes, cobros y edición de catálogo llegan en las próximas fases. El catálogo se lee del sitio publicado.</div>
           <main className="adm-main">
             <h1>{title}</h1>
             {children}

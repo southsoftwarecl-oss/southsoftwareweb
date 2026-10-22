@@ -1,5 +1,5 @@
--- South Software · panel admin · esquema inicial (BORRADOR FASE 1 — NO APLICADO a ningún proyecto Supabase).
--- Montos CLP en bigint. RLS en todas las tablas; la web pública nunca escribe con anon (solo vía /api/leads con service role en servidor).
+-- South Software · panel admin · esquema inicial (fase 2). Proyecto dedicado pjcwsfsapvsqptuarfyh.
+-- Montos CLP en bigint. RLS en todas las tablas. La web inserta solicitudes por servidor (service role si existe; si no, anon con política solo-INSERT en requests).
 create extension if not exists pgcrypto;
 
 create type staff_role as enum ('owner','admin','ventas','lectura');
@@ -9,6 +9,8 @@ create type pack_category as enum ('combinado','marketing','software');
 create type subscription_status as enum ('pendiente_alta','activo','pausado','cancelado');
 create type charge_status as enum ('programado','por_cobrar','enviado','pagado','parcial','vencido','anulado');
 create type charge_kind as enum ('inicial','mensual','hito','ajuste','pauta');
+create type tax_doc_type as enum ('boleta','factura');
+create type payment_method as enum ('transferencia','efectivo','debito','credito','link_pago','otro');
 
 create table staff (user_id uuid primary key references auth.users on delete cascade, role staff_role not null, display_name text not null, created_at timestamptz not null default now());
 
@@ -18,7 +20,11 @@ as $$ select role from staff where user_id = auth.uid() $$;
 create table clients (
   id uuid primary key default gen_random_uuid(), name text not null, company text, rut text, email text, phone text,
   source text, is_founder boolean not null default false, status text not null default 'prospecto' check (status in ('prospecto','activo','ex_cliente')),
-  notes text, deleted_at timestamptz, created_at timestamptz not null default now(), updated_at timestamptz not null default now(), created_by uuid references auth.users);
+  notes text,
+  -- Documento tributario (solo registro, sin integración SII). Si factura: rut, razón social, giro y dirección obligatorios.
+  doc_type tax_doc_type not null default 'boleta', razon_social text, giro text, billing_address text,
+  constraint factura_completa check (doc_type <> 'factura' or (rut is not null and razon_social is not null and giro is not null and billing_address is not null)),
+  deleted_at timestamptz, created_at timestamptz not null default now(), updated_at timestamptz not null default now(), created_by uuid references auth.users);
 create index on clients (lower(email)); create index on clients (phone);
 
 create table pack_catalog (
@@ -51,7 +57,11 @@ create table request_events (id uuid primary key default gen_random_uuid(), requ
 create table subscriptions (
   id uuid primary key default gen_random_uuid(), client_id uuid not null references clients, pack_id uuid not null references pack_catalog,
   price_version_id uuid not null references price_versions, request_id uuid references requests, status subscription_status not null default 'pendiente_alta',
-  start_date date, billing_day int check (billing_day between 1 and 31), setup_amount bigint not null, launch_monthly bigint, launch_until date, regular_monthly bigint,
+  start_date date,
+  -- Fecha de lanzamiento del sitio/proyecto. 1.ª mensualidad = primer billing_day que caiga ≥ launch_date + 1 mes.
+  launch_date date,
+  -- Día de cobro elegido por el cliente (1–28). Si es null se usa el día del mes de launch_date (tope 28).
+  billing_day int check (billing_day between 1 and 28), setup_amount bigint not null, launch_monthly bigint, launch_until date, regular_monthly bigint,
   founders_applied boolean not null default false, notice_given_at date, end_date date,
   created_at timestamptz not null default now(), updated_at timestamptz not null default now(), created_by uuid references auth.users);
 
@@ -65,7 +75,7 @@ create table charges (
   created_at timestamptz not null default now(), updated_at timestamptz not null default now());
 create index on charges (status, due_date);
 
-create table payments (id uuid primary key default gen_random_uuid(), charge_id uuid not null references charges, amount bigint not null check (amount > 0), paid_on date not null, method text not null, receipt_path text, reconciled_by uuid references auth.users, created_at timestamptz not null default now());
+create table payments (id uuid primary key default gen_random_uuid(), charge_id uuid not null references charges, amount bigint not null check (amount > 0), paid_on date not null, method payment_method not null, method_note text, receipt_path text, reconciled_by uuid references auth.users, created_at timestamptz not null default now());
 
 -- Correos a clientes: SOLO borradores; salen tras aprobación humana.
 create table email_outbox (id uuid primary key default gen_random_uuid(), to_email text not null, subject text not null, body text not null, status text not null default 'borrador' check (status in ('borrador','aprobado','enviado','fallido')), approved_by uuid references auth.users, created_at timestamptz not null default now());
@@ -90,6 +100,11 @@ do $$ declare t text; begin
     execute format('create policy %I_write on %I for all using (staff_role() in (''owner'',''admin'')) with check (staff_role() in (''owner'',''admin''))', t, t);
   end loop; end $$;
 create policy audit_read on audit_log for select using (staff_role() in ('owner','admin'));
+-- La web (anon, sin service role) solo puede INSERTAR solicitudes nuevas sin cliente ni responsable; nunca leerlas.
+create policy requests_anon_insert on requests for insert to anon with check (
+  channel <> 'manual' and stage = 'nuevo' and client_id is null and owner is null and deleted_at is null and lost_reason is null
+  and pg_column_size(payload) < 16384);
+grant insert on requests to anon;
 -- audit_log append-only: sin políticas de update/delete; inserción solo por trigger security definer.
 revoke update, delete on audit_log from authenticated, anon;
 

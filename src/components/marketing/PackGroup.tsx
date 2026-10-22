@@ -24,7 +24,7 @@ export default function PackGroup({ id, title, lead, packs, setupLabel, note }: 
                 : <div className="mkp-mo">+ <b>{p.monthly}</b> / mes</div>}
               <ul>{p.includes.map((x) => <li key={x}>{x}</li>)}</ul>
               {p.ideal && <p className="mkp-ideal">Ideal para: {p.ideal}</p>}
-              <Btn href={waLink(packMessage(p))} external variant={p.featured ? 'primary' : 'ghost'} icon={false} className="mkp-btn">Elegir pack</Btn>
+              <Btn href={waLink(packMessage(p))} external variant={p.featured ? 'primary' : 'ghost'} icon={false} className="mkp-btn" lead={{ channel: 'elegir_pack', pack: p.name }}>Elegir pack</Btn>
             </article>
           ))}
         </div>

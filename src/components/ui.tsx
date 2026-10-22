@@ -10,12 +10,12 @@ export const ArrowIcon = () => (
   <svg className="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
 );
 
-type BtnProps = { href: string; children: string; variant?: 'primary' | 'ghost' | 'light'; icon?: boolean; external?: boolean; className?: string };
+type BtnProps = { href: string; children: string; variant?: 'primary' | 'ghost' | 'light'; icon?: boolean; external?: boolean; className?: string; lead?: import('@/lib/lead-schema').LeadBeacon };
 /** Botón píldora con texto que rueda al hover (y magnético vía MotionRoot). */
-export function Btn({ href, children, variant = 'primary', icon = variant === 'primary', external, className = '' }: BtnProps) {
+export function Btn({ href, children, variant = 'primary', icon = variant === 'primary', external, className = '', lead }: BtnProps) {
   const cls = `btn btn-${variant} ${className}`.trim();
   const inner = (<><span className="t"><span>{children}</span><span aria-hidden="true">{children}</span></span>{icon && <ArrowIcon />}</>);
-  if (external) return <a className={cls} href={href} target="_blank" rel="noopener noreferrer">{inner}</a>;
+  if (external) return <a className={cls} href={href} target="_blank" rel="noopener noreferrer" data-lead={lead ? JSON.stringify(lead) : undefined}>{inner}</a>;
   if (href.startsWith('#') || href.startsWith('mailto:')) return <a className={cls} href={href}>{inner}</a>;
   return <Link className={cls} href={href}>{inner}</Link>;
 }

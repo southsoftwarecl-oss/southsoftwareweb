@@ -18,6 +18,7 @@
  *  - Sin RESEND_API_KEY o si Resend falla → { ok: false, error } y la UI ofrece WhatsApp / email.
  *  - CONTACT_DRY_RUN=1 (SOLO tests e2e; ignorado en producción de Vercel): arma el correo y responde
  *    { ok: true, dryRun } sin llamar a Resend.
+ * Panel: cada brief válido también se guarda en `requests` (lib/admin/leads.ts) antes de enviar el correo.
  * Ningún secreto llega al cliente.
  */
 import { NextResponse, type NextRequest } from 'next/server';
@@ -25,6 +26,7 @@ import { contactSchema, type ContactData } from '@/lib/contact-schema';
 import { CONTACT_MIN_MS } from '@/lib/contact-rules';
 import { BRAND } from '@/content/site';
 import { renderAutoReply, renderContactNotification } from '@/lib/email-template';
+import { hashIp, saveLead } from '@/lib/admin/leads';
 
 const MAX_BYTES = 16 * 1024;
 const WINDOW_MS = 10 * 60 * 1000;
@@ -121,6 +123,14 @@ export async function POST(req: NextRequest) {
   if (tsSecret && !(await verifyTurnstile(data.turnstileToken, ip, tsSecret))) {
     return json({ ok: false, error: 'No pudimos verificar que eres una persona. Intenta de nuevo.' }, 400);
   }
+
+  // Panel: guardar la solicitud (además del correo). Si falla, el correo igual sale: no se pierde el contacto.
+  const stored = await saveLead({
+    channel: 'form_contacto', name: data.nombre, email: data.email, phone: data.telefono || null, message: data.mensaje || null,
+    payload: { nombre: data.nombre, empresa: data.empresa, email: data.email, telefono: data.telefono, tipo: data.tipo, presupuesto: data.presupuesto, mensaje: data.mensaje },
+    ipHash: await hashIp(ip), userAgent: req.headers.get('user-agent'), referrer: req.headers.get('referer'),
+  }).catch(() => false);
+  if (!stored) console.error('[contact] la solicitud no quedó guardada en el panel');
 
   const { notification, autoReply } = buildEmails(data, (process.env.CONTACT_TO_EMAIL || '').trim() || DEFAULT_TO);
   const sendAutoReply = process.env.CONTACT_AUTOREPLY !== '0';

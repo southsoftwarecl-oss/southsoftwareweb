@@ -137,7 +137,7 @@ export default function ArmaTuPack() {
               {q.combo && <p className="atp-combo">Descuento combo 15 % aplicado: mensual sin descuento {fmt(q.monthlyBase, q.from)}.</p>}
             </div>
             {cur === 'summary' && q.items.length > 0
-              ? <><Btn href={waLink(quoteMessage(q, when))} external className="atp-cta">Agendar por WhatsApp</Btn>
+              ? <><Btn href={waLink(quoteMessage(q, when))} external className="atp-cta" lead={{ channel: 'arma_tu_pack', items: q.items.map((i) => i.id), when: when || undefined }}>Agendar por WhatsApp</Btn>
                   <a className="atp-link atp-alt" href="/contacto">O usa el formulario de contacto</a></>
               : <p className="atp-off atp-cta">{q.items.length ? 'Sigue hasta el resumen para agendar' : 'Elige al menos un servicio'}</p>}
             <p className="fine">Valores brutos en CLP. “desde” = precio base según alcance. {ADS_NOTE}</p>

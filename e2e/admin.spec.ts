@@ -49,6 +49,11 @@ test.describe('panel /admin', () => {
     const t = page.getByTestId('sim-table');
     await expect(t).toContainText('$384.993'); // 549.990 − 30 %
     await expect(t).toContainText('15-12-2026');
+    // Lanzamiento 20-12-2026, día de cobro 5 → 1.ª mensualidad 05-02-2027 (primer día 5 ≥ 20-01-2027)
+    await page.getByLabel('Fecha de lanzamiento').fill('2026-12-20');
+    await page.getByLabel('Día de cobro').selectOption('5');
+    await expect(t.locator('tbody tr').nth(1)).toContainText('05-02-2027');
+    await expect(t.locator('tbody tr').nth(2)).toContainText('05-03-2027');
     await page.getByRole('button', { name: 'Salir' }).click();
     await expect(page).toHaveURL(/\/admin\/login$/);
     await page.goto('/admin');

@@ -6,6 +6,7 @@ import WaFloat from '@/components/WaFloat';
 import MotionRoot from '@/components/MotionRoot';
 import { JsonLd } from '@/components/ui';
 import Analytics from '@/components/Analytics';
+import LeadBeacon from '@/components/LeadBeacon';
 import { GA_ID } from '@/lib/analytics';
 import { orgJsonLd, websiteJsonLd } from '@/lib/seo';
 
@@ -21,6 +22,7 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
       <WaFloat />
       <div className="grain" aria-hidden="true" />
       <MotionRoot />
+      <LeadBeacon />
       <JsonLd data={orgJsonLd} />
       <JsonLd data={websiteJsonLd} />
       {/* GA4 + aviso de cookies: nada se renderiza sin NEXT_PUBLIC_GA_ID */}

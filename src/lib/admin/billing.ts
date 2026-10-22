@@ -1,6 +1,6 @@
 /**
- * Calendario de cobros (cálculo puro, sin BD). Supuestos marcados SUPUESTO deben confirmarse con Mathias
- * (ver docs/admin/PREGUNTAS.md) antes de usarse con clientes reales.
+ * Calendario de cobros (cálculo puro, sin BD). Reglas confirmadas por Mathias (22‑10‑2026): mensualidades desde el
+ * lanzamiento + 1 mes, en el día de cobro elegido por el cliente (1–28; por defecto el día del lanzamiento).
  */
 import { FOUNDERS_PROMO, type CatalogPack } from './catalog';
 
@@ -20,7 +20,23 @@ export const fmtDate = (isoDate: string) => isoDate.split('-').reverse().join('-
 /** Fundadores: aplica si la fecha de contratación es ≤ 30-11-2026. Solo descuenta el pago inicial. */
 export const foundersApplies = (signedOn: string) => signedOn <= FOUNDERS_PROMO.until;
 
-export function schedule(pack: CatalogPack, start: string, opts: { months?: number; founders?: boolean } = {}): Charge[] {
+/** Día de cobro efectivo: el elegido por el cliente (1–28) o, si no hay, el día de lanzamiento (tope 28). */
+export function effectiveBillingDay(launch: string, billingDay?: number | null) {
+  if (billingDay != null) {
+    if (!Number.isInteger(billingDay) || billingDay < 1 || billingDay > 28) throw new Error('billing_day debe estar entre 1 y 28');
+    return billingDay;
+  }
+  return Math.min(Number(launch.slice(8, 10)), 28);
+}
+/** 1.ª mensualidad: el primer día de cobro que cae en o después de lanzamiento + 1 mes (decisión de Mathias, 22‑10‑2026). */
+export function firstMonthlyDate(launch: string, billingDay?: number | null) {
+  const day = effectiveBillingDay(launch, billingDay);
+  const min = addMonths(launch, 1);
+  const cand = `${min.slice(0, 8)}${String(day).padStart(2, '0')}`;
+  return cand >= min ? cand : `${addMonths(cand, 1)}`;
+}
+
+export function schedule(pack: CatalogPack, start: string, opts: { months?: number; founders?: boolean; launch?: string; billingDay?: number | null } = {}): Charge[] {
   const months = opts.months ?? 6;
   const out: Charge[] = [];
   const setup = pack.setup ?? 0;
@@ -30,12 +46,13 @@ export function schedule(pack: CatalogPack, start: string, opts: { months?: numb
   } else if (setup) {
     out.push({ date: start, concept: discount ? `Pago inicial (Fundadores −30 %: ${clp(setup)} → ${clp(setup - discount)})` : pack.category === 'marketing' ? 'Onboarding de marketing' : 'Pago inicial', amount: setup - discount, kind: 'inicial' });
   }
-  // SUPUESTO: la 1.ª mensualidad se cobra 1 mes después del alta, mismo día.
+  // 1.ª mensualidad: primer día de cobro ≥ lanzamiento + 1 mes; luego mensual ese mismo día.
+  const first = firstMonthlyDate(opts.launch || start, opts.billingDay);
   for (let i = 1; i <= months; i++) {
     const launch = pack.launchMonthly != null && pack.launchMonths != null && i <= pack.launchMonths;
     const amount = launch ? pack.launchMonthly! : pack.regularMonthly;
     if (amount == null) continue;
-    out.push({ date: addMonths(start, i), concept: `Mensualidad ${i}${launch ? ' (precio de lanzamiento)' : ''}`, amount, kind: 'mensual' });
+    out.push({ date: addMonths(first, i - 1), concept: `Mensualidad ${i}${launch ? ' (precio de lanzamiento)' : ''}`, amount, kind: 'mensual' });
   }
   return out;
 }
