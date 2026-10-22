@@ -12,8 +12,8 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { PerformanceMonitor } from '@react-three/drei';
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
-import { gsap, ScrollTrigger, setupGsap } from '@/lib/gsap';
-import { RT, onIntro } from '@/lib/runtime';
+import { ScrollTrigger, setupGsap } from '@/lib/gsap';
+import { RT } from '@/lib/runtime';
 import { FOV, LiquidEngine, makeMatcap, VIS_H, type FrameInput, type Tokens } from './engine';
 import { Dust } from './dust';
 import { targetsKernel, targetsWorker, type Targets } from './targets';
@@ -92,16 +92,16 @@ function frameText(out: { scale: number; posY: number }, w: number, h: number, b
 /** Cuadros renderizados (con el logo ya en sus destinos) antes de avisar que el canvas puede cubrir el póster:
  *  el primero compila shaders y sube texturas; los siguientes ya salen a ritmo normal (sin saltos al hacer el fundido). */
 const WARM_FRAMES = 4;
-/** Intro cinemática con póster (s de simulación): `lead` congelado mientras el canvas cubre al póster (idéntico),
- *  `dis` el frente que disuelve el logo en partículas y lo rearma; `total` → arranca el loop de formas. */
-const CINE = { lead: 0.35, dis: 2.4, total: 3.3 };
+/** Vuelo de entrada: duración (s) y curva (salida rápida, frenado suave). */
+const FLY_S = 1.1;
+const FLY_EASE = (x: number) => (x >= 1 ? 1 : 1 - Math.pow(1 - x, 3));
 
-function Liquid({ lines, font, cfg, tokens, onFirst, fromPoster }: { lines: Lines; font: string; cfg: TierCfg; tokens: Tokens; onFirst: () => void; fromPoster: boolean }) {
+function Liquid({ lines, font, cfg, tokens, onFirst }: { lines: Lines; font: string; cfg: TierCfg; tokens: Tokens; onFirst: () => void }) {
   const { gl, scene, camera, size, viewport, invalidate } = useThree();
   const group = useRef<THREE.Group>(null);
   // estado mutable del frame (sin setState en useFrame, sin asignaciones por frame)
   const S = useRef({
-    engine: null as LiquidEngine | null, intro: { v: RT.static || fromPoster ? 1 : 0 }, warm: -1, still: false, cine: fromPoster ? -1 : 9, t0: -1, clk: 0, prog: 0, mix: 0, mixFrom: 1, goingUp: false, upStart: 0,
+    engine: null as LiquidEngine | null, intro: { v: RT.static ? 1 : 0 }, warm: -1, fly: -1, still: false, t0: -1, clk: 0, prog: 0, mix: 0, mixFrom: 1, goingUp: false, upStart: 0,
     mouseW: new THREE.Vector3(99, 99, 0), mouseT: new THREE.Vector3(), mouseL: new THREE.Vector3(), last: new THREE.Vector2(-1, -1),
     velPx: new THREE.Vector2(), velW: new THREE.Vector2(), velL: new THREE.Vector2(), speed: 0, peak: 0, cursor: 0,
     ripO: new THREE.Vector3(99, 99, 0), ripW: new THREE.Vector3(99, 99, 0), ripT: 9, rotY: 0, fr: { scale: 1, posY: 0 }, ripA: 0, touchAt: -1, liquid: 0.85,
@@ -129,7 +129,7 @@ function Liquid({ lines, font, cfg, tokens, onFirst, fromPoster }: { lines: Line
     grp?.add(engine.points);
     const dust = new Dust(cfg.dust, tokens.chrome1); st.dust = dust; scene.add(dust.points);
     const qtl = new URLSearchParams(location.search).get('tl'); st.fixedTl = qtl !== null && forcedTier() ? Number(qtl) : null; st.rec = !!forcedTier() && /[?&]rec\b/.test(location.search); // QA: congelar el loop en un instante
-    st.still = !!forcedTier() && /[?&]poster\b/.test(location.search); // QA ?poster: primer cuadro exacto (t=0, cámara fija, sin polvo) para regenerar el póster
+    st.still = !!forcedTier() && /[?&]still\b/.test(location.search); // QA ?still: cuadro fijo (t=0, cámara fija, sin polvo)
     if (st.still) dust.points.visible = false;
     // destinos: se rasteriza el texto (una vez, con la fuente ya cargada) y el resto se calcula en un Worker
     let alive = true, worker: Worker | null = null;
@@ -166,15 +166,6 @@ function Liquid({ lines, font, cfg, tokens, onFirst, fromPoster }: { lines: Line
     };
   }, [gl, scene, camera, cfg, tokens, lines, font, invalidate, onFirst]);
 
-  // intro: uIn 0→1 en 2,4 s (ease 'south') cuando se abre el preloader
-  useEffect(() => {
-    if (RT.static || fromPoster) return; // con póster el logo ya está armado: sin vuelo de entrada (el póster se disuelve en él)
-    setupGsap();
-    const st = S.current;
-    let tw: gsap.core.Tween | null = null;
-    const off = onIntro(() => { tw = gsap.to(st.intro, { v: 1, duration: 1.2, ease: 'south' }); });
-    return () => { off(); tw?.kill(); };
-  }, [fromPoster]);
 
   // progreso de scroll del hero vía ScrollTrigger (no se mide el DOM en cada frame)
   useEffect(() => {
@@ -231,11 +222,11 @@ function Liquid({ lines, font, cfg, tokens, onFirst, fromPoster }: { lines: Line
     // QA ?rec: reloj simulado (dt fijo) para grabar el loop con GPU por software sin cámara acelerada
     // con póster: todo queda congelado en el cuadro del póster (t=0, cámara frontal, loop detenido) hasta terminar el
     // fundido; después el reloj arranca desde 0, así el movimiento nace suave desde la pose del póster.
-    if (!st.still && st.cine >= 0 && st.cine < CINE.total) st.cine += RT.static ? CINE.total : dt;
-    const frozen = st.cine < CINE.lead; // con póster: idéntico al póster (t=0, cámara frontal) hasta que el canvas lo cubre
-    const loopOn = st.cine >= CINE.total;
-    const dis = RT.static ? 1 : THREE.MathUtils.clamp((st.cine - CINE.lead) / CINE.dis, 0, 1);
-    if (!frozen && st.t0 < 0) st.t0 = state.clock.elapsedTime; // el reloj nace en 0 al soltar el póster
+    // vuelo de entrada (partículas dispersas → logo) en tiempo de simulación (dt acotado): un tirón de compilación o
+    // una carga lenta no puede "comérselo", siempre se ve completo. Espera a que el preloader abra (onIntro).
+    if (!RT.static && st.fly >= 0 && st.intro.v < 1 && RT.introduced) { st.fly += dt; st.intro.v = Math.min(1, FLY_EASE(st.fly / FLY_S)); }
+    const frozen = false, loopOn = true, dis = 1; // sin póster: las partículas vuelan y arman el logo desde el primer cuadro
+    if (st.t0 < 0) st.t0 = state.clock.elapsedTime;
     const t = st.still || frozen ? 0 : st.rec ? (st.simT += dt) : state.clock.elapsedTime - st.t0;
     const touch = TOUCH();
     const mix = 0; // (el morph texto→esfera por scroll fue reemplazado por el loop de formas)
@@ -324,9 +315,10 @@ function Liquid({ lines, font, cfg, tokens, onFirst, fromPoster }: { lines: Line
       a: ph.a, b: ph.b, u: ph.u, burst, sweep, dis, steps: st.fixedTl !== null ? 6 : 1,
     });
     E.frame(f, scene, camera);
+    if (st.warm >= 0 && st.warm + 1 < WARM_FRAMES) invalidate(); // frameloop 'demand' (reduced motion): pide los cuadros de calentamiento
     if (st.warm >= 0 && ++st.warm >= WARM_FRAMES) {
       st.warm = -1; st.onFirst?.(); st.onFirst = null;
-      if (st.cine < 0) st.cine = 0; // arranca la intro cinemática
+      if (st.fly < 0) st.fly = 0; // el vuelo de entrada arranca con el primer cuadro VISIBLE (no con el load ni un temporizador)
     }
   }, 1);
 
@@ -355,7 +347,7 @@ function VisibilityLoop() {
   return null;
 }
 
-export default function ParticleScene({ lines = LOGO_LINES, font, tier, tokens, onReady, fromPoster = false, handoffMs = 800 }: { lines?: Lines; font: string; tier: Tier; tokens: Tokens; onReady?: () => void; fromPoster?: boolean; handoffMs?: number }) {
+export default function ParticleScene({ lines = LOGO_LINES, font, tier, tokens, onReady }: { lines?: Lines; font: string; tier: Tier; tokens: Tokens; onReady?: () => void }) {
   // degradación progresiva: 0 = completo, 1 = sin fluido, 2 = DPR 1, 3 = menos partículas
   const [level, setLevel] = useState(0);
   // fundido de 400 ms póster → canvas cuando el primer frame WebGL con el logo está listo
@@ -372,7 +364,7 @@ export default function ParticleScene({ lines = LOGO_LINES, font, tier, tokens, 
   return (
     <Canvas
       className="gl-wrap"
-      style={{ position: 'absolute', inset: 0, opacity: shown ? 1 : 0, transition: fromPoster ? `opacity ${handoffMs}ms cubic-bezier(.45,0,.25,1)` : 'opacity .4s ease' }}
+      style={{ position: 'absolute', inset: 0, opacity: shown ? 1 : 0, transition: 'opacity .25s ease' }}
       dpr={dpr}
       gl={{ antialias: false, powerPreference: 'high-performance', alpha: false, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1, outputColorSpace: THREE.SRGBColorSpace }}
       camera={{ fov: FOV, near: 0.1, far: 100, position: [0, 0, 13] }}
@@ -382,7 +374,7 @@ export default function ParticleScene({ lines = LOGO_LINES, font, tier, tokens, 
     >
       <PerformanceMonitor onDecline={() => { if (!forcedTier()) setLevel((l) => Math.min(l + 1, 3)); }} flipflops={3} bounds={() => [45, 58]} ms={250} iterations={8} onFallback={() => { if (!forcedTier()) setLevel(3); }} />
       <VisibilityLoop />
-      <Liquid lines={lines} font={font} cfg={cfg} tokens={tokens} onFirst={first} fromPoster={fromPoster} />
+      <Liquid lines={lines} font={font} cfg={cfg} tokens={tokens} onFirst={first} />
     </Canvas>
   );
 }

@@ -66,6 +66,21 @@ test.describe('Home v2 · desktop 1440×900', () => {
     expect(errs).toEqual([]);
   });
 
+  test('sin póster: LCP es texto, CLS 0 y la intro arranca con partículas (sin imagen estática)', async ({ page }) => {
+    await page.addInitScript(() => {
+      const w = window as unknown as { __m: { lcp: string; cls: number } }; w.__m = { lcp: '', cls: 0 };
+      new PerformanceObserver((l) => { for (const e of l.getEntries() as unknown as { element?: Element }[]) w.__m.lcp = e.element?.tagName ?? 'IMG'; }).observe({ type: 'largest-contentful-paint', buffered: true });
+      new PerformanceObserver((l) => { for (const e of l.getEntries() as unknown as { value: number; hadRecentInput: boolean }[]) if (!e.hadRecentInput) w.__m.cls += e.value; }).observe({ type: 'layout-shift', buffered: true });
+    });
+    await page.goto('/');
+    await expect(page.locator('.hero canvas')).toHaveCount(1, { timeout: 20000 });
+    await settle(page);
+    expect(await page.locator('.hero img').count()).toBe(0);
+    const m = await page.evaluate(() => (window as unknown as { __m: { lcp: string; cls: number } }).__m);
+    expect(['H1', 'P', 'SPAN', 'DIV']).toContain(m.lcp);
+    expect(m.cls).toBeLessThan(0.01);
+  });
+
   test('largo del home ≤ 8× (1440×900) y ≤ 9× (1280×680); secciones ≤ 1.4vh', async ({ page }) => {
     await page.goto('/');
     await settle(page);
@@ -151,12 +166,14 @@ test.describe('Home v2 · móvil 390×844', () => {
 
   test('canvas, sin seguidor de cursor, sin errores ni violeta @mobile', async ({ page }) => {
     const errs = collectErrors(page);
+    const posters: string[] = [];
+    page.on('request', (r) => { if (/\/hero\/poster/.test(r.url())) posters.push(r.url()); });
     await page.goto('/');
-    await settle(page);
-    // en móvil el 3D carga recién con la primera interacción (el póster del logo es el LCP)
-    await expect(page.locator('.hero .gl-ph img')).toBeVisible();
-    await page.evaluate(() => window.dispatchEvent(new Event('scroll')));
+    // sin póster: el 3D carga de inmediato, sin esperar interacción, y nunca hay una imagen estática en el hero
     await expect(page.locator('.hero canvas')).toHaveCount(1, { timeout: 20000 });
+    await settle(page);
+    expect(await page.locator('.hero img, .hero .gl-ph, link[rel=preload][as=image][href*="/hero/"]').count()).toBe(0);
+    expect(posters).toEqual([]);
     expect(await page.evaluate(() => document.querySelectorAll('.cursor, .cursor-ring, .cursor-dot').length)).toBe(0);
     expect(await purpleHits(page)).toEqual([]);
     expect(errs).toEqual([]);
