@@ -53,6 +53,21 @@ export function quote(ids: string[]): Quote {
 
 export const fmt = (n: number, isFrom: boolean) => `${isFrom ? 'desde ' : ''}${clp(n)}`;
 
-export function quoteMessage(q: Quote) {
-  return `Hola, armé mi pack en la web: ${q.items.map((i) => i.label).join(', ')}. Pago inicial ${fmt(q.setup, q.from)} + ${fmt(q.monthly, q.from)}/mes${q.combo ? ' (con 15 % de descuento combo)' : ''}. ¿Conversamos?`;
+export function quoteMessage(q: Quote, when = '') {
+  return `Hola, armé mi pack en la web: ${q.items.map((i) => i.label).join(', ')}. Pago inicial ${fmt(q.setup, q.from)} + ${fmt(q.monthly, q.from)}/mes${q.combo ? ' (con 15 % de descuento combo)' : ''}.${when ? ` Me acomoda la reunión el ${when}.` : ''} ¿Conversamos?`;
 }
+
+export const itemById = (id: string) => ALL_ITEMS.find((i) => i.id === id)!;
+
+/** Categorías del paso 1. `step: false` = extra que se suma directo (sin paso propio). */
+export type CatId = 'web' | 'app' | 'escritorio' | 'marketing' | 'seguridad' | 'datos-extra';
+export const CATEGORIES: { id: CatId; label: string; note: string; title: string; hint: string; items: string[]; step: boolean }[] = [
+  { id: 'web', label: 'Página web', note: 'Landing, sitio, catálogo o tienda', title: 'Tu página web', hint: 'Elige el tipo de sitio', items: ['landing', 'sitio-pyme', 'catalogo', 'ecommerce'], step: true },
+  { id: 'app', label: 'App móvil', note: 'App MVP o PWA', title: 'Tu app móvil', hint: 'Elige tu app', items: ['app'], step: true },
+  { id: 'escritorio', label: 'Software de escritorio', note: 'Sistemas internos y datos, precio desde', title: 'Tu software', hint: 'Elige el tipo de software', items: ['a-medida', 'datos'], step: true },
+  { id: 'marketing', label: 'Marketing', note: 'Redes sociales y Meta Ads', title: 'Tu marketing', hint: '', items: ['basico', 'pro', 'full', 'meta-ads', 'onboarding'], step: true },
+  { id: 'seguridad', label: 'Seguridad', note: '', title: '', hint: '', items: ['seguridad'], step: false },
+  { id: 'datos-extra', label: 'Datos', note: '', title: '', hint: '', items: ['datos'], step: false },
+];
+export const DAYS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+export const SLOTS = ['10:00 a 13:00', '13:00 a 16:00', '16:00 a 19:00', '19:00 a 22:00'];
