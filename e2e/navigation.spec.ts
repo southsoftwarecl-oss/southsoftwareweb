@@ -63,7 +63,7 @@ test.describe('Navegación', () => {
   test('/packs: precios exactos y JSON-LD', async ({ page }) => {
     const res = await page.goto('/packs#solo-software');
     expect(res?.status()).toBe(200);
-    await expect(page).toHaveTitle(/Packs y precios · South Software/);
+    await expect(page).toHaveTitle(/Precios de desarrollo web y marketing en Chile · South Software/);
     for (const price of ['$149.990', '$349.990', '$549.990', '$699.990', 'desde $1.490.000', '$249.990', 'desde $390.000']) {
       // packs v3: "desde" va en la línea pequeña (.pl) y el monto en .pr (una sola línea)
       const amount = price.replace(/^desde\s+/, '');
@@ -108,7 +108,7 @@ test.describe('Navegación', () => {
 test.describe('SEO y seguridad', () => {
   test('metadata, JSON-LD, robots y sitemap', async ({ page, request }) => {
     await page.goto('/servicios');
-    await expect(page).toHaveTitle(/Servicios · South Software/);
+    await expect(page).toHaveTitle(/Desarrollo de software, web y marketing digital · South Software/);
     await expect(page.locator('meta[property="og:image"]')).toHaveCount(1);
     const ld = await page.locator('script[type="application/ld+json"]').allTextContents();
     const types = ld.map((t) => JSON.stringify(JSON.parse(t)));

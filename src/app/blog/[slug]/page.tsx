@@ -13,7 +13,6 @@ import { pageMeta } from '@/lib/seo';
 export function generateStaticParams() {
   return POSTS.length ? POSTS.map((p) => ({ slug: p.slug })) : [{ slug: 'pronto' }];
 }
-export const dynamicParams = false;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;

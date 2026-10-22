@@ -25,6 +25,8 @@ export const orgJsonLd = {
   description: BRAND.description,
   email: BRAND.email,
   telephone: BRAND.phoneE164,
+  // solo país (sin calle ni ciudad): no es una dirección física
+  address: { '@type': 'PostalAddress', addressCountry: 'CL' },
   areaServed: { '@type': 'Country', name: 'Chile' },
   knowsAbout: [...SERVICES.map((s) => s.title), ...MARKETING_SERVICES.map((s) => s.title)],
   sameAs: [BRAND.instagram.url],

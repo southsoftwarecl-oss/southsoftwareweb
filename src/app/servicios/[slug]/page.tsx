@@ -17,7 +17,6 @@ import '../servicios.css';
 export function generateStaticParams() {
   return SERVICE_PAGES.map((s) => ({ slug: s.slug }));
 }
-export const dynamicParams = false;
 
 function resolve(slug: string) {
   const p = SERVICE_PAGES.find((x) => x.slug === slug);

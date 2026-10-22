@@ -91,5 +91,5 @@ html.rm .gl-ph{transition:none}
  .cookie-eyebrow{display:none}
  .cookie-desc{min-width:0;font-size:12px;line-height:1.35}
  .cookie-actions{gap:6px;flex:none}
- .cookie-actions .cookie-btn{flex:none;height:32px;padding:0 12px;font-size:12.5px}
+ .cookie-actions .cookie-btn{flex:none;height:36px;padding:0 14px;font-size:13px}
 }
