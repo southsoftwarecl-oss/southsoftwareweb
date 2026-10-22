@@ -5,6 +5,7 @@
  * Motion: lib/nosotros-motion.ts (carga diferida desde el runtime). Estilos: ./nosotros.css.
  * Todo el texto está en el SSR; sin JS o con movimiento reducido la página se ve completa.
  */
+import { JsonLd } from '@/components/ui';
 import './nosotros.css';
 import Page from '@/components/Page';
 import ForgeHero from '@/components/nosotros/ForgeHero';
@@ -14,11 +15,11 @@ import Team, { hasTeam } from '@/components/nosotros/Team';
 import StepsStrip from '@/components/nosotros/StepsStrip';
 import Final from '@/components/sections/Final';
 import Timeline from '@/components/nosotros/Timeline';
-import { pageMeta } from '@/lib/seo';
+import { breadcrumbJsonLd, pageMeta } from '@/lib/seo';
 
 export const metadata = pageMeta({
-  title: 'Nosotros',
-  description: 'Somos South Software: Software & Marketing. Software a medida, web y apps, más redes sociales, leads y Meta Ads, con precio publicado y trato directo.',
+  title: 'Nosotros: desarrollo de software y marketing',
+  description: 'Somos South Software, equipo de desarrollo de software y marketing digital para pymes de Chile: precios publicados y trato directo. Conversemos.',
   path: '/nosotros',
 });
 
@@ -34,6 +35,7 @@ export default function Nosotros() {
         <StepsStrip n={hasTeam ? 5 : 4} />
         <Final n={hasTeam ? 6 : 5} />
       </div>
+      <JsonLd data={breadcrumbJsonLd([{ href: '', label: 'Nosotros' }], '/nosotros')} />
     </Page>
   );
 }

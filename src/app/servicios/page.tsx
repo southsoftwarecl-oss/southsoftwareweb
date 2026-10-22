@@ -13,11 +13,14 @@ import StackLive from '@/components/servicios/StackLive';
 import MarketingServices from '@/components/marketing/MarketingServices';
 import { JsonLd } from '@/components/ui';
 import { pageMeta, servicesJsonLd } from '@/lib/seo';
+import Link from 'next/link';
+import { ArrowIcon } from '@/components/ui';
+import { SERVICE_PAGES } from '@/content/service-pages';
 import './servicios.css';
 
 export const metadata = pageMeta({
-  title: 'Servicios',
-  description: 'Software & Marketing: software a medida, sitios web, apps, seguridad y datos, más gestión de redes sociales, captación de leads, Meta Ads y contenido.',
+  title: 'Desarrollo de software, web y marketing digital',
+  description: 'Desarrollo de software, desarrollo web, apps móviles, seguridad, datos y marketing digital con Meta Ads para pymes en Chile. Cotiza tu proyecto hoy.',
   path: '/servicios',
 });
 
@@ -37,6 +40,12 @@ export default function Servicios() {
         <MarketingServices n={2} />
         <ProcessLive n={3} />
         <StackLive n={4} />
+        <section className="sec" aria-labelledby="svc-idx" style={{ paddingTop: 0 }}>
+          <div className="wrap">
+            <h2 id="svc-idx" className="h4">Conoce cada servicio en detalle</h2>
+            <ul className="svc-links">{SERVICE_PAGES.map((s) => <li key={s.slug}><Link href={`/servicios/${s.slug}`}>{s.h1}<ArrowIcon /></Link></li>)}</ul>
+          </div>
+        </section>
         <Final n={5} />
       </div>
       <JsonLd data={servicesJsonLd} />

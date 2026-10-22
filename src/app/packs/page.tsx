@@ -12,8 +12,8 @@ import { JsonLd } from '@/components/ui';
 import { packsJsonLd, pageMeta } from '@/lib/seo';
 
 export const metadata = pageMeta({
-  title: 'Packs y precios',
-  description: 'Software & Marketing con precios publicados: packs combinados (web + marketing), solo marketing (redes, leads y anuncios) y solo software. La pauta publicitaria va siempre aparte.',
+  title: 'Precios de desarrollo web y marketing en Chile',
+  description: 'Precios publicados de desarrollo web, software y marketing digital: packs combinados, solo marketing o solo software. Elige tu pack y escríbenos hoy.',
   path: '/packs',
 });
 

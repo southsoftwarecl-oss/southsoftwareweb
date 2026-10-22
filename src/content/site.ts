@@ -153,6 +153,8 @@ export const ADS_NOTE = 'La pauta publicitaria (lo que se paga a Meta) va siempr
 /** Proyectos / casos. `metrics` son PLACEHOLDER hasta que cada cliente valide cifras reales. */
 export type Case = {
   slug: string; name: string; meta: string; url: string; image: string; summary: string;
+  /** meta description (140–155 caracteres, con CTA) */
+  seoDesc: string;
   stack: string[]; service: string; year: string; built: string[];
   challenge: string | null;
   solution?: string;
@@ -160,35 +162,35 @@ export type Case = {
   note?: string;
 };
 export const CASES: Case[] = [
-  { slug: 'rg-motors-chile', name: 'RG Motors Chile', meta: 'Automotora', url: 'rgmotorschile.cl', image: '/cases/rgmotors.jpg',
+  { slug: 'rg-motors-chile', seoDesc: 'Caso RG Motors Chile: desarrollo web de una plataforma para automotora con catálogo en vivo, consignación, comparador y visor 360°. Mira el proyecto.', name: 'RG Motors Chile', meta: 'Automotora', url: 'rgmotorschile.cl', image: '/cases/rgmotors.jpg',
     summary: 'Plataforma de venta de vehículos con catálogo en vivo, consignación, comparador y visor 360° propio.',
     stack: ['Next.js', 'Supabase', 'Three.js'], service: 'Plataforma web', year: '2026',
     built: ['Catálogo de vehículos en vivo administrado desde un panel', 'Flujo de consignación de vehículos', 'Comparador de modelos', 'Visor 360° de interiores desarrollado a medida con Three.js'],
     challenge: 'Una automotora necesitaba mostrar su stock real, recibir vehículos en consignación y ayudar a comparar modelos sin depender de portales externos.',
     solution: 'Construimos una plataforma propia con catálogo administrable desde un panel, flujo de consignación, comparador y un visor 360° de interiores hecho a medida.',
     metrics: [{ label: 'Consultas mensuales', value: null }, { label: 'Tiempo de carga (LCP)', value: null }, { label: 'Vehículos publicados', value: null }] },
-  { slug: 'salgado-automotriz', name: 'Salgado Automotriz', meta: 'Automotora', url: 'salgadoautomotriz.cl', image: '/cases/salgado.jpg',
+  { slug: 'salgado-automotriz', seoDesc: 'Caso Salgado Automotriz: desarrollo web de un sitio con inventario, buscador por marca y modelo, comparador y financiamiento. Mira el proyecto completo.', name: 'Salgado Automotriz', meta: 'Automotora', url: 'salgadoautomotriz.cl', image: '/cases/salgado.jpg',
     summary: 'Sitio con inventario, buscador por marca/modelo, comparador, financiamiento y consignación.',
     stack: ['Next.js', 'Tailwind', 'Supabase'], service: 'Plataforma web', year: '2026',
     built: ['Inventario con buscador por marca y modelo', 'Comparador de vehículos', 'Secciones de financiamiento y consignación', 'Diseño adaptado a celular'],
     challenge: 'Ordenar un inventario de vehículos para que cualquier persona encuentre lo que busca desde el celular y pueda consultar financiamiento o consignación.',
     solution: 'Un sitio con buscador por marca y modelo, comparador de vehículos y secciones de financiamiento y consignación, diseñado primero para celular.',
     metrics: [{ label: 'Consultas mensuales', value: null }, { label: 'Tiempo de carga (LCP)', value: null }, { label: 'Visitas desde celular', value: null }] },
-  { slug: 'frio-austral', name: 'Frío Austral', meta: 'Climatización · Taller + academia', url: 'Frío Austral · próximo lanzamiento', image: '/cases/frioaustral.jpg',
+  { slug: 'frio-austral', seoDesc: 'Caso Frío Austral: desarrollo web de una academia online de climatización automotriz con cursos en video, comunidad, taller y tienda. Mira el proyecto.', name: 'Frío Austral', meta: 'Climatización · Taller + academia', url: 'Frío Austral · próximo lanzamiento', image: '/cases/frioaustral.jpg',
     summary: 'Academia online de aire acondicionado automotriz con video real del técnico en la portada, cursos en video + PDF con pago en Hotmart, recursos gratis, comunidad, planes de consulta técnica, taller y tienda.',
     stack: ['HTML/CSS/JS', 'Video', 'Hotmart'], service: 'Sitio + academia', year: '2026',
     built: ['Portada con video real del técnico explicando en el taller', 'Cursos en video + PDF con compra segura en Hotmart', 'Recursos gratis y comunidad con reels y opiniones de alumnos', 'Planes mensuales para consultar al equipo técnico, con historial de consultas', 'Página del taller con servicios y atención por orden de llegada', 'Tienda de herramientas e insumos con aviso de apertura y panel de administración'],
     challenge: 'Un taller de climatización que también enseña: había que poner los cursos al frente sin perder el taller ni la tienda.',
     solution: 'Una academia con los cursos primero: video real del técnico en la portada, cursos con pago en Hotmart, recursos gratis, comunidad, planes de consulta técnica, taller y tienda.',
     metrics: [{ label: 'Inscripciones a cursos', value: null }, { label: 'Ventas en tienda', value: null }, { label: 'Tiempo de carga (LCP)', value: null }] },
-  { slug: 'unidades-chile', name: 'Unidades Chile', meta: 'Automotora', url: 'unidadeschile.cl', image: '/cases/unidadeschile.jpg',
+  { slug: 'unidades-chile', seoDesc: 'Caso Unidades Chile: desarrollo web para automotora con stock disponible, comparador, consignación, financiamiento y WhatsApp directo. Mira el proyecto.', name: 'Unidades Chile', meta: 'Automotora', url: 'unidadeschile.cl', image: '/cases/unidadeschile.jpg',
     summary: 'Sitio de automotora con stock disponible, comparador, consignación y financiamiento, y contacto directo por WhatsApp.',
     stack: ['React', 'Supabase'], service: 'Plataforma web', year: '2026',
     built: ['Catálogo con stock disponible y precios', 'Comparador de vehículos', 'Secciones de consignación y financiamiento', 'Botón de WhatsApp y aviso de cookies'],
     challenge: 'Mostrar el stock disponible con precios claros y convertir visitas en conversaciones directas.',
     solution: 'Catálogo con stock y precios, comparador, secciones de consignación y financiamiento, y contacto directo por WhatsApp.',
     metrics: [{ label: 'Consultas mensuales', value: null }, { label: 'Tiempo de carga (LCP)', value: null }, { label: 'Vehículos publicados', value: null }] },
-  { slug: 'suertu2s', name: 'Suertu2s', meta: 'Ilustraciones digitales · Premios', url: 'suertu2s.cl', image: '/cases/suertu2s.jpg',
+  { slug: 'suertu2s', seoDesc: 'Caso Suertu2s: desarrollo web de una tienda de ilustraciones digitales con campaña de premios, pago con Flow y consulta de tickets. Mira el proyecto.', name: 'Suertu2s', meta: 'Ilustraciones digitales · Premios', url: 'suertu2s.cl', image: '/cases/suertu2s.jpg',
     summary: 'Tienda de packs de ilustraciones digitales que regalan tickets para una campaña de premios, con cuenta regresiva, pago con Flow y consulta de tickets por correo.',
     stack: ['Next.js', 'Flow'], service: 'Plataforma web', year: '2026',
     built: ['Packs de ilustraciones con carrito y pago con Flow', 'Tickets de participación enviados por correo', 'Consulta de tickets con el correo de compra', 'Cuenta regresiva a la premiación y preguntas frecuentes'],

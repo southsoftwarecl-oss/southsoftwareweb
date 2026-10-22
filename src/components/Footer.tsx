@@ -18,7 +18,7 @@ export default function Footer() {
           <div className="col">
             <h2 className="h5">Servicios</h2>
             <ul>
-              {SERVICES.map((s) => <li key={s.slug}><Link href={`/servicios#${s.slug}`}>{s.short}</Link></li>)}
+              {SERVICES.map((s) => <li key={s.slug}><Link href={`/servicios/${s.slug}`}>{s.short}</Link></li>)}
             </ul>
           </div>
           <div className="col">
