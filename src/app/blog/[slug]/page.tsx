@@ -1,11 +1,26 @@
 /** Artículo del blog: Article schema, autor = organización, fecha, canonical y OG propio. */
 import type { Metadata } from 'next';
+import Link from 'next/link';
+import type { ReactNode } from 'react';
 import { notFound } from 'next/navigation';
 import Page from '@/components/Page';
 import PageHero from '@/components/PageHero';
 import Final from '@/components/sections/Final';
 import { JsonLd } from '@/components/ui';
-import { BLOG_AUTHOR, POSTS } from '@/content/blog';
+import { BLOG_AUTHOR, POSTS, type Block } from '@/content/blog';
+
+/** Enlaces internos en texto: [texto](/ruta). */
+function inline(t: string): ReactNode[] {
+  return t.split(/(\[[^\]]+\]\(\/[^)]*\))/g).map((part, i) => {
+    const m = part.match(/^\[([^\]]+)\]\((\/[^)]*)\)$/);
+    return m ? <Link key={i} href={m[2]} style={{ textDecoration: 'underline', textUnderlineOffset: 3 }}>{m[1]}</Link> : part;
+  });
+}
+function render(b: Block, i: number) {
+  if (typeof b === 'string') return <p key={i} style={{ marginTop: i ? 18 : 0, lineHeight: 1.7 }}>{inline(b)}</p>;
+  if ('h2' in b) return <h2 key={i} className="h4" style={{ marginTop: 48 }}>{b.h2}</h2>;
+  return <ul key={i} style={{ marginTop: 18, paddingLeft: 22, display: 'grid', gap: 10, lineHeight: 1.7 }}>{b.ul.map((li, j) => <li key={j}>{inline(li)}</li>)}</ul>;
+}
 import { SITE_URL } from '@/content/site';
 import { pageMeta } from '@/lib/seo';
 
@@ -32,7 +47,7 @@ export default async function Article({ params }: { params: Promise<{ slug: stri
     <Page>
       <PageHero path={`/blog/${p.slug}`} crumb={[{ href: '/blog', label: 'Blog' }, { href: '', label: p.title }]} eyebrow={`${BLOG_AUTHOR} · ${p.date}`} title={p.title} lead={p.description} />
       <article className="sec"><div className="wrap" style={{ maxWidth: 760 }}>
-        {p.body.map((t, i) => <p key={i} style={{ marginTop: i ? 18 : 0, lineHeight: 1.7 }}>{t}</p>)}
+        {p.body.map(render)}
       </div></article>
       <Final n={1} />
       <JsonLd data={{ '@context': 'https://schema.org', '@type': 'Article', headline: p.title, description: p.description, url, mainEntityOfPage: url,

@@ -68,16 +68,31 @@ test.describe('SEO auditoría', () => {
     expect(await nf.text()).toMatch(/noindex[\s\S]*Página no encontrada|Página no encontrada[\s\S]*noindex/);
   });
 
-  test('blog sin artículos inventados: noindex, fuera del sitemap y sin nombres de personas', async ({ request }) => {
+  test('blog con el primer artículo: indexable, en sitemap, Article schema y enlaces internos', async ({ request, page }) => {
     const html = await (await request.get('/blog')).text();
-    expect(html).toMatch(/<meta name="robots" content="noindex/);
-    expect(html).not.toContain('class="blog-list"');
-    expect(await (await request.get('/sitemap.xml')).text()).not.toContain('/blog');
-    expect((await request.get('/blog/pronto')).status()).toBe(404);
+    expect(html).not.toMatch(/<meta name="robots" content="noindex/);
+    expect(html).toContain('class="blog-list"');
+    const sm = await (await request.get('/sitemap.xml')).text();
+    expect(sm).toContain('/blog<');
+    expect(sm).toContain('/blog/cuanto-cuesta-una-web-pyme-chile-2026<');
+    const nf = await request.get('/blog/no-existe'); // slug no generado: streaming puede dar 200, lo que importa es noindex + 404
+    expect([200, 404]).toContain(nf.status());
+    expect(await nf.text()).toMatch(/noindex[\s\S]*Página no encontrada|Página no encontrada[\s\S]*noindex/);
+    await page.goto('/blog/cuanto-cuesta-una-web-pyme-chile-2026');
+    await expect(page.locator('h1')).toContainText('Cuánto cuesta una web');
+    expect(await page.locator('article h2').count()).toBeGreaterThanOrEqual(4);
+    const desc = (await page.locator('meta[name="description"]').getAttribute('content'))!;
+    expect(desc.length).toBeGreaterThanOrEqual(140); expect(desc.length).toBeLessThanOrEqual(155);
+    expect(await page.locator('meta[property="og:type"]').getAttribute('content')).toBe('article');
+    const ld = (await page.locator('script[type="application/ld+json"]').allTextContents()).join('');
+    expect(ld).toContain('"@type":"Article"');
+    for (const h of ['/packs', '/contacto', '/servicios/sitios-web']) await expect(page.locator(`article a[href="${h}"]`).first()).toBeVisible();
+    const t = (await page.content()).toLowerCase();
+    expect(t).not.toContain('google ads');
   });
 
   test('sin nombres del equipo ni ubicación en las páginas nuevas', async ({ request }) => {
-    for (const p of [...SERVICE_PAGES.map((s) => `/servicios/${s.slug}`), '/blog', '/nosotros']) {
+    for (const p of [...SERVICE_PAGES.map((s) => `/servicios/${s.slug}`), '/blog', '/blog/cuanto-cuesta-una-web-pyme-chile-2026', '/nosotros']) {
       const t = (await (await request.get(p)).text()).toLowerCase();
       for (const bad of ['mathias', 'ramón', 'ojeda', 'puerto montt', 'el sur', 'google ads']) expect(t, `${p}: ${bad}`).not.toContain(bad);
     }
