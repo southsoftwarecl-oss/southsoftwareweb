@@ -175,7 +175,7 @@ export default function Selector() {
                   <div className="sv-demo">{open && Demo ? <Demo /> : null}</div>
                   <div className="sv-info">
                     <h2>{s.title}</h2>
-                    <p>{s.desc}</p>
+                    <p>{s.cardDesc ?? s.desc}</p>
                     <div className="tags">{s.tags.map((t) => <span className="tag" key={t}>{t}</span>)}</div>
                     <ul className="sv-inc">{s.includes.map((x) => <li key={x}><Check /><span className="sv-inc-t">{x}</span></li>)}</ul>
                   </div>

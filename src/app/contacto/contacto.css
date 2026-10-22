@@ -3,12 +3,16 @@
 
 /* ---- charco de metal líquido (reemplaza .glow): gradiente cónico que rota en 40 s ---- */
 .final-contact{position:relative}
-.pool{position:absolute;right:-12%;top:-6%;width:min(1100px,95vw);aspect-ratio:1;pointer-events:none;opacity:.1;
-  -webkit-mask:radial-gradient(closest-side,#000 35%,transparent 100%);mask:radial-gradient(closest-side,#000 35%,transparent 100%)}
-.pool i{position:absolute;inset:0;border-radius:50%;filter:blur(64px);will-change:transform;
-  background:conic-gradient(from 0deg,var(--chrome-1),var(--accent-deep),var(--chrome-3),var(--accent),var(--accent-fill),var(--chrome-2),var(--chrome-1));
+/* Rendimiento: la rotación va en el contenedor (.pool, capa propia) y el blur en el hijo estático.
+   Así el blur + máscara se rasterizan UNA vez y el compositor solo rota la textura. La máscara radial
+   es simétrica, así que rotar el contenedor se ve idéntico a rotar el gradiente (antes: blur 64px de
+   ~1100px recalculado en cada frame → scroll a tirones en /contacto). */
+.pool{position:absolute;right:-12%;top:-6%;width:min(1100px,95vw);aspect-ratio:1;pointer-events:none;opacity:.1;will-change:transform;
+  -webkit-mask:radial-gradient(closest-side,#000 35%,transparent 100%);mask:radial-gradient(closest-side,#000 35%,transparent 100%);
   animation:pool-rot 40s linear infinite;animation-play-state:paused}
-.pool.run i{animation-play-state:running}
+.pool i{position:absolute;inset:0;border-radius:50%;filter:blur(64px);
+  background:conic-gradient(from 0deg,var(--chrome-1),var(--accent-deep),var(--chrome-3),var(--accent),var(--accent-fill),var(--chrome-2),var(--chrome-1))}
+.pool.run{animation-play-state:running}
 @keyframes pool-rot{to{transform:rotate(1turn)}}
 html.rm .pool{display:none}
 @media (prefers-reduced-motion:reduce){.pool{display:none}}

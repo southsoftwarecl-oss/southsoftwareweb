@@ -16,7 +16,7 @@ export default function WaFloat() {
   return (
     <aside aria-label="WhatsApp" className="wa-float-wrap">
     <a ref={ref} className="wa-float" href={waLink('Hola, quiero cotizar un proyecto con South Software')} target="_blank" rel="noopener noreferrer" aria-label="Escribir por WhatsApp">
-      <WaIcon />
+      <span className="wa-ic"><WaIcon /></span><span className="wa-lb" aria-hidden="true">Escríbenos</span>
     </a>
     </aside>
   );

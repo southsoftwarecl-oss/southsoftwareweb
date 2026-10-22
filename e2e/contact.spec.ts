@@ -232,8 +232,9 @@ test.describe('API /api/contact (validación en servidor)', () => {
   });
 });
 
-test.describe('Instagram oficial (@southsoftwarecl)', () => {
+test.describe('Instagram (@southsoftwarecl) y Página de Facebook oficiales', () => {
   const IG = 'https://www.instagram.com/southsoftwarecl';
+  const FB = 'https://www.facebook.com/southsoftware';
   test('footer, /contacto y JSON-LD sameAs; sin otras redes', async ({ page }) => {
     for (const path of ['/', '/contacto']) {
       await page.goto(path);
@@ -242,16 +243,20 @@ test.describe('Instagram oficial (@southsoftwarecl)', () => {
       await expect(ft).toHaveAttribute('target', '_blank');
       await expect(ft).toHaveAttribute('rel', 'me noopener');
       await expect(ft.locator('svg')).toHaveCount(1);
+      const fb = page.locator('footer').getByRole('link', { name: 'Página de Facebook de South Software' });
+      await expect(fb).toHaveAttribute('href', FB);
+      await expect(fb).toHaveAttribute('rel', 'me noopener');
       // ninguna otra red social (perfiles inexistentes)
       const social = await page.locator('a[href*="instagram.com"], a[href*="facebook.com"], a[href*="linkedin.com"], a[href*="twitter.com"], a[href*="x.com/"], a[href*="tiktok.com"], a[href*="youtube.com"]').evaluateAll((as) => as.map((a) => (a as HTMLAnchorElement).href));
-      expect(social.every((h) => h === IG)).toBe(true);
+      expect(social.every((h) => h === IG || h === FB)).toBe(true);
       const ld = await page.locator('script[type="application/ld+json"]').allTextContents();
       const org = ld.map((t) => JSON.parse(t)).find((j) => j['@id']?.endsWith('/#org'));
-      expect(org?.sameAs).toEqual([IG]);
+      expect(org?.sameAs).toEqual([IG, FB]);
     }
     const ch = page.locator('.channels').getByRole('link', { name: 'Instagram de South Software (@southsoftwarecl)' });
     await expect(ch).toHaveAttribute('href', IG);
     await expect(ch).toHaveAttribute('rel', 'me noopener');
     await expect(ch).toBeVisible();
+    await expect(page.locator('.channels').getByRole('link', { name: 'Página de Facebook de South Software' })).toHaveAttribute('href', FB);
   });
 });

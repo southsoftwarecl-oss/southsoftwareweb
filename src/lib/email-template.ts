@@ -113,7 +113,7 @@ a[x-apple-data-detectors]{color:inherit!important;text-decoration:none!important
       </table>
     </td></tr>
     <tr><td class="ss-pad" align="center" style="padding:26px 24px 8px;font-family:${SANS};font-size:13px;line-height:22px;color:${C.body}">
-      ${flink(SITE_URL, site)}${dot}${flink(`mailto:${BRAND.email}`, BRAND.email)}${dot}${flink(`tel:${BRAND.phoneE164}`, BRAND.phone)}${dot}${flink(ig.url, ig.handle)}
+      ${flink(SITE_URL, site)}${dot}${flink(`mailto:${BRAND.email}`, BRAND.email)}${dot}${flink(`tel:${BRAND.phoneE164}`, BRAND.phone)}${dot}${flink(ig.url, ig.handle)}${dot}${flink(BRAND.facebook.url, 'Facebook')}
     </td></tr>
     <tr><td class="ss-pad" align="center" style="padding:6px 24px 0;font-family:${SANS};font-size:12px;line-height:19px;color:${C.muted}">${footerNote}</td></tr>
     <tr><td align="center" style="padding:14px 24px 0;font-family:${MONO};font-size:10px;line-height:16px;letter-spacing:2px;text-transform:uppercase;color:${C.muted}">South Software · Software para todo Chile</td></tr>
@@ -198,7 +198,7 @@ export function renderContactNotification(d: ContactEmailData, o: EmailOpts = {}
     `Responder: ${d.email} (o responde este correo)`,
     ...(wa ? [`WhatsApp: https://wa.me/${wa}`] : []),
     '',
-    `${site} · ${BRAND.email} · ${BRAND.phone} · Instagram ${BRAND.instagram.handle}`,
+    `${site} · ${BRAND.email} · ${BRAND.phone} · Instagram ${BRAND.instagram.handle} · Facebook ${BRAND.facebook.url}`,
   ].join('\n').replace(/^\n/, '');
   return { subject, html, text };
 }
@@ -251,7 +251,7 @@ export function renderAutoReply(d: Pick<ContactEmailData, 'nombre' | 'tipo'>, o:
     '',
     'El equipo de South Software',
     '',
-    `${site} · ${BRAND.email} · ${BRAND.phone} · Instagram ${BRAND.instagram.handle}`,
+    `${site} · ${BRAND.email} · ${BRAND.phone} · Instagram ${BRAND.instagram.handle} · Facebook ${BRAND.facebook.url}`,
     `Recibes este correo porque enviaste el formulario de ${site}. Si no fuiste tú, puedes ignorarlo.`,
   ].join('\n');
   return { subject, html, text };

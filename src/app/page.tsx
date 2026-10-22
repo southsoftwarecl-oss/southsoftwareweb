@@ -8,8 +8,8 @@ import { pageMeta } from '@/lib/seo';
 
 /** SEO del home (búsqueda + marca). El layout conserva el título por defecto para el resto. */
 export const metadata = pageMeta({
-  title: 'Desarrollo de software y apps a medida en Chile | South Software',
-  description: 'Desarrollo de software a medida, desarrollo web y apps para pymes en Chile, más redes sociales y Meta Ads. Precios publicados. Agenda una reunión gratis.',
+  title: 'South Software — Desarrollo de Software & Marketing Digital',
+  description: 'Software & marketing digital: webs, apps y software a medida + redes sociales y Meta Ads para pymes en Chile. Arma tu pack y cotiza en minutos.',
   path: '/',
   absolute: true,
 });

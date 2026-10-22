@@ -20,7 +20,7 @@ export default function Services({ n = 1, title, linkToDetail = true, teaser = f
               <div className="num"><span>0{i + 1}</span><span>{s.tags[0]}</span></div>
               <div className="ico-row"><AIcon name={s.icon} /><span className="cue" aria-hidden="true">Explorar<ArrowIcon /></span></div>
               <h3>{s.title}</h3>
-              <div className="more"><p>{s.desc}</p><div className="tags">{s.tags.map((t) => <span className="tag" key={t}>{t}</span>)}</div></div>
+              <div className="more"><p>{s.cardDesc ?? s.desc}</p><div className="tags">{s.tags.map((t) => <span className="tag" key={t}>{t}</span>)}</div></div>
               <span className="plus" aria-hidden="true" />
             </>);
             return linkToDetail

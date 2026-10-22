@@ -23,6 +23,8 @@ export const BRAND = {
   country: 'Chile',
   /** Única red social oficial (también en JSON-LD sameAs). No agregar perfiles que no existan. */
   instagram: { url: 'https://www.instagram.com/southsoftwarecl', handle: '@southsoftwarecl' },
+  /** Página de Facebook oficial (verificada: og:title "South Software", usada en social/publicado.md). */
+  facebook: { url: 'https://www.facebook.com/southsoftware', label: 'South Software' },
 };
 
 /** Número de WhatsApp (formato internacional sin +). */
@@ -56,7 +58,9 @@ export const NAV = [
 export type IconName = 'code' | 'monitor' | 'globe' | 'phone' | 'shield' | 'chart' | 'cart';
 
 export const SERVICES: {
-  slug: string; icon: IconName; title: string; short: string; desc: string; tags: string[]; includes: string[];
+  slug: string; icon: IconName; title: string; short: string; desc: string;
+  /** Texto corto opcional para tarjetas (home y selector); `desc` completo queda en /servicios/[slug]. */
+  cardDesc?: string; tags: string[]; includes: string[];
 }[] = [
   { slug: 'software-a-medida', short: 'Software a medida', icon: 'code', title: 'Software integral a medida',
     desc: 'Sistemas de gestión, inventario, ventas y ERP livianos diseñados alrededor de cómo trabaja tu negocio, no al revés.',
@@ -76,6 +80,7 @@ export const SERVICES: {
     includes: ['MVP enfocado en lo esencial', 'Login, pagos y notificaciones push', 'Publicación en App Store y Google Play', 'Pago por hitos 30/30/30/10'] },
   { slug: 'seguridad-informatica', short: 'Seguridad', icon: 'shield', title: 'Seguridad informática',
     desc: 'Protegemos tu web y tu correo de punta a punta: revisamos y corregimos lo crítico, configuramos tu correo para que no lo suplanten ni caiga en spam, dejamos respaldos que funcionan y vigilamos tu sitio todos los meses. Recibes un informe claro, sin tecnicismos, y alertas por WhatsApp si algo pasa. Preparado para la Ley 21.719.',
+    cardDesc: 'Web y correo blindados: auditoría, SPF/DKIM/DMARC, respaldos probados y corrección de lo crítico. Preparado para la Ley 21.719.',
     tags: ['Diagnóstico', 'Hardening', 'Monitoreo'],
     includes: ['Auditoría de vulnerabilidades y escaneo mensual', 'SPF, DKIM, DMARC, HTTPS y cabeceras de seguridad', 'Respaldos probados y formularios antispam', 'Informe, corrección de hallazgos críticos y alertas por WhatsApp'] },
   { slug: 'ciencia-de-datos', short: 'Datos', icon: 'chart', title: 'Ciencia de datos',

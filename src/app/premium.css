@@ -38,7 +38,17 @@
 .client:hover{color:#fff}
 .counter.vp .vp-t{font-size:clamp(22px,2.2vw,30px);line-height:1.2}
 /* WhatsApp: uno, pequeño, se oculta sobre el footer */
-.wa-float{width:48px;height:48px;padding:0;justify-content:center;right:20px;bottom:20px}
+.wa-float{right:20px;bottom:20px;height:52px;min-width:52px;width:auto;padding:0;gap:0;justify-content:flex-start;color:#E6E9ED;
+  /* aro metálico (borde con gradiente) sobre fondo grafito sólido: sin backdrop-filter para no costar en el scroll */
+  border:1px solid transparent;backdrop-filter:none;-webkit-backdrop-filter:none;
+  background:linear-gradient(180deg,#1b1d21,#0f1013) padding-box,linear-gradient(150deg,rgba(255,255,255,.55),rgba(160,168,180,.18) 40%,rgba(255,255,255,.08) 60%,rgba(200,206,214,.4)) border-box;
+  box-shadow:0 10px 28px -12px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.08)}
+.wa-float .wa-ic{display:grid;place-items:center;width:50px;height:50px;flex:0 0 50px}
+.wa-float svg{width:22px;height:22px;color:#3DDC84;transition:color .3s}
+.wa-float .wa-lb{max-width:0;overflow:hidden;white-space:nowrap;opacity:0;font-size:13.5px;font-weight:500;letter-spacing:.01em;transition:max-width .45s var(--ease),opacity .3s,padding .45s var(--ease)}
+.wa-float:hover,.wa-float:focus-visible{border-color:transparent;background:linear-gradient(180deg,#1e2125,#111316) padding-box,linear-gradient(150deg,rgba(61,220,132,.75),rgba(160,168,180,.2) 45%,rgba(61,220,132,.35)) border-box}
+.wa-float:hover svg{color:#4BE592}
+@media (hover:hover) and (pointer:fine){.wa-float:hover .wa-lb,.wa-float:focus-visible .wa-lb{max-width:110px;opacity:1;padding-right:20px}}
 .wa-float.over-ft,.wa-float.show.over-ft{transform:translateY(160%);pointer-events:none}
 /* Cookies: barra delgada abajo */
 .cookie{left:0;right:0;bottom:0;width:100%;border-radius:0;padding:10px max(20px,calc((100vw - 1320px)/2));display:flex;align-items:center;gap:16px;flex-wrap:wrap}
