@@ -19,7 +19,7 @@ export default function NotFound() {
             <div className="g12" style={{ alignItems: 'end' }}>
               <div style={{ gridColumn: '1/8' }}>
                 <div className="status nf-status" data-in=".1"><i />Error 404 · Ruta no encontrada</div>
-                <h1 data-split="words">Esta página<br />se perdió en el sur.</h1>
+                <h1 data-split="words">Esta página<br />se perdió en el camino.</h1>
               </div>
               <div style={{ gridColumn: '9/13' }}>
                 <p className="sub" data-in=".55">El enlace no existe o cambió de lugar. Mueve el mouse para ordenar las partículas, o vuelve a terreno conocido.</p>

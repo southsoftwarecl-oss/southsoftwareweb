@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 
-/** /nosotros — "Forjado en el sur" (5 actos). */
+/** /nosotros — "Forjado" (5 actos). */
 const WHY_TITLES = ['Todo queda a tu nombre', 'Precio publicado', 'Sin permanencia', 'Trato directo', 'Seguridad desde el día uno', 'Hablas con quien programa'];
 const MANIFESTO = 'Creemos que cualquier pyme, esté donde esté, merece la misma calidad técnica que una gran empresa. Por eso publicamos nuestros precios, dejamos todo a tu nombre y te atiende quien programa.';
 
@@ -28,7 +28,7 @@ const noViolet = (page: Page) => page.evaluate(() => {
 test('HTML inicial (sin JS): h1, manifiesto completo y los 6 principios', async ({ request }) => {
   const html = await (await request.get('/nosotros')).text();
   const text = html.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<br\s*\/?>/g, ' ').replace(/<[^>]+>/g, '').replace(/&nbsp;|\u00a0/g, ' ').replace(/\s+/g, ' ');
-  expect(text).toContain('Software hecho en el sur.');
+  expect(text).toContain('Software que hace crecer.');
   expect(text).toContain(MANIFESTO);
   for (const t of WHY_TITLES) expect(text).toContain(t);
   expect((html.match(/<h1[\s>]/g) || []).length).toBe(1);

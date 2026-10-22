@@ -1,5 +1,5 @@
 /**
- * ACTO 1 — Apertura "Forjado en el sur" (100svh, sin pin).
+ * ACTO 1 — Apertura "Forjado" (100svh, sin pin).
  * - h1 en cromo líquido: visible en el SSR (LCP); nosotros-motion lo "reforja" encima con un único
  *   filtro SVG de mercurio (feTurbulence + feDisplacementMap 60→0) que se retira al asentarse.
  * - Contorno REAL de Chile (Natural Earth) + curvas de nivel de los Andes que se trazan.
@@ -31,8 +31,8 @@ export default function ForgeHero() {
           <div className="ph-l">
             <div className="eyebrow" data-reveal><b>(00)</b>Nosotros</div>
             <h1 id="fh-title" className="fh-title">
-              <span className="fw">Software</span> <span className="fw">hecho</span><br />
-              <span className="fw">en</span> <span className="fw">el</span> <span className="fw">sur.</span>
+              <span className="fw">Software</span> <span className="fw">que</span><br />
+              <span className="fw">hace</span> <span className="fw">crecer.</span>
             </h1>
           </div>
           <p className="lead ph-r fh-lead">Somos South Software: Software &amp; Marketing. Construimos software, web y apps, y hacemos crecer tu marca con redes, leads y Meta Ads, para empresas de todo Chile.</p>

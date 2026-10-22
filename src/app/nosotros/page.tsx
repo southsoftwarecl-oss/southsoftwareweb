@@ -1,5 +1,5 @@
 /**
- * Nosotros — "Forjado en el sur": narrativa en 5 actos.
+ * Nosotros — "Forjado": narrativa en 5 actos.
  *  1 Apertura (cromo líquido + contorno real de Chile) · 2 Manifiesto (pin) · 3 Principios (monolitos)
  *  4 Las personas (TEAM_READY; se omite si no hay nadie listo) · 5 Cómo trabajamos (franja) + CTA final.
  * Motion: lib/nosotros-motion.ts (carga diferida desde el runtime). Estilos: ./nosotros.css.

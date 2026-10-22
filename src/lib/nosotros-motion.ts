@@ -1,5 +1,5 @@
 /**
- * /nosotros — motion de "Forjado en el sur" (se importa de forma diferida desde motion-runtime).
+ * /nosotros — motion de "Forjado" (se importa de forma diferida desde motion-runtime).
  *
  * Tiers (detectTier del hero 3D; QA: ?gl=high|mid|mobile|low):
  *   alto  desktop: todo (blur de profundidad en el manifiesto, displacement en hero y retratos)

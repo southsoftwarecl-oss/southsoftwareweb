@@ -3,8 +3,8 @@ import { expect, test } from '@playwright/test';
 const PAGES = [
   { link: 'Packs', url: '/packs', h1: /Precio claro/ },
   { link: 'Servicios', url: '/servicios', h1: /Software & Marketing/ },
-  { link: 'Proyectos', url: '/proyectos', h1: /Hecho en el sur/ },
-  { link: 'Nosotros', url: '/nosotros', h1: /Software hecho/ },
+  { link: 'Proyectos', url: '/proyectos', h1: /Sitios que venden/ },
+  { link: 'Nosotros', url: '/nosotros', h1: /hace crecer/ },
   { link: 'Contacto', url: '/contacto', h1: /Agenda una/ },
 ];
 
@@ -54,7 +54,7 @@ test.describe('Navegación', () => {
   test('ruta inexistente → 404 creativo', async ({ page }) => {
     const res = await page.goto('/esta-ruta-no-existe');
     expect(res?.status()).toBe(404);
-    await expect(page.locator('h1:visible')).toContainText('se perdió en el sur');
+    await expect(page.locator('h1:visible')).toContainText('se perdió en el camino');
     await page.getByRole('link', { name: 'Volver al inicio' }).click();
     await expect(page).toHaveURL(/\/$/);
     await expect(page.locator('h1:visible')).toContainText('Cada detalle');
