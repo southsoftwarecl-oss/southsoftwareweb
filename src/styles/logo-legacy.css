@@ -1,0 +1,17 @@
+/* ===== wordmark vectorial (Logo.tsx) ===== */
+.wm{display:block;height:30px;width:auto;overflow:visible}
+.wm text{font-family:var(--font-logo)}
+.wm .c0{stop-color:#fff}.wm .c1{stop-color:var(--chrome-1)}.wm .c2{stop-color:var(--chrome-2)}.wm .c3{stop-color:var(--chrome-3)}
+.wm-face{stroke:rgba(255,255,255,.35);stroke-width:.35;paint-order:stroke}
+.wm-glow{fill:var(--accent-fill);opacity:.55}
+.wm-backlit .wm-glow{fill:#3D78C4;opacity:.75}
+.wm-steel .wm-glow{opacity:.35}
+.wm-rule{fill:var(--chrome-3);opacity:.6}
+.wm-sheen{opacity:0}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){
+ a:hover>.wm .wm-sheen,a:focus-visible>.wm .wm-sheen,.wm:hover .wm-sheen{animation:wm-sheen 1.6s cubic-bezier(.22,1,.36,1) both}
+}
+@keyframes wm-sheen{0%{opacity:0;transform:skewX(-20deg) translateX(0)}15%{opacity:1}100%{opacity:0;transform:skewX(-20deg) translateX(520px)}}
+.ft .about .wm{height:44px;margin-bottom:22px}
+.giant text{font-family:var(--font-logo);fill:url(#giant-chrome)}
+.giant .gc1{stop-color:var(--chrome-1)}.giant .gc2{stop-color:var(--chrome-2)}.giant .gc3{stop-color:var(--chrome-3)}

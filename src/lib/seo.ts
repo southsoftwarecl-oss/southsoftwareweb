@@ -19,7 +19,7 @@ export const orgJsonLd = {
   '@id': `${SITE_URL}/#org`,
   name: BRAND.name,
   url: SITE_URL,
-  logo: `${SITE_URL}/brand/logo.png`,
+  logo: `${SITE_URL}/icon-512.png`,
   image: `${SITE_URL}/opengraph-image.jpg`,
   description: BRAND.description,
   email: BRAND.email,
