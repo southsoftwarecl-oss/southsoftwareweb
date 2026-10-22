@@ -52,11 +52,11 @@ export const budgetPhrase = (b: Budget) =>
  */
 const TYPE_PACKS: Record<ProjectType, string[]> = {
   'Sitio web': ['Emprende', 'Pyme'],
-  'E-commerce': ['E-commerce', 'Automotora / Catálogo'],
+  'E-commerce': ['E-commerce', 'Vitrina Digital'],
   'App móvil': ['App'],
   'Software a medida': [],
   'Software de escritorio': [],
-  'Seguridad informática': ['Seguridad'],
+  'Seguridad informática': ['Blindaje Digital'],
   'Ciencia de datos': ['Datos'],
 };
 export const packsFor = (t: ProjectType) =>

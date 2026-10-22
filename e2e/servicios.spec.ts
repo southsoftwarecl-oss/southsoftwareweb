@@ -128,7 +128,7 @@ test('configurador: pack y precios EXACTOS de PACKS y WhatsApp con el nombre', a
   expect(packFor('sitio-web', 'solo').name).toBe('Emprende');
   expect(packFor('sitio-web', 'pyme').name).toBe('Pyme');
   expect(packFor('sitio-web', 'grande').name).toBe('Pyme');
-  expect(packFor('catalogo', null).name).toBe('Automotora / Catálogo');
+  expect(packFor('catalogo', null).name).toBe('Vitrina Digital');
   expect(packFor('tienda', null).name).toBe('E-commerce');
   // el estado de la URL se restaura al cargar
   await open(page, '/servicios?necesito=tienda&tamano=pyme');

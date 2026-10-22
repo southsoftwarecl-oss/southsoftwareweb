@@ -36,7 +36,7 @@ export const POSTS: Post[] = [
       { ul: [
         'Emprende: $149.990 de pago inicial + $19.990 al mes. Landing de una página adaptada a celular, botón de WhatsApp y formulario, dominio .cl a tu nombre, hosting, SSL y soporte por WhatsApp.',
         'Pyme: $349.990 + $34.990 al mes. Sitio de hasta 6 secciones, SEO local, 2 correos corporativos, respaldo semanal y reporte mensual.',
-        'Automotora / Catálogo: $549.990 + $49.990 al mes. Catálogo autoadministrable con fichas y filtros, WhatsApp con el producto precargado, respaldo diario y soporte en 24 h.',
+        'Vitrina Digital: $549.990 + $49.990 al mes. Todo lo del Sitio pyme más un catálogo autoadministrable con filtros y buscador, fichas por producto, cotización por WhatsApp o formulario, SEO por producto, píxel de Meta, respaldo diario y soporte en 24 h.',
         'E-commerce: $699.990 + $59.990 al mes. Tienda con Webpay o Mercado Pago, carga inicial de hasta 50 productos, despacho, retiro y correos automáticos, parches de seguridad y monitoreo.',
         'Software a medida: desde $1.900.000 + desde $79.990 al mes, para sistemas internos, reservas o portales.',
       ] },

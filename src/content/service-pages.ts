@@ -21,7 +21,7 @@ export const SERVICE_PAGES: ServicePage[] = [
     seoDesc: 'Desarrollo de apps móviles iOS, Android o PWA con login, pagos, notificaciones y publicación en las tiendas. Cuéntanos tu idea y cotiza tu app.',
     related: [], problem: null, faq: [] },
   { slug: 'seguridad-informatica', kind: 'software', title: 'Seguridad informática para pymes en Chile', h1: 'Seguridad informática para pymes',
-    seoDesc: 'Seguridad informática para pymes: diagnóstico de web, correo y DNS, SPF, DKIM y DMARC, respaldos y monitoreo. Pide tu diagnóstico y protege tu negocio hoy.',
+    seoDesc: 'Blindaje Digital para pymes: auditoría de vulnerabilidades, SPF, DKIM y DMARC, HTTPS, respaldos probados y corrección de lo crítico. Protégete hoy.',
     related: [], problem: null, faq: [] },
   { slug: 'ciencia-de-datos', kind: 'software', title: 'Ciencia de datos y dashboards para pymes', h1: 'Ciencia de datos y dashboards',
     seoDesc: 'Ciencia de datos para pymes: dashboards en Power BI o Looker Studio que convierten tus planillas en decisiones de ventas y stock. Cotiza tu dashboard hoy.',

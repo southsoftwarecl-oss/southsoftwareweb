@@ -58,8 +58,8 @@ test.describe('contacto · desktop 1440×900', () => {
   test('packs de referencia: nombres y precios exactos de PACKS', async ({ page }) => {
     await page.goto('/contacto');
     const map: Record<string, string[]> = {
-      'Sitio web': ['Emprende', 'Pyme'], 'E-commerce': ['E-commerce', 'Automotora / Catálogo'], 'App móvil': ['App'],
-      'Software a medida': [], 'Software de escritorio': [], 'Seguridad informática': ['Seguridad'], 'Ciencia de datos': ['Datos'],
+      'Sitio web': ['Emprende', 'Pyme'], 'E-commerce': ['E-commerce', 'Vitrina Digital'], 'App móvil': ['App'],
+      'Software a medida': [], 'Software de escritorio': [], 'Seguridad informática': ['Blindaje Digital'], 'Ciencia de datos': ['Datos'],
     };
     const ref = page.locator('.packref');
     for (const [tipo, names] of Object.entries(map)) {

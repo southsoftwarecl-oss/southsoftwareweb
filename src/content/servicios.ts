@@ -36,10 +36,10 @@ export type PackCard = { name: string; setup: string | null; monthly: string | n
 export function packNameFor(need: Need, size: Size | null): string | null {
   switch (need) {
     case 'sitio-web': return size === 'solo' ? 'Emprende' : 'Pyme';
-    case 'catalogo': return 'Automotora / Catálogo';
+    case 'catalogo': return 'Vitrina Digital';
     case 'tienda': return 'E-commerce';
     case 'app': return 'App';
-    case 'seguridad': return 'Seguridad';
+    case 'seguridad': return 'Blindaje Digital';
     case 'datos': return 'Datos';
     case 'a-medida': return null;
   }

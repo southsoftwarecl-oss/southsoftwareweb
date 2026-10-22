@@ -75,9 +75,9 @@ export const SERVICES: {
     tags: ['React Native', 'Flutter', 'PWA'],
     includes: ['MVP enfocado en lo esencial', 'Login, pagos y notificaciones push', 'Publicación en App Store y Google Play', 'Pago por hitos 30/30/30/10'] },
   { slug: 'seguridad-informatica', short: 'Seguridad', icon: 'shield', title: 'Seguridad informática',
-    desc: 'Diagnóstico de tu web y correo, SPF/DKIM/DMARC, respaldos y monitoreo continuo. Preparado para la Ley 21.719.',
+    desc: 'Protegemos tu web y tu correo de punta a punta: revisamos y corregimos lo crítico, configuramos tu correo para que no lo suplanten ni caiga en spam, dejamos respaldos que funcionan y vigilamos tu sitio todos los meses. Recibes un informe claro, sin tecnicismos, y alertas por WhatsApp si algo pasa. Preparado para la Ley 21.719.',
     tags: ['Diagnóstico', 'Hardening', 'Monitoreo'],
-    includes: ['Revisión de web, correo y DNS', 'Informe ejecutivo con plan de remediación', 'Respaldos verificados', 'Alertas por WhatsApp'] },
+    includes: ['Auditoría de vulnerabilidades y escaneo mensual', 'SPF, DKIM, DMARC, HTTPS y cabeceras de seguridad', 'Respaldos probados y formularios antispam', 'Informe, corrección de hallazgos críticos y alertas por WhatsApp'] },
   { slug: 'ciencia-de-datos', short: 'Datos', icon: 'chart', title: 'Ciencia de datos',
     desc: 'Dashboards que convierten tus planillas en decisiones: ventas, stock y operación en una sola pantalla.',
     tags: ['Power BI', 'Looker Studio', 'Python'],
@@ -106,13 +106,16 @@ export const MARKETING_SERVICES: { slug: string; title: string; desc: string; in
 /** Packs que se muestran en la franja de precios del home (por nombre, deben existir en PACKS). */
 export const HOME_PACKS = ['Emprende', 'Pyme', 'E-commerce'] as const;
 
+/** Límite de productos del pack Vitrina Digital (pendiente de confirmar por Mathias; cambiar solo aquí). */
+export const VITRINA_MAX_PRODUCTS = 100;
+
 export const PACKS: { name: string; setup: string; monthly: string; featured?: boolean; includes: string[] }[] = [
   { name: 'Emprende', setup: '$149.990', monthly: '$19.990', includes: ['Landing de 1 página adaptada a celular', 'Botón de WhatsApp, mapa y formulario', 'Dominio .cl a tu nombre', 'Hosting, SSL y soporte por WhatsApp'] },
   { name: 'Pyme', setup: '$349.990', monthly: '$34.990', featured: true, includes: ['Sitio de hasta 6 secciones', 'SEO local para tu ciudad', '2 correos corporativos', 'Respaldo semanal y reporte mensual'] },
-  { name: 'Automotora / Catálogo', setup: '$549.990', monthly: '$49.990', includes: ['Catálogo autoadministrable', 'Ficha por vehículo o producto con filtros', 'WhatsApp con el producto precargado', 'Respaldo diario y soporte en 24 h'] },
+  { name: 'Vitrina Digital', setup: '$549.990', monthly: '$49.990', includes: ['Todo lo del Sitio pyme: hasta 6 secciones, SEO local y 2 correos corporativos', 'Catálogo autoadministrable desde un panel simple', `Hasta ${VITRINA_MAX_PRODUCTS} productos o vehículos con fotos y ficha detallada`, 'Filtros por categoría y precio, y buscador', 'Cotización o pedido por WhatsApp con el producto precargado', 'Formulario de cotización que llega a tu correo', 'SEO por producto (enlace propio y vista en Google y redes) y píxel de Meta instalado', 'Respaldo diario, reporte mensual y soporte en 24 h'] },
   { name: 'E-commerce', setup: '$699.990', monthly: '$59.990', includes: ['Tienda con Webpay o Mercado Pago', 'Carga inicial de hasta 50 productos', 'Despacho, retiro y correos automáticos', 'Parches de seguridad y monitoreo'] },
   { name: 'App', setup: 'desde $1.490.000', monthly: 'desde $99.990', includes: ['MVP iOS/Android o PWA', 'Login, backend y notificaciones push', 'Publicación en las tiendas', 'Pago por hitos 30/30/30/10'] },
-  { name: 'Seguridad', setup: '$249.990', monthly: '$29.990', includes: ['Diagnóstico de web y correo', 'Informe ejecutivo y plan de remediación', 'Monitoreo y alertas por WhatsApp', 'Escaneo mensual de vulnerabilidades'] },
+  { name: 'Blindaje Digital', setup: '$249.990', monthly: '$29.990', includes: ['Auditoría de vulnerabilidades de tu web y escaneo mensual', 'Correo blindado: SPF, DKIM y DMARC contra suplantación y spam', 'HTTPS y cabeceras de seguridad (SSL, HSTS, CSP) bien configuradas', 'Respaldos automáticos probados con restauración real', 'Formularios protegidos contra spam y bots', 'Revisión de accesos: usuarios, contraseñas, verificación en dos pasos y permisos', 'Informe ejecutivo, corrección de hallazgos críticos y alertas por WhatsApp'] },
   { name: 'Datos', setup: 'desde $390.000', monthly: 'desde $39.990', includes: ['Dashboard con 1–2 fuentes de datos', 'Hasta 8 indicadores clave', 'Actualización automática', 'Capacitación incluida'] },
 ];
 
@@ -126,8 +129,8 @@ export const COMBO_PACKS: MktPack[] = [
     includes: ['Landing de 1 página, WhatsApp, dominio, hosting y SSL', '2 redes, 8 posts y 4 historias al mes', 'Respuestas en 48 h', 'Reporte mensual'], ideal: 'Emprendedor que parte de cero' },
   { name: 'Crece', tag: 'Pyme + Marketing Pro', setup: '$349.990', monthly: '$329.990', launch: '$299.990', featured: true,
     includes: ['Sitio de 6 secciones, SEO local y 2 correos', '12 piezas al mes (2 reels) e historias semanales', 'Respuestas en 24 h', 'Gestión de 1 campaña de Meta Ads'], ideal: 'Pyme de servicios que quiere clientes constantes' },
-  { name: 'Catálogo + Leads', tag: 'Automotora / Catálogo + Ads', setup: '$549.990', monthly: '$269.990', launch: '$239.990',
-    includes: ['Catálogo autoadministrable', 'Campañas Meta de leads a WhatsApp o formulario', 'Píxel de Meta', 'Reporte de leads'], ideal: 'Automotoras, corredoras y venta por catálogo' },
+  { name: 'Vitrina + Leads', tag: 'Vitrina Digital + Ads', setup: '$549.990', monthly: '$269.990', launch: '$239.990',
+    includes: ['Vitrina Digital con catálogo autoadministrable', 'Campañas Meta de leads a WhatsApp o formulario', 'Píxel de Meta', 'Reporte de leads'], ideal: 'Automotoras, corredoras y venta por catálogo' },
   { name: 'Vende', tag: 'E-commerce + Marketing Pro + Ads', setup: '$699.990', monthly: '$479.990', launch: '$429.990',
     includes: ['Tienda con Webpay o Mercado Pago, 50 productos', 'Marketing Pro', 'Catálogo de Meta y remarketing'], ideal: 'Tienda que quiere vender online' },
   { name: 'Total', tag: 'Web + App + Marketing Full', setup: 'desde $1.790.000', monthly: 'desde $599.990', launch: 'desde $549.990',

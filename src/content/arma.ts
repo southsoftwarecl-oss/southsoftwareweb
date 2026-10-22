@@ -23,10 +23,10 @@ const mk = (name: string) => MARKETING_PACKS.find((p) => p.name === name)!;
 export const SOFTWARE_ITEMS: Item[] = [
   sw('landing', 'Landing', pk('Emprende'), n0('Emprende')),
   sw('sitio-pyme', 'Sitio pyme', pk('Pyme'), n0('Pyme')),
-  sw('catalogo', 'Catálogo', pk('Automotora / Catálogo'), n0('Automotora / Catálogo')),
+  sw('catalogo', 'Vitrina Digital', pk('Vitrina Digital'), 'Catálogo autoadministrable con filtros y cotización por WhatsApp'),
   sw('ecommerce', 'E-commerce', pk('E-commerce'), n0('E-commerce')),
   sw('app', 'App', pk('App'), n0('App')),
-  sw('seguridad', 'Seguridad', pk('Seguridad'), n0('Seguridad')),
+  sw('seguridad', 'Seguridad', pk('Blindaje Digital'), 'Blindaje Digital: web y correo protegidos, con monitoreo'),
   sw('datos', 'Datos', pk('Datos'), n0('Datos')),
   sw('a-medida', 'Software a medida', CUSTOM_PACK, 'Sistema interno, reservas o portal'),
 ];
@@ -62,7 +62,7 @@ export const itemById = (id: string) => ALL_ITEMS.find((i) => i.id === id)!;
 /** Categorías del paso 1. `step: false` = extra que se suma directo (sin paso propio). */
 export type CatId = 'web' | 'app' | 'escritorio' | 'marketing' | 'seguridad' | 'datos-extra';
 export const CATEGORIES: { id: CatId; label: string; note: string; title: string; hint: string; items: string[]; step: boolean }[] = [
-  { id: 'web', label: 'Página web', note: 'Landing, sitio, catálogo o tienda', title: 'Tu página web', hint: 'Elige el tipo de sitio', items: ['landing', 'sitio-pyme', 'catalogo', 'ecommerce'], step: true },
+  { id: 'web', label: 'Página web', note: 'Landing, sitio, vitrina o tienda', title: 'Tu página web', hint: 'Elige el tipo de sitio', items: ['landing', 'sitio-pyme', 'catalogo', 'ecommerce'], step: true },
   { id: 'app', label: 'App móvil', note: 'App MVP o PWA', title: 'Tu app móvil', hint: 'Elige tu app', items: ['app'], step: true },
   { id: 'escritorio', label: 'Software de escritorio', note: 'Sistemas internos y datos, precio desde', title: 'Tu software', hint: 'Elige el tipo de software', items: ['a-medida', 'datos'], step: true },
   { id: 'marketing', label: 'Marketing', note: 'Redes sociales y Meta Ads', title: 'Tu marketing', hint: '', items: ['basico', 'pro', 'full', 'meta-ads', 'onboarding'], step: true },

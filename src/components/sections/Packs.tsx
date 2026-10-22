@@ -21,6 +21,9 @@ const Check = () => (
   <svg className="ck" viewBox="0 0 12 9" fill="none" aria-hidden="true"><path pathLength={1} d="M1 4.6 4.3 7.8 11 1.2" /></svg>
 );
 
+/** Ítems visibles en móvil antes de "Ver más". */
+const SHORT = 4;
+
 export default function Packs({ n = 5, head = true }: { n?: number; head?: boolean }) {
   // sin encabezado de sección (en /packs el h1 ya es el título) los nombres de pack bajan a h2 para no saltar niveles
   const H = head ? 'h3' : 'h2';
@@ -43,7 +46,13 @@ export default function Packs({ n = 5, head = true }: { n?: number; head?: boole
                   <small className="pl">Pago inicial{s.from && <> · {s.from}</>}</small>
                   <div className="pr"><Odo v={s.amount} /></div>
                   <div className="mo">+ <b>{m.from && <>{m.from} </>}<Odo v={m.amount} /></b> / mes</div>
-                  <ul>{p.includes.map((x) => <li key={x}><Check /><span>{x}</span></li>)}</ul>
+                  <ul className={p.includes.length > SHORT ? 'long' : undefined}>{p.includes.map((x, k) => <li key={x} className={k >= SHORT ? 'pk-x' : undefined}><Check /><span>{x}</span></li>)}</ul>
+                  {p.includes.length > SHORT && (
+                    // móvil: los ítems extra se pliegan para que la tarjeta no crezca (en ≥761px esto se oculta y se ve la lista completa)
+                    <details className="pk-more"><summary>Ver {p.includes.length - SHORT} más</summary>
+                      <ul>{p.includes.slice(SHORT).map((x) => <li key={x}><Check /><span>{x}</span></li>)}</ul>
+                    </details>
+                  )}
                   <Btn href={waLink(packMessage(p))} external variant={p.featured ? 'primary' : 'ghost'} icon={false}>Elegir pack</Btn>
                 </div>
               </article>
