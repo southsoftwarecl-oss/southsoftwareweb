@@ -4,6 +4,15 @@
  * "Por qué" viven en /servicios y /nosotros; los packs completos en /packs.
  */
 import Page from '@/components/Page';
+import { pageMeta } from '@/lib/seo';
+
+/** SEO del home (búsqueda + marca). El layout conserva el título por defecto para el resto. */
+export const metadata = pageMeta({
+  title: 'Desarrollo de software y apps a medida en Chile | South Software',
+  description: 'Desarrollo de software a medida, desarrollo web y apps para pymes en Chile, más redes sociales y Meta Ads. Precios publicados. Agenda una reunión gratis.',
+  path: '/',
+  absolute: true,
+});
 import Hero from '@/components/sections/Hero';
 import Proof from '@/components/sections/Proof';
 import Services from '@/components/sections/Services';
