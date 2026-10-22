@@ -10,7 +10,7 @@
 
 /** Sombreado cromado compartido por las gotas y la superficie líquida. */
 export const CHROME = /* glsl */ `
-uniform vec3 uRim,uBackRim;uniform float uEnvI,uKey;
+uniform vec3 uRim,uBackRim,uBg,uAccent;uniform float uEnvI,uKey,uSweep,uFog,uTime;
 #ifdef USE_MATCAP
 uniform sampler2D tMatcap;
 #else
@@ -39,6 +39,13 @@ vec3 shadeChrome(vec3 n,float rough){
   // contraluz acero tenue
   col+=uBackRim*pow(1.-NdV,4.)*max(dot(n.xy,vec2(.83,-.55)),0.)*.6;
   return col;
+}
+// barrido de luz (metal cepillado): banda en X de pantalla, +60 % brillo y 10 % hacia el acento; niebla exponencial a negro
+vec3 finish(vec3 col,float sx,float depth){
+  float band=exp(-pow((sx-uSweep)/.13,2.));
+  col*=1.+.6*band;
+  col=mix(col,uAccent*(dot(col,vec3(.3333))+.15),.1*band);
+  return mix(uBg,col,exp(-uFog*max(depth-12.,0.)));
 }`;
 
 const ENV_HEAD = /* glsl */ `
@@ -52,28 +59,32 @@ const ENV_HEAD = /* glsl */ `
 export const DROP_VERT = /* glsl */ `
 uniform sampler2D tPos;uniform float uDpr,uMix,uPxPerUnit;
 attribute vec2 ref;attribute float rnd;
-varying float vRnd;varying float vFlat;varying float vRad;varying float vEye;
+varying float vRnd;varying float vFlat;varying float vRad;varying float vEye;varying float vSx;
 void main(){
   vec3 p=texture2D(tPos,ref).xyz;
   vec4 mv=modelViewMatrix*vec4(p,1.);
   float d=-mv.z;
   vRnd=rnd;vEye=d;
   vFlat=uMix*clamp((d-11.5)/3.5,0.,1.);
-  float px=mix(2.2,4.,rnd)*uDpr*(13./d);
+  // "DOF": las gotas que pasan cerca de la cámara (estallidos) crecen como bokeh
+  float px=mix(2.2,4.,rnd)*uDpr*(13./d)*(1.+clamp((10.5-d)*.3,0.,1.6));
   gl_PointSize=px;
   vRad=.5*px/(uPxPerUnit*13./d); // radio en unidades de mundo (para la pasada de profundidad)
   gl_Position=projectionMatrix*mv;
+  vSx=gl_Position.x/gl_Position.w;
 }`;
 
 export const DROP_FRAG = /* glsl */ `
 ${ENV_HEAD}
 ${CHROME}
-varying float vRnd;varying float vFlat;
+varying float vRnd;varying float vFlat;varying float vEye;varying float vSx;
 void main(){
   vec2 c=gl_PointCoord*2.-1.;c.y=-c.y;float r2=dot(c,c);if(r2>1.)discard;
   vec3 n=normalize(vec3(c,sqrt(1.-r2)*(1.-.5*vFlat)));
   float rough=.16+(vRnd-.5)*.12;
-  gl_FragColor=vec4(shadeChrome(n,rough),1.);
+  // brillo por partícula (.75–1.05) + titileo lento
+  float br=mix(.75,1.05,vRnd)*(1.+.08*sin(uTime*1.3+vRnd*40.));
+  gl_FragColor=vec4(finish(shadeChrome(n,rough)*br,vSx,vEye),1.);
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
 }`;
@@ -154,7 +165,7 @@ void main(){
   float near=exp(-pow(length(dm)/uRUv,2.)*2.);
   float liq=uLiquid*mix(1.,.3/.85,near);
   float alpha=smoothstep(uThr,uThr*2.4,s.y)*liq;
-  gl_FragColor=vec4(shadeChrome(n,.14),alpha);
+  gl_FragColor=vec4(finish(shadeChrome(n,.14),vUv.x*2.-1.,s.x),alpha);
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
 }`;
