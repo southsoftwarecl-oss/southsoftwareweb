@@ -1,7 +1,7 @@
 /**
- * Nosotros — "Forjado": narrativa en 5 actos.
+ * Nosotros — "Forjado": narrativa en 4 actos.
  *  1 Apertura (cromo líquido + contorno real de Chile) · 2 Manifiesto (pin) · 3 Principios (monolitos)
- *  4 Las personas (TEAM_READY; se omite si no hay nadie listo) · 5 Cómo trabajamos (franja) + CTA final.
+ *  4 Cómo trabajamos (franja) + CTA final.
  * Motion: lib/nosotros-motion.ts (carga diferida desde el runtime). Estilos: ./nosotros.css.
  * Todo el texto está en el SSR; sin JS o con movimiento reducido la página se ve completa.
  */
@@ -11,7 +11,6 @@ import Page from '@/components/Page';
 import ForgeHero from '@/components/nosotros/ForgeHero';
 import Manifesto from '@/components/nosotros/Manifesto';
 import Monoliths from '@/components/nosotros/Monoliths';
-import Team, { hasTeam } from '@/components/nosotros/Team';
 import StepsStrip from '@/components/nosotros/StepsStrip';
 import Final from '@/components/sections/Final';
 import Timeline from '@/components/nosotros/Timeline';
@@ -30,10 +29,9 @@ export default function Nosotros() {
         <ForgeHero />
         <Manifesto n={1} />
         <Monoliths n={2} />
-        {hasTeam && <Team n={3} />}
-        <Timeline n={hasTeam ? 4 : 3} />
-        <StepsStrip n={hasTeam ? 5 : 4} />
-        <Final n={hasTeam ? 6 : 5} />
+        <Timeline n={3} />
+        <StepsStrip n={4} />
+        <Final n={5} />
       </div>
       <JsonLd data={breadcrumbJsonLd([{ href: '', label: 'Nosotros' }], '/nosotros')} />
     </Page>
