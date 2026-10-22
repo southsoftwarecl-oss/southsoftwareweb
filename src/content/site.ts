@@ -85,9 +85,8 @@ export const SERVICES: {
 ];
 
 /**
- * MARKETING DIGITAL — liderado por Ramón Ojeda (ver TEAM). Servicios sin cifras ni resultados inventados.
+ * MARKETING DIGITAL — Servicios sin cifras ni resultados inventados.
  */
-export const MARKETING_LEAD = 'Ramón Ojeda';
 export const MARKETING_SERVICES: { slug: string; title: string; desc: string; includes: string[] }[] = [
   { slug: 'redes-sociales', title: 'Gestión de redes sociales',
     desc: 'Planificamos, diseñamos y publicamos en Instagram, Facebook y TikTok, y respondemos a tu comunidad.',
@@ -269,26 +268,3 @@ export const MANIFESTO_SIDE = [
   ['Especialidades', 'Software, web, apps, seguridad, datos y marketing digital (Meta Ads)'],
 ] as const;
 
-/**
- * EQUIPO — completar con datos oficiales. La sección NO se renderiza hasta que haya al menos
- * una persona lista (ver `TEAM_READY`): en el sitio en vivo nunca se muestran marcadores.
- * - `ready: true` → se publica (requiere nombre, cargo y bio reales, sin [corchetes]).
- * - `photo`: ruta en /public (p. ej. '/team/mathias.jpg', retrato 4:5). null → monograma de cromo (iniciales).
- * - `links`: LinkedIn/GitHub opcionales ({ label, href }).
- * - `reserved: true` → nunca se publica (marcador interno).
- * Todo texto entre [corchetes] es un marcador visible: NO inventar nombres, cargos ni biografías.
- */
-export type TeamMember = {
-  name: string; role: string; bio: string; photo?: string | null;
-  links?: { label: string; href: string }[]; reserved?: boolean; ready?: boolean;
-};
-export const TEAM: TeamMember[] = [
-  { name: 'Mathias Jara', role: 'Fundador', ready: true, photo: null, links: [],
-    bio: 'Diseña y desarrolla cada proyecto de South Software. Trabaja directo contigo, sin intermediarios, desde la primera conversación hasta la puesta en producción, para empresas de todo Chile.' },
-  { name: 'Ramón Ojeda', role: 'Experto en marketing', ready: true, photo: null, links: [],
-    bio: 'Lidera la marca, las redes sociales y las campañas de South Software. Se encarga de que cada proyecto llegue a las personas correctas, con un mensaje claro y una comunicación cercana con cada cliente.' },
-];
-/** Personas publicables: `ready`, no reservadas y sin marcadores [..] en nombre, cargo ni bio. */
-export const isTeamMemberReady = (m: TeamMember) =>
-  !!m.ready && !m.reserved && ![m.name, m.role, m.bio].some((t) => !t.trim() || t.includes('['));
-export const TEAM_READY: TeamMember[] = TEAM.filter(isTeamMemberReady);

@@ -1,6 +1,6 @@
-/** Marketing digital (liderado por Ramón Ojeda): home y /servicios. Textos en content/site.ts. */
+/** Marketing digital : home y /servicios. Textos en content/site.ts. */
 import './marketing.css';
-import { MARKETING_LEAD, MARKETING_SERVICES } from '@/content/site';
+import { MARKETING_SERVICES } from '@/content/site';
 import { Btn, SecHead } from '../ui';
 
 export default function MarketingServices({ n, compact = false }: { n: number; compact?: boolean }) {
@@ -9,7 +9,7 @@ export default function MarketingServices({ n, compact = false }: { n: number; c
       <div className="wrap">
         <SecHead n={n} eyebrow="Marketing digital · Impulsamos tu negocio"
           title={<span id="marketing-t">Software &amp; Marketing.<br /><span className="dim">Tu web, y quien la haga crecer.</span></span>}
-          lead={compact ? undefined : `Somos South Software: además de construir tu software, gestionamos tus redes, captamos clientes y administramos tus anuncios. El área de marketing la lidera ${MARKETING_LEAD}.`} />
+          lead={compact ? undefined : `Somos South Software: además de construir tu software, gestionamos tus redes, captamos clientes y administramos tus anuncios.`} />
         <div className="mk-grid">
           {MARKETING_SERVICES.map((s, i) => (
             <article className="mk-card" key={s.slug} id={`mk-${s.slug}`}>

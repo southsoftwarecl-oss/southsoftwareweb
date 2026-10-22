@@ -1,7 +1,7 @@
 /** Línea de tiempo: SOLO hitos con fecha real (historial del repositorio y anuncios publicados). Sin fecha → se omite. */
 const MILESTONES = [
   { when: 'Octubre 2026', title: 'Lanzamos southsoftware.cl', desc: 'Precios publicados y casos reales desde el primer día.' },
-  { when: 'Octubre 2026', title: 'Software & Marketing', desc: 'Ramón Ojeda se suma para liderar redes sociales, captación de leads y Meta Ads.' },
+  { when: 'Octubre 2026', title: 'Software & Marketing', desc: 'South Software suma un área de marketing: redes sociales, captación de leads y Meta Ads.' },
   { when: 'Hasta el 30 de noviembre de 2026', title: 'Clientes Fundadores', desc: '30 % de descuento en el pago inicial y el primer mes gratis.' },
 ];
 export default function Timeline({ n = 4 }: { n?: number }) {

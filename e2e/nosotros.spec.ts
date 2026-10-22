@@ -82,29 +82,16 @@ for (const vp of [{ width: 1440, height: 900 }, { width: 1280, height: 680 }]) {
       await expect(page.locator('.trust-c p').first()).toBeVisible();
     });
 
-    test('sin marcadores: no hay texto [..] ni "Espacio reservado"; equipo = tarjeta de Mathias', async ({ page }) => {
+    test('sin marcadores: no hay texto [..] ni "Espacio reservado"; sin sección de equipo', async ({ page }) => {
       await open(page);
       await sweep(page);
       const body = await page.locator('body').innerText();
       expect(body).not.toMatch(/\[[^\]]*\]/);
       expect(body).not.toContain('Espacio reservado');
       expect(body).not.toMatch(/por completar/i);
-      // equipo: dos tarjetas reales (Mathias y Ramón), con monograma y sin silueta ni marcadores
-      await expect(page.locator('#equipo .tm')).toHaveCount(2);
-      await expect(page.locator('#equipo .team.duo')).toHaveCount(1);
-      const card = page.locator('#equipo .tm-card').nth(0);
-      await expect(card).toBeVisible();
-      await expect(card.locator('.tm-name')).toHaveText('Mathias Jara');
-      await expect(card.locator('.tm-role')).toHaveText('Fundador');
-      await expect(card.locator('.tm-bio')).toContainText('Diseña y desarrolla cada proyecto de South Software.');
-      await expect(card.locator('.tm-mono2')).toHaveText('MJ');
-      const card2 = page.locator('#equipo .tm-card').nth(1);
-      await expect(card2).toBeVisible();
-      await expect(card2.locator('.tm-name')).toHaveText('Ramón Ojeda');
-      await expect(card2.locator('.tm-role')).toHaveText('Experto en marketing');
-      await expect(card2.locator('.tm-bio')).toContainText('Lidera la marca, las redes sociales y las campañas');
-      await expect(card2.locator('.tm-mono2')).toHaveText('RO');
-      await expect(page.locator('.tm-sil, .tm-res, .tm-pill')).toHaveCount(0);
+      // equipo eliminado (seguridad de la información de los miembros)
+      await expect(page.locator('#equipo, .team, .tm-card')).toHaveCount(0);
+      expect(body).not.toMatch(/Mathias|Ramón|Ojeda|Jara|Las personas/);
     });
 
     test('hora local en vivo (America/Santiago)', async ({ page }) => {
@@ -135,7 +122,7 @@ test.describe('nosotros reduced motion', () => {
     await sweep(page);
     expect(await page.evaluate(() => getComputedStyle(document.querySelector('.mf .mf-pin')!).position)).not.toBe('sticky');
     expect(await page.evaluate(() => (window as Window & { __nosTweens?: () => number }).__nosTweens!())).toBe(0);
-    for (const sel of ['.fh-title', '.mf-text', '.trust-c p', '.trust-c h3', '.tm-name', '.tm-bio', '.stp-t']) {
+    for (const sel of ['.fh-title', '.mf-text', '.trust-c p', '.trust-c h3', '.stp-t']) {
       const ops = await page.$$eval(sel, (els) => els.map((e) => { let o = 1; for (let n: Element | null = e; n; n = n.parentElement) o *= +getComputedStyle(n).opacity; return o; }));
       expect(ops.length, sel).toBeGreaterThan(0);
       ops.forEach((o) => expect(o, sel).toBe(1));
