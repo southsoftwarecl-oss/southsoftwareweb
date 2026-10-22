@@ -153,6 +153,9 @@ test.describe('Home v2 · móvil 390×844', () => {
     const errs = collectErrors(page);
     await page.goto('/');
     await settle(page);
+    // en móvil el 3D carga recién con la primera interacción (el póster del logo es el LCP)
+    await expect(page.locator('.hero .gl-ph img')).toBeVisible();
+    await page.evaluate(() => window.dispatchEvent(new Event('scroll')));
     await expect(page.locator('.hero canvas')).toHaveCount(1, { timeout: 20000 });
     expect(await page.evaluate(() => document.querySelectorAll('.cursor, .cursor-ring, .cursor-dot').length)).toBe(0);
     expect(await purpleHits(page)).toEqual([]);
