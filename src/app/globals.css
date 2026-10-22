@@ -43,9 +43,12 @@ section{position:relative}.sec{padding:160px 0}
 .nav{position:fixed;top:0;left:0;right:0;z-index:60;padding:20px 0;transition:transform .8s var(--ease)}
 .nav .bar{width:min(1320px,100% - 64px);margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:24px}
 .nav .logo img,.nav .logo .wm{height:30px;width:auto}
-.nav nav{display:flex;gap:4px;padding:5px;border-radius:999px;border:1px solid var(--line);background:rgba(16,16,18,.6);backdrop-filter:blur(16px) saturate(150%);-webkit-backdrop-filter:blur(16px) saturate(150%)}
-.nav nav a{font-size:13.5px;color:var(--muted);padding:8px 16px;border-radius:999px;transition:color .4s var(--ease),background .4s var(--ease)}
-.nav nav a:hover{color:var(--fg);background:rgba(255,255,255,.05)}
+.nav nav{display:flex;gap:28px}
+.nav nav a{position:relative;font-size:13.5px;font-weight:500;letter-spacing:.01em;color:#d4d6db;padding:8px 0;transition:color .4s var(--ease),background-position .8s var(--ease)}
+@supports ((-webkit-background-clip:text) or (background-clip:text)){.nav nav a{background:linear-gradient(100deg,#e2e4e8 0%,#ffffff 30%,#d9dce1 55%,#f4f5f7 78%,#d3d6db 100%);background-size:220% 100%;background-position:100% 0;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:#d4d6db}.nav nav a:hover,.nav nav a.on{background-position:0 0;filter:brightness(1.12)}}
+.nav nav a::after{content:"";position:absolute;left:0;right:0;bottom:2px;height:1px;background:linear-gradient(90deg,#c6c9cf,#fff);transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ease)}
+.nav nav a:hover{color:#fff}
+.nav nav a:hover::after,.nav nav a.on::after{transform:scaleX(1)}
 .nav.hide{transform:translateY(-120%)}
 /* ===== buttons ===== */
 .btn{--h:48px;position:relative;display:inline-flex;align-items:center;justify-content:center;gap:10px;height:var(--h);padding:0 22px;border-radius:999px;font-size:14.5px;font-weight:500;letter-spacing:-.01em;border:1px solid transparent;cursor:pointer;overflow:hidden;isolation:isolate;white-space:nowrap;will-change:transform;background:none}
@@ -307,7 +310,7 @@ html{overflow-x:clip}
 @media (prefers-reduced-motion:reduce){.pre{display:none}}
 
 /* ---- Nav: activo + menú móvil ---- */
-.nav nav a.on{color:var(--fg);background:rgba(255,255,255,.06)}
+.nav nav a.on{color:#fff}
 .nav-r{display:flex;align-items:center;gap:8px}
 .menu-btn{display:none;width:40px;height:40px;border-radius:50%;border:1px solid var(--line2);background:rgba(16,16,18,.6);backdrop-filter:blur(16px);cursor:pointer;position:relative;z-index:2}
 .menu-btn i{position:absolute;left:12px;right:12px;height:1px;background:var(--fg);transition:transform .6s var(--ease)}
@@ -318,6 +321,8 @@ html{overflow-x:clip}
 .mmenu nav{display:grid!important;gap:4px;padding:0!important;border:0!important;background:none!important;backdrop-filter:none!important}
 .mm-row{overflow:hidden}
 .mmenu nav a{display:flex;align-items:baseline;gap:16px;padding:6px 0!important;font-family:var(--font-display);font-weight:500;font-size:clamp(40px,11vw,64px)!important;letter-spacing:-.045em;line-height:1.05;color:var(--fg)!important;background:none!important;border-radius:0!important}
+.mmenu nav a::after{display:none}
+.mmenu nav a{-webkit-text-fill-color:currentColor;filter:none!important}
 .mmenu nav a .mono{font-size:11px;color:var(--accent)}
 .mm-foot{color:var(--dim);margin-top:40px}
 @media (max-width:760px){.menu-btn{display:block}}

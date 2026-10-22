@@ -218,11 +218,12 @@ test('sin violeta y sin cursor seguidor', async ({ page }) => {
   await expect(page.locator('.cursor, .cursor-ring')).toHaveCount(0);
 });
 
-test('marketing digital en /servicios y en el home, liderado por Ramón Ojeda', async ({ request }) => {
+test('marketing digital en /servicios y en el home', async ({ request }) => {
   for (const url of ['/servicios', '/']) {
     const html = await (await request.get(url)).text();
     for (const s of MARKETING_SERVICES) expect(html, url).toContain(s.title);
     expect(html, url).toContain('Impulsamos tu negocio');
     expect(html, url).toContain('Software &amp; Marketing');
+    expect(html, url).not.toMatch(/Ramón|Ojeda|Mathias Jara/);
   }
 });

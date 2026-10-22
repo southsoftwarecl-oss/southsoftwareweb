@@ -224,7 +224,7 @@ export function renderAutoReply(d: Pick<ContactEmailData, 'nombre' | 'tipo'>, o:
         </td></tr>
         <tr><td class="ss-pad" style="padding:14px 40px 32px">
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="border-top:1px solid ${C.line};padding-top:18px;font-family:${SANS};font-size:14px;line-height:21px;color:${C.body}">
-            <b style="color:${C.fg};font-weight:600">Mathias Jara</b><br><span style="color:${C.muted}">Fundador · South Software</span>
+            <b style="color:${C.fg};font-weight:600">El equipo de South Software</b>
           </td></tr></table>
         </td></tr>`;
 
@@ -249,8 +249,7 @@ export function renderAutoReply(d: Pick<ContactEmailData, 'nombre' | 'tipo'>, o:
     `WhatsApp: ${waHref}`,
     `Packs: ${SITE_URL}/packs`,
     '',
-    'Mathias Jara',
-    'Fundador · South Software',
+    'El equipo de South Software',
     '',
     `${site} · ${BRAND.email} · ${BRAND.phone} · Instagram ${BRAND.instagram.handle}`,
     `Recibes este correo porque enviaste el formulario de ${site}. Si no fuiste tú, puedes ignorarlo.`,

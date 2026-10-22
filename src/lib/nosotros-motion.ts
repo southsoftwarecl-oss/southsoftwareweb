@@ -199,25 +199,6 @@ export function startNosotros(root: HTMLElement, { STATIC, animateHero }: Opts):
       }
     }
 
-    /* ================= ACTO 4 ================= */
-    const team = $('.team');
-    if (team && !STATIC) {
-      const phs = $$('.tm-ph', team); const txt = $$('.tm-name, .tm-role, .tm-bio', team);
-      gsap.set(phs, { '--mr': '0%' });
-      gsap.set(txt, { opacity: 0, y: 10 });
-      const liquid = tier === 'high';
-      const dm = $('#tm-liquid feDisplacementMap');
-      ScrollTrigger.create({ trigger: team, start: 'top 78%', once: true, onEnter: () => {
-        if (liquid && dm) {
-          team.style.filter = 'url(#tm-liquid)';
-          const o = { s: 50 };
-          gsap.to(o, { s: 0, duration: 1.2 + 0.12 * (phs.length - 1), ease: 'mercury', onUpdate: () => dm.setAttribute('scale', o.s.toFixed(2)), onComplete: () => { team.style.filter = 'none'; } });
-        }
-        gsap.to(phs, { '--mr': '150%', duration: 1.2, ease: 'mercury', stagger: 0.12 });
-        gsap.to(txt, { opacity: 1, y: 0, duration: 0.8, ease: 'south', stagger: 0.04, delay: liquid ? 1.1 : 0.5, clearProps: 'opacity,transform' });
-      } });
-    }
-
     /* ================= ACTO 5 ================= */
     const steps = $('.steps');
     if (steps && !STATIC) {
