@@ -1,0 +1,28 @@
+import { connection } from 'next/server';
+import { Suspense } from 'react';
+import AdminShell, { Empty } from '../Shell';
+import Simulador from './Simulador';
+
+export const metadata = { title: 'Cobros' };
+
+async function Sim() {
+  await connection();
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Santiago' }).format(new Date());
+  return <Simulador today={today} />;
+}
+
+export default function Cobros() {
+  return (
+    <AdminShell current="/admin/cobros" title="Cobros">
+      <section className="adm-section">
+        <h2>Próximos cobros</h2>
+        <Empty title="Aún no hay cobros registrados">Aquí aparecerán los cobros programados, los que vencen en 7 días y los vencidos (en rojo).</Empty>
+      </section>
+      <section className="adm-section">
+        <h2>Simulador de calendario</h2>
+        <p className="adm-note">Calcula con los precios publicados. Supuesto por confirmar: la primera mensualidad se cobra un mes después del alta.</p>
+        <Suspense fallback={null}><Sim /></Suspense>
+      </section>
+    </AdminShell>
+  );
+}

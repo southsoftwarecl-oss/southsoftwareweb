@@ -1,22 +1,14 @@
 /**
- * Layout raíz: fuentes self-hosted, metadata global, preloader, nav, footer,
- * WhatsApp flotante, grano, runtime de animación y analítica (GA4 con consentimiento). Cada página se envuelve en
- * <Page> (view transitions).
+ * Layout raíz: fuentes self-hosted, metadata global y CSS base. El "chrome" del sitio público (preloader, nav,
+ * footer, WhatsApp, runtime de animación, analítica) vive en components/SiteChrome y lo usa app/(site)/layout.tsx;
+ * /admin tiene su propio layout sin nada de eso (ni Three.js ni GA en el panel).
  */
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import './premium.css';
 import { fontVars } from '@/lib/fonts';
 import { BRAND, SITE_URL } from '@/content/site';
-import { orgJsonLd, websiteJsonLd } from '@/lib/seo';
-import Preloader from '@/components/Preloader';
-import Nav from '@/components/Nav';
-import Footer from '@/components/Footer';
-import WaFloat from '@/components/WaFloat';
-import MotionRoot from '@/components/MotionRoot';
-import { JsonLd } from '@/components/ui';
-import Analytics from '@/components/Analytics';
-import { GA_ID, GSC_VERIFICATION } from '@/lib/analytics';
+import { GSC_VERIFICATION } from '@/lib/analytics';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -55,19 +47,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: MODE_SCRIPT }} />
       </head>
       <body>
-        <a className="skip" href="#contenido">Saltar al contenido</a>
-        <Preloader />
-        <div id="top" />
-        <Nav />
-        <main id="contenido">{children}</main>
-        <Footer />
-        <WaFloat />
-        <div className="grain" aria-hidden="true" />
-        <MotionRoot />
-        <JsonLd data={orgJsonLd} />
-        <JsonLd data={websiteJsonLd} />
-        {/* GA4 + aviso de cookies: nada se renderiza sin NEXT_PUBLIC_GA_ID */}
-        {GA_ID && <Analytics gaId={GA_ID} />}
+        {children}
       </body>
     </html>
   );

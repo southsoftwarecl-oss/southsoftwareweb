@@ -1,5 +1,6 @@
 /** 404 creativo: las partículas forman "404" y se apartan del mouse. */
 import Page from '@/components/Page';
+import SiteChrome from '@/components/SiteChrome';
 import HeroCanvas from '@/components/three/HeroCanvas';
 import { Btn } from '@/components/ui';
 import { michromaFamily } from '@/lib/fonts';
@@ -10,6 +11,7 @@ const LINES = [{ text: '404', size: 300, y: 200 }];
 
 export default function NotFound() {
   return (
+    <SiteChrome>
     <Page>
       <section className="hero nf">
         <HeroCanvas font={michromaFamily} lines={LINES} />
@@ -33,5 +35,6 @@ export default function NotFound() {
         </div>
       </section>
     </Page>
+    </SiteChrome>
   );
 }

@@ -14,6 +14,9 @@ const GSC_TEST_TOKEN = 'gsc-test-token';
  * el servidor GA corre SIN clave ni dry-run para probar el error "falta RESEND_API_KEY" (503 + alternativas).
  */
 const SERVER_ENV = { CONTACT_RATE_LIMIT: '1000', RESEND_API_KEY: '', CONTACT_TO_EMAIL: '', TURNSTILE_SECRET_KEY: '', CONTACT_DRY_RUN: '' };
+/** Panel /admin: credenciales DESECHABLES solo para e2e (producción usa env de Vercel). El servidor GA corre sin ellas → panel desactivado. */
+export const E2E_ADMIN_PASSWORD = 'e2e-solo-pruebas-panel';
+const ADMIN_ENV = { ADMIN_PASSWORD: E2E_ADMIN_PASSWORD, ADMIN_SESSION_SECRET: 'e2e-secreto-de-firma-solo-pruebas-0123456789' };
 const executablePath = process.env.CHROME_PATH || (process.platform === 'linux' ? '/usr/bin/google-chrome' : undefined);
 
 export default defineConfig({
@@ -39,7 +42,7 @@ export default defineConfig({
       reuseExistingServer: false,
       timeout: 60_000,
       // Resend simulado en la ruta (CONTACT_DRY_RUN=1): valida y responde ok sin enviar
-      env: { ...SERVER_ENV, CONTACT_DRY_RUN: '1' },
+      env: { ...SERVER_ENV, ...ADMIN_ENV, CONTACT_DRY_RUN: '1' },
     },
     {
       // Build con NEXT_PUBLIC_GA_ID de prueba en .next-ga: se (re)construye solo si falta o es más viejo que .next
@@ -47,7 +50,7 @@ export default defineConfig({
       url: `http://localhost:${GA_PORT}`,
       reuseExistingServer: false,
       timeout: 400_000,
-      env: { ...SERVER_ENV, SOUTH_DIST_DIR: '.next-ga', NEXT_PUBLIC_GA_ID: GA_TEST_ID, NEXT_PUBLIC_GSC_VERIFICATION: GSC_TEST_TOKEN },
+      env: { ...SERVER_ENV, ADMIN_PASSWORD: '', ADMIN_SESSION_SECRET: '', SOUTH_DIST_DIR: '.next-ga', NEXT_PUBLIC_GA_ID: GA_TEST_ID, NEXT_PUBLIC_GSC_VERIFICATION: GSC_TEST_TOKEN },
     },
   ],
 });
