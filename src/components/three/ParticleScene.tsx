@@ -7,14 +7,16 @@
  * Render: gotas metálicas impostoras + (gama alta) superficie de fluido en pantalla.
  * Colores = tokens CSS (props desde HeroCanvas). Niveles: ./tiers.ts.
  */
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { PerformanceMonitor } from '@react-three/drei';
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { gsap, ScrollTrigger, setupGsap } from '@/lib/gsap';
 import { RT, onIntro } from '@/lib/runtime';
-import { LiquidEngine, makeMatcap, VIS_H, type FrameInput, type Tokens } from './engine';
+import { FOV, LiquidEngine, makeMatcap, VIS_H, type FrameInput, type Tokens } from './engine';
+import { Dust } from './dust';
+import { targetsKernel, targetsWorker, type Targets } from './targets';
 import { effectiveCfg, forcedTier, type Tier, type TierCfg } from './tiers';
 
 type Lines = { text: string; size: number; y: number }[];
@@ -26,12 +28,44 @@ function sampleText(lines: Lines, font: string) {
   const g = c.getContext('2d', { willReadFrequently: true })!;
   g.fillStyle = 'white'; g.textAlign = 'center'; g.textBaseline = 'middle'; /* blanco = máscara de muestreo, no color visible */
   for (const l of lines) { g.font = `400 ${l.size}px ${font}, sans-serif`; g.fillText(l.text, 700, l.y); }
-  const d = g.getImageData(0, 0, 1400, 420).data; const pts: [number, number][] = [];
-  for (let y = 0; y < 420; y += 3) for (let x = 0; x < 1400; x += 3) if (d[(y * 1400 + x) * 4] > 128) pts.push([(x - 700) / 100, (210 - y) / 100]);
-  return pts;
+  const d = g.getImageData(0, 0, 1400, 420).data; const edge: [number, number][] = [], fill: [number, number][] = [];
+  const on = (x: number, y: number) => x >= 0 && y >= 0 && x < 1400 && y < 420 && d[(y * 1400 + x) * 4] > 128;
+  for (let y = 0; y < 420; y += 2) for (let x = 0; x < 1400; x += 2) {
+    if (!on(x, y)) continue;
+    const p: [number, number] = [(x - 700) / 100, (210 - y) / 100];
+    (on(x - 3, y) && on(x + 3, y) && on(x, y - 3) && on(x, y + 3) ? fill : edge).push(p);
+  }
+  // muestreo ponderado al contorno (60 % borde / 40 % relleno) → letras con bordes definidos
+  if (!edge.length || !fill.length) return new Float32Array([...edge, ...fill].flat());
+  const rep = Math.max(1, Math.round((0.6 / 0.4) * fill.length / edge.length));
+  const out = new Float32Array((fill.length + edge.length * rep) * 2); let o = 0;
+  for (const p of fill) { out[o++] = p[0]; out[o++] = p[1]; }
+  for (let r = 0; r < rep; r++) for (const p of edge) { out[o++] = p[0]; out[o++] = p[1]; }
+  return out;
 }
 
 const damp = THREE.MathUtils.damp;
+
+/**
+ * Loop cinematográfico (~14,4 s, sin saltos): logo 3,8 s (respiración curl + barrido de luz) → red 1,8 s →
+ * globo 2 s (girando) → cubo de código 1,6 s → logo. Transiciones 1,2 s (vuelta al logo 1,6 s) con estallido
+ * hacia la cámara y reagrupado. Clic/tap en el hero (fuera de enlaces/botones) salta a la siguiente forma.
+ */
+const SEQ = [{ s: 0, h: 3.8, tr: 1.2 }, { s: 1, h: 1.8, tr: 1.2 }, { s: 2, h: 2, tr: 1.2 }, { s: 3, h: 1.6, tr: 1.6 }];
+export const LOOP = SEQ.reduce((a, q) => a + q.h + q.tr, 0);
+type Phase = { a: number; b: number; u: number; hold: boolean; hp: number; i: number; segEnd: number };
+function phaseAt(tl: number, out: Phase) {
+  let t = ((tl % LOOP) + LOOP) % LOOP;
+  for (let i = 0; i < SEQ.length; i++) {
+    const q = SEQ[i], nx = SEQ[(i + 1) % SEQ.length].s;
+    if (t < q.h) { Object.assign(out, { a: q.s, b: q.s, u: 0, hold: true, hp: t / q.h, i, segEnd: tl - t + q.h }); return out; }
+    t -= q.h;
+    if (t < q.tr) { Object.assign(out, { a: q.s, b: nx, u: t / q.tr, hold: false, hp: 0, i, segEnd: tl - t + q.tr }); return out; }
+    t -= q.tr;
+  }
+  return out;
+}
+const ease = (x: number) => x * x * (3 - 2 * x);
 const TOUCH = () => matchMedia('(hover:none)').matches;
 
 /** Encuadre: desktop como el preview; vertical ajustado al ancho; y siempre ≥32 px sobre `.status`. */
@@ -55,7 +89,7 @@ function frameText(out: { scale: number; posY: number }, w: number, h: number, b
   out.scale = scale; out.posY = posY;
 }
 
-function Liquid({ lines, font, cfg, tokens }: { lines: Lines; font: string; cfg: TierCfg; tokens: Tokens }) {
+function Liquid({ lines, font, cfg, tokens, onFirst }: { lines: Lines; font: string; cfg: TierCfg; tokens: Tokens; onFirst: () => void }) {
   const { gl, scene, camera, size, viewport, invalidate } = useThree();
   const group = useRef<THREE.Group>(null);
   // estado mutable del frame (sin setState en useFrame, sin asignaciones por frame)
@@ -67,6 +101,9 @@ function Liquid({ lines, font, cfg, tokens }: { lines: Lines; font: string; cfg:
     ray: new THREE.Raycaster(), plane: new THREE.Plane(new THREE.Vector3(0, 0, 1), 0), ndc: new THREE.Vector2(), inv: new THREE.Matrix4(),
     mouseUv: new THREE.Vector2(-9, -9), statusTop: null as number | null, hero: null as HTMLElement | null, heroTop: 0, heroH: 1,
     f: null as FrameInput | null, scale: 1,
+    // loop de formas y cámara
+    tl: 0, skip: false, fixedTl: null as number | null, ph: { a: 0, b: 0, u: 0, hold: true, hp: 0, i: 0, segEnd: 0 } as Phase,
+    camR: 13, orbit: 0, rec: false, simT: 0, tilt: new THREE.Vector2(), tiltOn: false, dust: null as Dust | null,
   });
 
   // motor: se crea/destruye con el nivel de calidad
@@ -83,23 +120,39 @@ function Liquid({ lines, font, cfg, tokens }: { lines: Lines; font: string; cfg:
     if (forcedTier() || /[?&]qa\b/.test(location.search)) (window as unknown as { __liq?: unknown }).__liq = st; // QA (?gl=…): inspección desde Playwright
     const grp = group.current;
     grp?.add(engine.points);
-    const fill = (first: boolean) => {
-      // estático (sin simulación): las posiciones deben seguir al texto re-muestreado al cargar la fuente
-      engine.setTargets(sampleText(lines, font), RT.static ? 'text' : first ? (st.intro.v > 0.5 ? 'text' : 'scatter') : undefined);
-      invalidate();
+    const dust = new Dust(cfg.dust, tokens.chrome1); st.dust = dust; scene.add(dust.points);
+    const qtl = new URLSearchParams(location.search).get('tl'); st.fixedTl = qtl !== null && forcedTier() ? Number(qtl) : null; st.rec = !!forcedTier() && /[?&]rec\b/.test(location.search); // QA: congelar el loop en un instante
+    // destinos: se rasteriza el texto (una vez, con la fuente ya cargada) y el resto se calcula en un Worker
+    let alive = true, worker: Worker | null = null;
+    const apply = (r: Targets) => {
+      if (!alive) return;
+      engine.applyTargets(r, RT.static || st.intro.v > 0.5 ? 'text' : 'scatter');
+      engine.points.visible = true; invalidate();
+      requestAnimationFrame(() => requestAnimationFrame(() => { if (alive) onFirst(); }));
     };
-    fill(true);
-    let alive = true;
-    document.fonts.load(`200px ${font}`).then(() => { if (alive) fill(false); }).catch(() => {});
+    engine.points.visible = false;
+    const run = () => {
+      if (!alive) return;
+      const pts = sampleText(lines, font), { N, count } = engine.size;
+      const local = () => apply(targetsKernel()(pts, N, count)); // respaldo (sin Worker)
+      worker = targetsWorker();
+      if (!worker) { local(); return; }
+      worker.onmessage = (e: MessageEvent<{ r: Targets }>) => { apply(e.data.r); worker?.terminate(); worker = null; };
+      worker.onerror = () => { worker?.terminate(); worker = null; local(); };
+      worker.postMessage({ id: 1, pts: pts.slice(), N, count }); // copia: `pts` queda para el respaldo
+    };
+    Promise.race([document.fonts.load(`200px ${font}`), new Promise((r) => setTimeout(r, 1500))]).then(run, run);
     st.f = {
       dt: 0, t: 0, mix: 0, intro: st.intro.v, live: RT.static ? 0 : 1, scale: 1, mouseLocal: st.mouseL, mouseVel: st.velL, cursor: 0, radius: 1,
       ripO: st.ripO, ripT: 9, ripA: 0, mouseUv: st.mouseUv, liquid: 0.85, rUv: 0.1, static: RT.static,
+      a: 0, b: 0, u: 0, burst: 0, sweep: -9,
     };
     return () => {
-      alive = false; grp?.remove(engine.points); engine.dispose(); st.engine = null;
+      alive = false; worker?.terminate(); grp?.remove(engine.points); engine.dispose(); st.engine = null;
+      scene.remove(dust.points); dust.dispose(); st.dust = null;
       env?.dispose(); matcap?.dispose();
     };
-  }, [gl, cfg, tokens, lines, font, invalidate]);
+  }, [gl, scene, cfg, tokens, lines, font, invalidate, onFirst]);
 
   // intro: uIn 0→1 en 2,4 s (ease 'south') cuando se abre el preloader
   useEffect(() => {
@@ -131,7 +184,8 @@ function Liquid({ lines, font, cfg, tokens }: { lines: Lines; font: string; cfg:
     let trig: ScrollTrigger | null = null;
     if (hero && !RT.static) {
       setupGsap();
-      trig = ScrollTrigger.create({ trigger: hero, start: 'top top', end: 'bottom top', onUpdate: (s) => { st.prog = s.progress; } });
+      // al bajar: la cámara retrocede (useFrame) y el hero se funde a negro hacia la siguiente sección
+      trig = ScrollTrigger.create({ trigger: hero, start: 'top top', end: 'bottom top', onUpdate: (s) => { st.prog = s.progress; gl.domElement.style.opacity = String(1 - ease(Math.min(1, s.progress * 1.25))); } });
     }
     // táctil: la onda solo existe mientras el dedo se mueve
     const onTouch = (e: TouchEvent) => {
@@ -140,7 +194,20 @@ function Liquid({ lines, font, cfg, tokens }: { lines: Lines; font: string; cfg:
     };
     hero?.addEventListener('touchmove', onTouch, { passive: true });
     hero?.addEventListener('touchstart', onTouch, { passive: true });
-    return () => { removeEventListener('resize', measure); trig?.kill(); hero?.removeEventListener('touchmove', onTouch); hero?.removeEventListener('touchstart', onTouch); };
+    // clic/tap en el hero (no en enlaces ni botones) → siguiente forma
+    const onDown = (e: PointerEvent) => { if (!(e.target as HTMLElement).closest('a,button,input,select,textarea,label')) st.skip = true; };
+    hero?.addEventListener('pointerdown', onDown);
+    // inclinación del celular: en iOS el permiso se pide recién tras un toque; sin permiso → deriva automática
+    const onTilt = (e: DeviceOrientationEvent) => { if (e.gamma == null || e.beta == null) return; st.tiltOn = true; st.tilt.set(THREE.MathUtils.clamp(e.gamma / 30, -1, 1), THREE.MathUtils.clamp((e.beta - 45) / 30, -1, 1)); };
+    type DOE = typeof DeviceOrientationEvent & { requestPermission?: () => Promise<string> };
+    const DO = typeof DeviceOrientationEvent !== 'undefined' ? (DeviceOrientationEvent as DOE) : null;
+    const askTilt = () => { DO?.requestPermission?.().then((r) => { if (r === 'granted') addEventListener('deviceorientation', onTilt); }).catch(() => {}); };
+    if (TOUCH() && DO && !RT.static) { if (DO.requestPermission) hero?.addEventListener('touchend', askTilt, { once: true }); else addEventListener('deviceorientation', onTilt); }
+    return () => {
+      removeEventListener('resize', measure); trig?.kill(); hero?.removeEventListener('touchmove', onTouch); hero?.removeEventListener('touchstart', onTouch);
+      hero?.removeEventListener('pointerdown', onDown); hero?.removeEventListener('touchend', askTilt); removeEventListener('deviceorientation', onTilt);
+      gl.domElement.style.opacity = '';
+    };
   }, [gl, invalidate]);
 
   useEffect(() => { S.current.engine?.resize(size.width, size.height, viewport.dpr); invalidate(); }, [size.width, size.height, viewport.dpr, cfg, invalidate]);
@@ -149,15 +216,42 @@ function Liquid({ lines, font, cfg, tokens }: { lines: Lines; font: string; cfg:
     const st = S.current, E = st.engine, f = st.f, g = group.current;
     if (!E || !f || !g) return;
     const dt = Math.min(delta, 1 / 30);
-    const t = state.clock.elapsedTime;
+    // QA ?rec: reloj simulado (dt fijo) para grabar el loop con GPU por software sin cámara acelerada
+    const t = st.rec ? (st.simT += dt) : state.clock.elapsedTime;
     const touch = TOUCH();
-    // --- mezcla texto/esfera: smoothstep + damp λ6; al volver a subir, curva 'mercury' ---
-    const target = RT.static ? 0 : THREE.MathUtils.smoothstep(Math.min(1, st.prog * 1.8), 0, 1);
-    if (target < st.mix - 1e-3 && !st.goingUp) { st.goingUp = true; st.mixFrom = Math.max(st.mix, 1e-3); }
-    if (target > st.mix + 1e-3) st.goingUp = false;
-    st.mix = damp(st.mix, target, 6, dt);
-    let mix = st.mix;
-    if (st.goingUp) { const u = 1 - st.mix / st.mixFrom; mix = st.mixFrom * (1 - gsap.parseEase('mercury')(Math.min(Math.max(u, 0), 1))); }
+    const mix = 0; // (el morph texto→esfera por scroll fue reemplazado por el loop de formas)
+    // --- loop de formas: arranca cuando termina la intro; congelado en reduced motion / captura ---
+    const ph = st.ph;
+    if (!RT.static && st.intro.v >= 1) {
+      if (st.fixedTl !== null) st.tl = st.fixedTl;
+      else { if (st.skip) { phaseAt(st.tl, ph); st.tl = ph.hold ? ph.segEnd : ph.segEnd + 1e-3; } st.tl += dt; }
+    }
+    st.skip = false;
+    phaseAt(RT.static ? 0 : st.tl, ph);
+    const burst = ph.hold ? 0 : 1, tu = ph.hold ? 0 : ease(ph.u);
+    // barrido de luz al quedar armado el logo (0,3 → 1,9 s del hold)
+    const sw = ph.hold && ph.a === 0 ? (ph.hp * SEQ[0].h - 0.3) / 1.6 : -1;
+    const sweep = sw >= 0 && sw <= 1 ? -1.4 + 2.8 * ease(sw) : -9;
+    // --- cámara: dolly-in lento en cada hold, push-in en transiciones, órbita suave, micro-shake, retroceso por scroll ---
+    const desk = size.width >= 760 && size.width >= size.height;
+    const logoW = ph.hold ? (ph.a === 0 ? 1 : 0) : ph.a === 0 ? 1 - tu : ph.b === 0 ? tu : 0; // cuánto "es logo" la escena
+    if (!RT.static) {
+      const dolly = ph.hold ? ease(ph.hp) * (ph.a === 0 ? (desk ? 0.7 : 0) : desk ? 1.6 : 0.6) : 0;
+      const push = ph.hold ? 0 : Math.sin(Math.PI * ph.u) * 0.6;
+      const r = 13 - dolly - push + ease(Math.min(1, st.prog * 1.2)) * 6;
+      st.camR = damp(st.camR, r, 2.5, dt);
+      // en celular el logo armado queda quieto (legible y bajo el header); la órbita vuelve en las otras formas
+      st.orbit = damp(st.orbit, (desk ? 0.35 : 0) + (1 - logoW) * (desk ? 0.65 : 0.6), 2, dt);
+      const tx = st.tiltOn ? st.tilt.x * 5 : Math.sin(t * 0.09) * 2, ty = st.tiltOn ? st.tilt.y * 5 : 0; // ±5° tilt (o deriva)
+      const k = touch ? (1 - logoW * (desk ? 0 : 1)) : 0;
+      const yaw = THREE.MathUtils.degToRad(Math.sin(t * 0.17) * 8 * st.orbit + tx * k);
+      const pitch = THREE.MathUtils.degToRad(Math.sin(t * 0.11 + 1) * 3 * st.orbit + ty * k);
+      const sh = 0.003 * 13 * (desk ? 1 : 0.5);
+      camera.position.set(st.camR * Math.sin(yaw) * Math.cos(pitch) + Math.sin(t * 7.1) * Math.sin(t * 3.3) * sh,
+        st.camR * Math.sin(pitch) + Math.sin(t * 6.3 + 2) * Math.sin(t * 2.7) * sh, st.camR * Math.cos(yaw) * Math.cos(pitch));
+      camera.lookAt(0, 0, 0); camera.updateMatrixWorld();
+    }
+    st.dust?.update(t, viewport.dpr);
     // --- cursor en mundo (damp λ10) ---
     const m = RT.mouse, canvasY = m.y + scrollY - st.heroTop;
     const over = m.moved && canvasY >= 0 && canvasY <= size.height;
@@ -193,7 +287,7 @@ function Liquid({ lines, font, cfg, tokens }: { lines: Lines; font: string; cfg:
       const live = over || touchLive;
       st.rotY = damp(st.rotY, live ? THREE.MathUtils.clamp(m.nx, -1, 1) * 0.12 : 0, 3, dt);
       g.rotation.x = damp(g.rotation.x, live ? THREE.MathUtils.clamp(-m.ny, -1, 1) * 0.07 : 0, 3, dt);
-      g.rotation.y = st.rotY + mix * t * 0.2; // giro lento solo en modo esfera (como el preview)
+      g.rotation.y = st.rotY;
     }
     g.updateMatrixWorld();
     // cursor y onda en coordenadas locales de las partículas
@@ -202,12 +296,13 @@ function Liquid({ lines, font, cfg, tokens }: { lines: Lines; font: string; cfg:
     st.ripO.copy(st.ripW).applyMatrix4(st.inv);
     st.velL.copy(st.velW).multiplyScalar(1 / Math.max(g.scale.x, 1e-3));
     // líquido: .85 en reposo, baja a .3 durante el morph (y cerca del cursor, en el shader)
-    st.liquid = 0.85 - 0.55 * Math.sin(Math.PI * THREE.MathUtils.clamp(mix, 0, 1));
+    st.liquid = 0.85 - 0.55 * (ph.hold ? 0 : Math.sin(Math.PI * ph.u));
     st.mouseUv.set(st.ndc.x * 0.5 + 0.5, st.ndc.y * 0.5 + 0.5);
     if (!active) st.mouseUv.set(-9, -9);
     Object.assign(f, {
       dt: RT.static ? 0 : dt, t, mix: THREE.MathUtils.clamp(mix, -0.06, 1), intro: st.intro.v, live: RT.static ? 0 : 1, scale: g.scale.x,
       cursor: st.cursor, radius, ripT: st.ripT, ripA: st.ripA, liquid: st.liquid, rUv: radius / VIS_H, static: RT.static,
+      a: ph.a, b: ph.b, u: ph.u, burst, sweep, steps: st.fixedTl !== null ? 6 : 1,
     });
     E.frame(f, scene, camera);
   }, 1);
@@ -233,6 +328,11 @@ function VisibilityLoop() {
 export default function ParticleScene({ lines = LOGO_LINES, font, tier, tokens, onReady }: { lines?: Lines; font: string; tier: Tier; tokens: Tokens; onReady?: () => void }) {
   // degradación progresiva: 0 = completo, 1 = sin fluido, 2 = DPR 1, 3 = menos partículas
   const [level, setLevel] = useState(0);
+  // fundido de 400 ms póster → canvas cuando el primer frame WebGL con el logo está listo
+  const [shown, setShown] = useState(false);
+  const readyRef = useRef(onReady);
+  useEffect(() => { readyRef.current = onReady; }, [onReady]);
+  const first = useCallback(() => { setShown(true); readyRef.current?.(); }, []);
   const eff = effectiveCfg(tier, level);
   const key = `${eff.tex}|${eff.count}|${eff.liquid}|${eff.matcap}`;
   // el motor solo se recrea si cambia algo estructural (no por el DPR)
@@ -242,17 +342,17 @@ export default function ParticleScene({ lines = LOGO_LINES, font, tier, tokens, 
   return (
     <Canvas
       className="gl-wrap"
-      style={{ position: 'absolute', inset: 0 }}
+      style={{ position: 'absolute', inset: 0, opacity: shown ? 1 : 0, transition: 'opacity .4s ease' }}
       dpr={dpr}
       gl={{ antialias: false, powerPreference: 'high-performance', alpha: false, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1, outputColorSpace: THREE.SRGBColorSpace }}
-      camera={{ fov: 40, near: 0.1, far: 100, position: [0, 0, 13] }}
-      onCreated={({ gl }) => { gl.setClearColor(tokens.bg); gl.domElement.classList.add('gl'); gl.domElement.setAttribute('aria-hidden', 'true'); if (onReady) requestAnimationFrame(() => requestAnimationFrame(onReady)); }}
+      camera={{ fov: FOV, near: 0.1, far: 100, position: [0, 0, 13] }}
+      onCreated={({ gl }) => { gl.setClearColor(tokens.bg); gl.domElement.classList.add('gl'); gl.domElement.setAttribute('aria-hidden', 'true'); }}
       aria-hidden
       fallback={<div className="gl-fallback" aria-hidden="true" />}
     >
-      <PerformanceMonitor onDecline={() => { if (!forcedTier()) setLevel((l) => Math.min(l + 1, 3)); }} flipflops={3} onFallback={() => { if (!forcedTier()) setLevel(3); }} />
+      <PerformanceMonitor onDecline={() => { if (!forcedTier()) setLevel((l) => Math.min(l + 1, 3)); }} flipflops={3} bounds={() => [45, 58]} ms={250} iterations={8} onFallback={() => { if (!forcedTier()) setLevel(3); }} />
       <VisibilityLoop />
-      <Liquid lines={lines} font={font} cfg={cfg} tokens={tokens} />
+      <Liquid lines={lines} font={font} cfg={cfg} tokens={tokens} onFirst={first} />
     </Canvas>
   );
 }

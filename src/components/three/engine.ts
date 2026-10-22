@@ -11,6 +11,8 @@ import { GPUComputationRenderer, type Variable } from 'three/examples/jsm/misc/G
 import { SIM_POS, SIM_VEL } from './shaders/sim';
 import { BLUR_FRAG, COMP_FRAG, DEPTH_FRAG, DROP_FRAG, DROP_VERT, QUAD_VERT, THICK_FRAG } from './shaders/render';
 import type { TierCfg } from './tiers';
+import { CY } from './targets';
+import type { Targets } from './targets';
 
 export type Tokens = { bg: string; accent: string; deep: string; chrome1: string; chrome2: string; chrome3: string };
 export type Bounds = { minX: number; maxX: number; minY: number; maxY: number };
@@ -21,9 +23,18 @@ export type FrameInput = {
   mouseLocal: THREE.Vector3; mouseVel: THREE.Vector2; cursor: number; radius: number;
   ripO: THREE.Vector3; ripT: number; ripA: number;
   mouseUv: THREE.Vector2; liquid: number; rUv: number; static: boolean;
+  /** loop de formas: a/b índices (0 logo), u progreso 0–1, burst 0/1, sweep x NDC (-9 = apagado) */
+  a: number; b: number; u: number; burst: number; sweep: number;
+  /** pasos de simulación por frame (1; QA con el loop congelado usa más para converger con GPU por software) */
+  steps?: number;
 };
 
-const VIS_H = 2 * 13 * Math.tan(THREE.MathUtils.degToRad(20)); // alto visible en z=0 (cámara z=13, fov 40)
+/** Formas que giran sobre su eje (globo, cubo). */
+const SPIN = [0, 0, 1, 0.6];
+
+export const FOV = 35; // lente "de cine": poca distorsión
+const TAN = Math.tan(THREE.MathUtils.degToRad(FOV / 2));
+const VIS_H = 2 * 13 * TAN; // alto visible en z=0 (cámara z=13)
 export { VIS_H };
 
 /** Matcap cromado de 256 px generado en un canvas (gama móvil/baja, sin PMREM). */
@@ -50,7 +61,9 @@ export class LiquidEngine {
   readonly points: THREE.Points;
   private gpu: GPUComputationRenderer;
   private posVar: Variable; private velVar: Variable;
-  private tex: { text: THREE.DataTexture; sphere: THREE.DataTexture; scatter: THREE.DataTexture; nbr: THREE.DataTexture };
+  private tex: { text: THREE.DataTexture; A: THREE.DataTexture; B: THREE.DataTexture; scatter: THREE.DataTexture; nbr: THREE.DataTexture };
+  private shapes: Float32Array[] = [];
+  private slot = { a: -1, b: -1 };
   private dropMat: THREE.ShaderMaterial;
   private geo: THREE.BufferGeometry;
   private liquid: null | {
@@ -75,13 +88,14 @@ export class LiquidEngine {
     gpu.setVariableDependencies(this.posVar, [this.posVar, this.velVar]);
     gpu.setVariableDependencies(this.velVar, [this.posVar, this.velVar]);
     const mk = () => { const t = new THREE.DataTexture(new Float32Array(N * N * 4), N, N, THREE.RGBAFormat, THREE.FloatType); t.needsUpdate = true; return t; };
-    this.tex = { text: mk(), sphere: mk(), scatter: mk(), nbr: mk() };
+    this.tex = { text: mk(), A: mk(), B: mk(), scatter: mk(), nbr: mk() };
     const vu = this.velVar.material.uniforms;
     Object.assign(vu, {
-      uDt: { value: 0 }, uT: { value: 0 }, uMix: { value: 0 }, uIn: { value: 0 }, uAmp: { value: 0.18 }, uScale: { value: 1 },
+      uDt: { value: 0 }, uT: { value: 0 }, uIn: { value: 0 }, uAmp: { value: 0.18 }, uU: { value: 0 }, uKA: { value: 18 }, uKB: { value: 18 },
+      uSpinA: { value: 0 }, uSpinB: { value: 0 }, uLogoA: { value: 1 }, uLogoB: { value: 1 }, uBurst: { value: 0 }, uCy: { value: CY }, uScale: { value: 1 },
       uCursor: { value: 0 }, uR: { value: 1 }, uRipT: { value: 0 }, uRipA: { value: 0 }, uLive: { value: 1 }, uTex: { value: N },
       uMouse: { value: new THREE.Vector3(99, 99, 0) }, uRipO: { value: new THREE.Vector3(99, 99, 0) }, uMVel: { value: new THREE.Vector2() },
-      tText: { value: this.tex.text }, tSphere: { value: this.tex.sphere }, tScatter: { value: this.tex.scatter }, tNbr: { value: this.tex.nbr },
+      tText: { value: this.tex.text }, tA: { value: this.tex.A }, tB: { value: this.tex.B }, tScatter: { value: this.tex.scatter }, tNbr: { value: this.tex.nbr },
     });
     this.posVar.material.uniforms.uDt = { value: 0 };
     const err = gpu.init();
@@ -101,6 +115,7 @@ export class LiquidEngine {
     const shading = {
       uRim: { value: color(tk.accent) }, uBackRim: { value: color(tk.deep) }, uEnvI: { value: 1.15 }, uKey: { value: 1.6 },
       envMap: { value: env }, tMatcap: { value: matcap },
+      uSweep: { value: -9 }, uDof: { value: cfg.tex <= 64 ? 0 : 1 }, uBg: { value: color(tk.bg) }, uFog: { value: 0.06 }, uTime: { value: 0 }, uAccent: { value: color(tk.accent) },
     };
     const defines: Record<string, string> = {};
     if (cfg.matcap || !env) defines.USE_MATCAP = '';
@@ -122,7 +137,7 @@ export class LiquidEngine {
       const rtOpts = { type: THREE.HalfFloatType, format: THREE.RGBAFormat, minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, depthBuffer: false, generateMipmaps: false };
       const rtA = new THREE.WebGLRenderTarget(2, 2, { ...rtOpts, depthBuffer: true });
       const rtB = new THREE.WebGLRenderTarget(2, 2, rtOpts), rtC = new THREE.WebGLRenderTarget(2, 2, rtOpts), rtD = new THREE.WebGLRenderTarget(2, 2, { ...rtOpts, minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter }); // la composición a resolución completa interpola
-      const halfU = () => ({ tPos: { value: null as THREE.Texture | null }, uDpr: { value: 0.5 }, uMix: { value: 0 }, uPxPerUnit: { value: 50 } });
+      const halfU = () => ({ tPos: { value: null as THREE.Texture | null }, uDpr: { value: 0.5 }, uMix: { value: 0 }, uPxPerUnit: { value: 50 }, uDof: { value: cfg.tex <= 64 ? 0 : 1 } });
       const depthMat = new THREE.ShaderMaterial({ uniforms: halfU(), vertexShader: DROP_VERT, fragmentShader: DEPTH_FRAG, depthTest: true, depthWrite: true });
       const thickMat = new THREE.ShaderMaterial({ uniforms: halfU(), vertexShader: DROP_VERT, fragmentShader: THICK_FRAG, depthTest: false, depthWrite: false, transparent: true, blending: THREE.AdditiveBlending });
       const blurMat = new THREE.ShaderMaterial({ uniforms: { tA: { value: null }, tB: { value: null }, uDir: { value: new THREE.Vector2() }, uFirst: { value: 1 } }, vertexShader: QUAD_VERT, fragmentShader: BLUR_FRAG, depthTest: false, depthWrite: false });
@@ -139,36 +154,29 @@ export class LiquidEngine {
     }
   }
 
-  /** Destinos: texto (muestreado), esfera, nube inicial, retardos e índices de vecinos. */
-  setTargets(pts: [number, number][], reset?: 'text' | 'scatter') {
-    const N = this.N, tot = N * N, T = this.tex;
-    const a = T.text.image.data as Float32Array, s = T.sphere.image.data as Float32Array, c = T.scatter.image.data as Float32Array, nb = T.nbr.image.data as Float32Array;
-    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-    for (const q of pts) { if (q[0] < minX) minX = q[0]; if (q[0] > maxX) maxX = q[0]; if (q[1] < minY) minY = q[1]; if (q[1] > maxY) maxY = q[1]; }
-    if (!pts.length) { minX = -1; maxX = 1; minY = 0; maxY = 0; }
-    const w = Math.max(maxX - minX, 1e-3);
-    // orden espacial (celdas de .2) para que los vecinos por índice sean vecinos reales
-    const order = Array.from({ length: this.count }, (_, i) => i);
-    const sample = order.map(() => pts[Math.floor(Math.random() * pts.length)] || [0, 0]);
-    const key = (q: [number, number]) => Math.floor((q[1] + 10) / 0.2) * 1000 + Math.floor((q[0] + 20) / 0.2);
-    order.sort((i, j) => key(sample[i]) - key(sample[j]));
-    for (let k = 0; k < tot; k++) {
-      const i = k < this.count ? k : k % this.count;
-      const q = sample[order[i]];
-      const rnd = Math.random();
-      a[k * 4] = q[0] + (Math.random() - 0.5) * 0.03; a[k * 4 + 1] = q[1] + 1.3 + (Math.random() - 0.5) * 0.03; a[k * 4 + 2] = (Math.random() - 0.5) * 0.25;
-      a[k * 4 + 3] = 0.5 * (0.55 * rnd + 0.45 * ((q[0] - minX) / w)); // retardo: rnd*.5 + onda izq→der
-      const th = Math.random() * Math.PI * 2, ph = Math.acos(2 * Math.random() - 1), r = 3.4 + Math.random() * 0.15;
-      s[k * 4] = r * Math.sin(ph) * Math.cos(th); s[k * 4 + 1] = r * Math.cos(ph) + 1; s[k * 4 + 2] = r * Math.sin(ph) * Math.sin(th); s[k * 4 + 3] = rnd;
-      c[k * 4] = (Math.random() - 0.5) * 26; c[k * 4 + 1] = (Math.random() - 0.5) * 16; c[k * 4 + 2] = (Math.random() - 0.5) * 10; c[k * 4 + 3] = 1;
-      for (let n = 0; n < 4; n++) {
-        let j = i + Math.round((Math.random() * 2 - 1) * 10); if (j === i) j = i + 1;
-        nb[k * 4 + n] = Math.min(Math.max(j, 0), this.count - 1);
-      }
-    }
-    T.text.needsUpdate = T.sphere.needsUpdate = T.scatter.needsUpdate = T.nbr.needsUpdate = true;
-    Object.assign(this.bounds, { minX, maxX, minY: minY + 1.3, maxY: maxY + 1.3 });
-    if (reset) this.resetPositions(reset === 'text' ? a : c);
+  /** Aplica destinos ya calculados (en un Worker: ./targets.ts) — texto, nube inicial, vecinos y formas del loop. */
+  applyTargets(r: Targets, reset?: 'text' | 'scatter') {
+    const T = this.tex;
+    (T.text.image.data as Float32Array).set(r.a); (T.scatter.image.data as Float32Array).set(r.c); (T.nbr.image.data as Float32Array).set(r.nb);
+    this.shapes = r.shapes;
+    const { a: sa, b: sb } = this.slot; this.slot.a = this.slot.b = -1; this.setMorph(Math.max(sa, 0), Math.max(sb, 0));
+    T.text.needsUpdate = T.scatter.needsUpdate = T.nbr.needsUpdate = true;
+    Object.assign(this.bounds, r.bounds);
+    if (reset) this.resetPositions(reset === 'text' ? r.a : r.c);
+    this.ready = true;
+  }
+  ready = false;
+  get size() { return { N: this.N, count: this.count }; }
+
+  /** Carga las formas origen/destino en tA/tB (solo cuando cambian: ~2 subidas por transición). */
+  setMorph(a: number, b: number) {
+    if (!this.shapes.length) return;
+    const vu = this.velVar.material.uniforms;
+    if (a !== this.slot.a) { (this.tex.A.image.data as Float32Array).set(this.shapes[a]); this.tex.A.needsUpdate = true; this.slot.a = a; }
+    if (b !== this.slot.b) { (this.tex.B.image.data as Float32Array).set(this.shapes[b]); this.tex.B.needsUpdate = true; this.slot.b = b; }
+    vu.uKA.value = a === 0 ? 18 : 10; vu.uKB.value = b === 0 ? 18 : 10;
+    vu.uLogoA.value = a === 0 ? 1 : 0; vu.uLogoB.value = b === 0 ? 1 : 0;
+    vu.uSpinA.value = SPIN[a]; vu.uSpinB.value = SPIN[b];
   }
 
   /** Copia posiciones iniciales a los dos buffers de la simulación (velocidad 0). */
@@ -192,7 +200,7 @@ export class LiquidEngine {
     for (const m of [L.depthMat, L.thickMat]) { m.uniforms.uDpr.value = dpr * 0.5; m.uniforms.uPxPerUnit.value = ppu * 0.5; }
     const cu = L.compMat.uniforms;
     cu.uTexel.value.set(1 / w, 1 / h);
-    const tanY = Math.tan(THREE.MathUtils.degToRad(20)); cu.uTan.value.set(tanY * (wCss / hCss), tanY);
+    const tanY = TAN; cu.uTan.value.set(tanY * (wCss / hCss), tanY);
     cu.uAspect.value = wCss / hCss;
     this.texel.set(1 / w, 1 / h);
   }
@@ -203,15 +211,16 @@ export class LiquidEngine {
     const gl = this.gl, vu = this.velVar.material.uniforms;
     if (!f.static) {
       vu.uDt.value = f.dt; this.posVar.material.uniforms.uDt.value = f.dt;
-      vu.uT.value = f.t; vu.uMix.value = f.mix; vu.uIn.value = f.intro; vu.uLive.value = f.live;
-      vu.uAmp.value = 0.18 + (0.45 - 0.18) * Math.max(0, Math.min(1, f.mix));
+      vu.uT.value = f.t; vu.uIn.value = f.intro; vu.uLive.value = f.live;
+      this.setMorph(f.a, f.b); vu.uU.value = f.u; vu.uBurst.value = f.burst;
       vu.uScale.value = f.scale; vu.uCursor.value = f.cursor; vu.uR.value = f.radius;
       vu.uMouse.value.copy(f.mouseLocal); vu.uMVel.value.copy(f.mouseVel);
       vu.uRipO.value.copy(f.ripO); vu.uRipT.value = f.ripT; vu.uRipA.value = f.ripA;
-      this.gpu.compute();
+      for (let i = 0; i < (f.steps ?? 1); i++) this.gpu.compute();
     }
     const posTex = this.gpu.getCurrentRenderTarget(this.posVar).texture;
     this.dropMat.uniforms.tPos.value = posTex; this.dropMat.uniforms.uMix.value = f.mix;
+    this.dropMat.uniforms.uSweep.value = f.sweep; this.dropMat.uniforms.uTime.value = f.t;
     gl.setRenderTarget(null);
     gl.render(scene, camera);
     const L = this.liquid; if (!L) return;
