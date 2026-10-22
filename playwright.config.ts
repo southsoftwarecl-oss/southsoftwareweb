@@ -7,6 +7,9 @@ import { defineConfig, devices } from '@playwright/test';
 const PORT = Number(process.env.E2E_PORT || 3300);
 /** Segundo servidor con GA4 de prueba (build aparte en .next-ga) para e2e/analytics.spec.ts. */
 const GA_PORT = Number(process.env.E2E_GA_PORT || PORT + 1);
+/** Tercer servidor (mismo build .next) en modo Supabase contra un mock local de Auth (e2e/mock-supabase.mjs). */
+export const SB_PORT = PORT + 2;
+const SB_MOCK_PORT = PORT + 3;
 const GA_TEST_ID = 'G-TEST000000';
 const GSC_TEST_TOKEN = 'gsc-test-token';
 /**
@@ -43,6 +46,20 @@ export default defineConfig({
       timeout: 60_000,
       // Resend simulado en la ruta (CONTACT_DRY_RUN=1): valida y responde ok sin enviar
       env: { ...SERVER_ENV, ...ADMIN_ENV, CONTACT_DRY_RUN: '1' },
+    },
+    {
+      command: `node e2e/mock-supabase.mjs ${SB_MOCK_PORT}`,
+      url: `http://localhost:${SB_MOCK_PORT}/`,
+      reuseExistingServer: false,
+      timeout: 20_000,
+    },
+    {
+      // Espera al build principal (el servidor 1 arranca primero sobre .next)
+      command: `npx next start -p ${SB_PORT}`,
+      url: `http://localhost:${SB_PORT}/admin/login`,
+      reuseExistingServer: false,
+      timeout: 60_000,
+      env: { ...SERVER_ENV, SUPABASE_URL: `http://localhost:${SB_MOCK_PORT}`, SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_mock', LEADS_STORE: 'memory', ADMIN_PASSWORD: '', ADMIN_SESSION_SECRET: '', ADMIN_INSECURE_COOKIE: '1' },
     },
     {
       // Build con NEXT_PUBLIC_GA_ID de prueba en .next-ga: se (re)construye solo si falta o es más viejo que .next

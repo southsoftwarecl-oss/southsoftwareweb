@@ -42,3 +42,4 @@
 .adm .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .adm-col{min-width:0}.adm-lead{min-width:0;overflow-wrap:anywhere}
 @media (max-width:700px){.adm-kanban{grid-auto-flow:row;grid-auto-columns:auto}}
+.adm-ok{color:var(--ok);font-weight:600}

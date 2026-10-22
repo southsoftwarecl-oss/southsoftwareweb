@@ -7,6 +7,9 @@ import { createServerClient } from '@supabase/ssr';
 import { SESSION_COOKIE, verifySession } from '@/lib/admin/session';
 import { authMode, sbPublishable, sbUrl } from '@/lib/supabase/env';
 
+/** Rutas del panel accesibles sin sesión. */
+const PUBLIC = new Set(['/admin/login', '/admin/recuperar', '/admin/confirmar']);
+
 function toLogin(req: NextRequest) {
   const url = req.nextUrl.clone();
   url.pathname = '/admin/login';
@@ -15,7 +18,7 @@ function toLogin(req: NextRequest) {
 }
 
 export async function proxy(req: NextRequest) {
-  const isLogin = req.nextUrl.pathname === '/admin/login';
+  const isLogin = PUBLIC.has(req.nextUrl.pathname);
   if (authMode() === 'password') {
     if (isLogin || (await verifySession(req.cookies.get(SESSION_COOKIE)?.value))) return NextResponse.next();
     return toLogin(req);
