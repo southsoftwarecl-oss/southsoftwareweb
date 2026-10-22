@@ -25,6 +25,8 @@ export type FrameInput = {
   mouseUv: THREE.Vector2; liquid: number; rUv: number; static: boolean;
   /** loop de formas: a/b índices (0 logo), u progreso 0–1, burst 0/1, sweep x NDC (-9 = apagado) */
   a: number; b: number; u: number; burst: number; sweep: number;
+  /** intro cinemática póster → partículas: 0 = pegado al póster, 1 = terminada (por defecto) */
+  dis?: number;
   /** pasos de simulación por frame (1; QA con el loop congelado usa más para converger con GPU por software) */
   steps?: number;
 };
@@ -92,7 +94,7 @@ export class LiquidEngine {
     const vu = this.velVar.material.uniforms;
     Object.assign(vu, {
       uDt: { value: 0 }, uT: { value: 0 }, uIn: { value: 0 }, uAmp: { value: 0.18 }, uU: { value: 0 }, uKA: { value: 18 }, uKB: { value: 18 },
-      uSpinA: { value: 0 }, uSpinB: { value: 0 }, uLogoA: { value: 1 }, uLogoB: { value: 1 }, uBurst: { value: 0 }, uCy: { value: CY }, uScale: { value: 1 },
+      uSpinA: { value: 0 }, uSpinB: { value: 0 }, uLogoA: { value: 1 }, uLogoB: { value: 1 }, uBurst: { value: 0 }, uCy: { value: CY }, uDis: { value: 1 }, uXr: { value: new THREE.Vector2(-5, 5) }, uScale: { value: 1 },
       uCursor: { value: 0 }, uR: { value: 1 }, uRipT: { value: 0 }, uRipA: { value: 0 }, uLive: { value: 1 }, uTex: { value: N },
       uMouse: { value: new THREE.Vector3(99, 99, 0) }, uRipO: { value: new THREE.Vector3(99, 99, 0) }, uMVel: { value: new THREE.Vector2() },
       tText: { value: this.tex.text }, tA: { value: this.tex.A }, tB: { value: this.tex.B }, tScatter: { value: this.tex.scatter }, tNbr: { value: this.tex.nbr },
@@ -162,6 +164,7 @@ export class LiquidEngine {
     const { a: sa, b: sb } = this.slot; this.slot.a = this.slot.b = -1; this.setMorph(Math.max(sa, 0), Math.max(sb, 0));
     T.text.needsUpdate = T.scatter.needsUpdate = T.nbr.needsUpdate = true;
     Object.assign(this.bounds, r.bounds);
+    this.velVar.material.uniforms.uXr.value.set(r.bounds.minX, r.bounds.maxX);
     if (reset) this.resetPositions(reset === 'text' ? r.a : r.c);
     this.ready = true;
   }
@@ -212,7 +215,7 @@ export class LiquidEngine {
     if (!f.static) {
       vu.uDt.value = f.dt; this.posVar.material.uniforms.uDt.value = f.dt;
       vu.uT.value = f.t; vu.uIn.value = f.intro; vu.uLive.value = f.live;
-      this.setMorph(f.a, f.b); vu.uU.value = f.u; vu.uBurst.value = f.burst;
+      this.setMorph(f.a, f.b); vu.uU.value = f.u; vu.uBurst.value = f.burst; vu.uDis.value = f.dis ?? 1;
       vu.uScale.value = f.scale; vu.uCursor.value = f.cursor; vu.uR.value = f.radius;
       vu.uMouse.value.copy(f.mouseLocal); vu.uMVel.value.copy(f.mouseVel);
       vu.uRipO.value.copy(f.ripO); vu.uRipT.value = f.ripT; vu.uRipA.value = f.ripA;

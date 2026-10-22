@@ -34,7 +34,7 @@ function readTokens(): Tokens {
 
 /** Fundido póster → canvas: el canvas (opaco) entra ENCIMA del póster, que sigue al 100 % hasta que el canvas cubre
  *  todo; recién ahí se retira. Sin bajón de brillo ni salto. */
-const HANDOFF_MS = 800;
+const HANDOFF_MS = 300; // el canvas es idéntico al póster en su primer cuadro; luego la intro cinemática lo disuelve
 
 /**
  * Póster estático del logo armado en partículas: es el LCP del primer paint. Se genera desde el PRIMER cuadro real del
