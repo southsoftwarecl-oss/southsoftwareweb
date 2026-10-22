@@ -17,7 +17,8 @@ export async function currentAdmin(): Promise<AdminUser | null> {
     const { data } = await sb.auth.mfa.getAuthenticatorAssuranceLevel();
     if (data?.currentLevel !== 'aal2') return null;
   }
-  const { data: role, error } = await sb.rpc('staff_role');
-  if (error || !role) return null; // autenticado pero no es parte del equipo
-  return { email: user.email ?? null, role };
+  // Rol propio desde public.staff (RLS: solo el equipo ve filas de staff). Helpers de RLS viven en el esquema privado.
+  const { data, error } = await sb.from('staff').select('role').eq('user_id', user.id).maybeSingle();
+  if (error || !data) return null; // autenticado pero no es parte del equipo
+  return { email: user.email ?? null, role: data.role as AdminUser['role'] };
 }
