@@ -1,13 +1,13 @@
 /**
  * "Arma tu pack": precios tomados SOLO de PACKS, CUSTOM_PACK, MARKETING_PACKS y MARKETING_ONBOARDING (site.ts).
  * Regla combo (elegida por Mathias: 15 %): si eliges al menos un servicio de software y al menos
- * un servicio mensual de marketing (plan o Meta Ads), la mensualidad total baja 15 % y el onboarding de marketing es gratis.
+ * un servicio mensual de marketing (plan o Meta Ads), la mensualidad total baja 15 %. El onboarding de marketing se cobra siempre.
  * El pago inicial de software no tiene descuento. La pauta publicitaria (lo que se paga a Meta) va siempre aparte.
  */
 import { CUSTOM_PACK, MARKETING_ONBOARDING, MARKETING_PACKS, PACKS } from './site';
 
 export const COMBO_DISCOUNT = 0.15;
-export const COMBO_RULE = 'Combo software + marketing: 15 % de descuento en la mensualidad total y onboarding de marketing gratis.';
+export const COMBO_RULE = 'Combo software + marketing: 15 % de descuento en la mensualidad total. El onboarding de marketing se cobra aparte.';
 
 const num = (v: string) => Number(v.replace(/[^\d]/g, ''));
 const from = (v: string) => /^desde/i.test(v.trim());
@@ -38,18 +38,17 @@ export const EXTRA_ITEMS: Item[] = [
 ];
 export const ALL_ITEMS = [...SOFTWARE_ITEMS, ...PLAN_ITEMS, ...EXTRA_ITEMS];
 
-export type Quote = { items: Item[]; combo: boolean; setup: number; monthly: number; monthlyBase: number; from: boolean; onboardingFree: boolean };
+export type Quote = { items: Item[]; combo: boolean; setup: number; monthly: number; monthlyBase: number; from: boolean };
 
 export function quote(ids: string[]): Quote {
   const items = ALL_ITEMS.filter((i) => ids.includes(i.id));
   const hasSw = items.some((i) => i.group === 'software');
   const hasMkt = items.some((i) => i.group === 'plan' || i.id === 'meta-ads');
   const combo = hasSw && hasMkt;
-  const onboardingFree = combo && items.some((i) => i.id === 'onboarding');
-  const setup = items.reduce((s, i) => s + (onboardingFree && i.id === 'onboarding' ? 0 : i.setup), 0);
+  const setup = items.reduce((s, i) => s + i.setup, 0);
   const monthlyBase = items.reduce((s, i) => s + i.monthly, 0);
   const monthly = combo ? Math.round(monthlyBase * (1 - COMBO_DISCOUNT)) : monthlyBase;
-  return { items, combo, setup, monthly, monthlyBase, from: items.some((i) => i.from), onboardingFree };
+  return { items, combo, setup, monthly, monthlyBase, from: items.some((i) => i.from) };
 }
 
 export const fmt = (n: number, isFrom: boolean) => `${isFrom ? 'desde ' : ''}${clp(n)}`;

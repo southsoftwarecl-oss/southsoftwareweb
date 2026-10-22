@@ -56,7 +56,7 @@ export default function ArmaTuPack() {
             <h3 id="atp-sum-t">Tu pack</h3>
             <div aria-live="polite" aria-atomic="true">
               {empty ? <p className="atp-empty">Aún no eliges servicios.</p> : (
-                <ul className="atp-list">{q.items.map((i) => <li key={i.id}>{i.label}{i.id === 'onboarding' && q.onboardingFree ? ' · incluido' : ''}</li>)}</ul>
+                <ul className="atp-list">{q.items.map((i) => <li key={i.id}>{i.label}</li>)}</ul>
               )}
               <dl className="atp-tot">
                 <div><dt>Pago inicial</dt><dd data-total="setup">{fmt(q.setup, q.from)}</dd></div>
