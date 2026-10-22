@@ -1,5 +1,6 @@
 /** Página de caso (desafío, solución, lo construido, captura real y CTA). Solo se muestran métricas validadas (value != null). */
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import Page from '@/components/Page';
@@ -27,7 +28,8 @@ export default async function CasePage({ params }: { params: Promise<{ slug: str
   const i = CASES.findIndex((x) => x.slug === slug);
   if (i < 0) notFound();
   const c = CASES[i];
-  const next = CASES[(i + 1) % CASES.length];
+  const ni = (i + 1) % CASES.length;
+  const next = CASES[ni];
   const metrics = c.metrics.filter((m) => m.value);
   return (
     <Page>
@@ -68,8 +70,16 @@ export default async function CasePage({ params }: { params: Promise<{ slug: str
             </div>
           </>}
           <div className="cs-cta"><Btn href={waLink(`Hola, vi el caso ${c.name} y quiero cotizar un proyecto con South Software`)} external>Quiero un proyecto así</Btn></div>
-          <Link className="next-case" href={`/proyectos/${next.slug}`}>
-            <span className="mono">Siguiente proyecto</span><span className="nc-t">{next.name}<ArrowIcon /></span>
+          <Link className="next-case" href={`/proyectos/${next.slug}`} aria-label={`Siguiente proyecto: ${next.name}`}>
+            <span className="nc-top"><span className="mono">Siguiente proyecto</span><span className="mono nc-n">{String(ni + 1).padStart(2, '0')} <i>/</i> {String(CASES.length).padStart(2, '0')}</span></span>
+            <span className="nc-body">
+              <span className="nc-txt">
+                <span className="mono nc-cat">{next.meta}</span>
+                <span className="nc-t">{next.name}</span>
+                <span className="nc-go"><span>Ver caso</span><span className="nc-arr"><ArrowIcon /><ArrowIcon /></span></span>
+              </span>
+              <span className="nc-img"><Image src={next.image} alt={`Vista previa de ${next.name}`} width={1200} height={750} sizes="(max-width: 860px) 100vw, 46vw" /></span>
+            </span>
           </Link>
         </div>
       </section>

@@ -237,9 +237,6 @@ input,textarea{cursor:text}
 .orb:hover::after,.orb:focus-visible::after{border-color:var(--accent)}
 .orb:hover>span,.orb:focus-visible>span{text-decoration:underline;text-underline-offset:4px;text-decoration-color:var(--accent-deep)}
 .orb:hover .ic,.orb:focus-visible .ic{transform:translateX(4px)}
-.next-case .nc-t{display:inline-flex;align-items:center;gap:.25em}
-.next-case .nc-t .ic{width:.5em;height:.5em}
-.next-case:hover .ic,.next-case:focus-visible .ic{transform:translateX(4px)}
 .next-case:focus-visible .nc-t{color:var(--accent)}
 .btn:focus-visible .ic{transform:translateX(4px)}.btn:hover .ic{transform:translateX(4px)}
 .btn-ghost:hover,.btn-ghost:focus-visible{border-color:var(--accent)}
@@ -368,10 +365,28 @@ form.brief .ts{min-height:65px}
 .srow .s-list li::before{content:"";width:10px;height:6px;margin-top:7px;border-left:1.5px solid var(--accent);border-bottom:1.5px solid var(--accent);transform:rotate(-45deg)}
 .metrics{margin-top:0}
 .metrics .ph-num{color:var(--dim)}
-.next-case{display:flex;flex-direction:column;gap:14px;margin-top:100px;padding:48px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.next-case{position:relative;display:block;margin-top:100px;padding:28px 0 44px;color:inherit}
+.next-case::before,.next-case::after{content:"";position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(214,219,226,.55) 18%,rgba(214,219,226,.55) 82%,transparent)}
+.next-case::before{top:0}.next-case::after{bottom:0}
 .next-case .mono{color:var(--dim)}
-.next-case .nc-t{font-family:var(--font-display);font-weight:500;font-size:clamp(44px,6.2vw,104px);line-height:.95;letter-spacing:-.045em;transition:transform .8s var(--ease),color .5s}
-.next-case:hover .nc-t{transform:translateX(16px);color:var(--accent)}
+.nc-top{display:flex;justify-content:space-between;align-items:center;padding-bottom:22px;margin-bottom:36px;border-bottom:1px solid rgba(214,219,226,.14)}
+.nc-n{font-variant-numeric:tabular-nums;color:var(--fg)!important}.nc-n i{font-style:normal;color:var(--dim);margin:0 .35em}
+.nc-body{display:grid;grid-template-columns:1fr minmax(0,46%);gap:48px;align-items:center}
+.nc-txt{display:flex;flex-direction:column;gap:18px;min-width:0}
+.next-case .nc-t{font-family:var(--font-display);font-weight:500;font-size:clamp(44px,6.2vw,104px);line-height:.95;letter-spacing:-.045em;transition:color .5s;text-wrap:balance}
+.next-case:hover .nc-t,.next-case:focus-visible .nc-t{color:var(--accent)}
+.nc-go{display:inline-flex;align-items:center;gap:12px;font-size:15px;color:var(--dim);transition:color .4s}
+.next-case:hover .nc-go{color:var(--fg)}
+.nc-arr{position:relative;display:inline-flex;width:40px;height:40px;border:1px solid rgba(214,219,226,.3);border-radius:50%;overflow:hidden;align-items:center;justify-content:center}
+.next-case .nc-arr .ic{position:absolute;width:15px;height:15px;transition:transform .55s var(--ease)}
+.nc-arr .ic+.ic{transform:translateX(-30px)}
+.next-case:hover .nc-arr .ic,.next-case:focus-visible .nc-arr .ic{transform:translateX(30px)}
+.next-case:hover .nc-arr .ic+.ic,.next-case:focus-visible .nc-arr .ic+.ic{transform:translateX(0)}
+.nc-img{display:block;position:relative;aspect-ratio:16/10;border-radius:14px;overflow:hidden;border:1px solid rgba(214,219,226,.16);clip-path:inset(4% 4% 4% 4% round 14px);opacity:.72;transition:clip-path .9s var(--ease),opacity .6s}
+.nc-img img{display:block;width:100%;height:100%;object-fit:cover;object-position:top}
+.next-case:hover .nc-img,.next-case:focus-visible .nc-img{clip-path:inset(0 0 0 0 round 14px);opacity:1}
+@media (max-width:860px){.nc-body{grid-template-columns:1fr;gap:28px}.nc-img{order:-1;opacity:1;clip-path:none}.nc-top{margin-bottom:24px}}
+@media (prefers-reduced-motion:reduce){.nc-img,.nc-arr .ic{transition:none}}
 .manifesto{align-items:start}
 .manifesto .m-big{grid-column:1/9;font-family:var(--font-display);font-weight:500;font-size:clamp(28px,3vw,44px);line-height:1.15;letter-spacing:-.03em;text-wrap:pretty}
 .manifesto .m-side{grid-column:10/13;display:grid;border-top:1px solid var(--line)}

@@ -52,6 +52,7 @@ export const NAV = [
   { href: '/proyectos', label: 'Proyectos' },
   { href: '/nosotros', label: 'Nosotros' },
   { href: '/packs', label: 'Packs' },
+  { href: '/blog', label: 'Blog' },
   { href: '/contacto', label: 'Contacto' },
 ];
 
@@ -261,7 +262,7 @@ export const BUDGETS = ['Menos de $300.000', '$300.000 – $700.000', '$700.000 
 
 export const FOUNDERS = {
   title: 'Clientes Fundadores — 10 cupos',
-  text: 'Hasta el 30 de noviembre de 2026: 30% de descuento en el pago inicial y el primer mes gratis.',
+  text: 'Hasta el 30 de noviembre de 2026: 30% de descuento en el pago inicial.',
 };
 
 /**

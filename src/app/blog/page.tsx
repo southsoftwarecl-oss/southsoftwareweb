@@ -1,4 +1,4 @@
-/** /blog — listado. Mientras no haya artículos: noindex, fuera del sitemap y del menú. */
+/** /blog — listado de artículos (enlazado desde el menú y el footer). Sin artículos: noindex y fuera del sitemap. */
 import Link from 'next/link';
 import Page from '@/components/Page';
 import PageHero from '@/components/PageHero';
