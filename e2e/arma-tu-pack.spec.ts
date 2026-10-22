@@ -21,14 +21,14 @@ const totals = async (page: Page) => ({
 });
 const wa = async (page: Page) => new URL((await sec(page).locator('.atp-cta').getAttribute('href'))!).searchParams.get('text');
 
-test('lógica de precios: solo de site.ts, combo 15 % y onboarding gratis', () => {
+test('lógica de precios: solo de site.ts, combo 15 % y onboarding cobrado', () => {
   const a = quote(['landing']);
   expect(a.setup).toBe(n(P('Emprende').setup)); expect(a.monthly).toBe(n(P('Emprende').monthly)); expect(a.combo).toBe(false);
   const b = quote(['pro', 'onboarding']);
   expect(b.setup).toBe(n(MARKETING_ONBOARDING.price)); expect(b.monthly).toBe(n(M('Marketing Pro').monthly)); expect(b.combo).toBe(false);
   const c = quote(['sitio-pyme', 'pro', 'onboarding']);
-  expect(c.combo).toBe(true); expect(c.onboardingFree).toBe(true);
-  expect(c.setup).toBe(n(P('Pyme').setup));
+  expect(c.combo).toBe(true); expect(c.setup).toBe(n(P('Pyme').setup) + n(MARKETING_ONBOARDING.price));
+  expect(c).not.toHaveProperty('onboardingFree');
   expect(c.monthly).toBe(Math.round((n(P('Pyme').monthly) + n(M('Marketing Pro').monthly)) * 0.85));
   const d = quote(['a-medida', 'meta-ads']);
   expect(d.from).toBe(true); expect(d.combo).toBe(true);

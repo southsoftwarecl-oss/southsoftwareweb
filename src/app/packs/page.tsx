@@ -25,7 +25,7 @@ export default function PacksPage() {
       <ArmaTuPack />
       <PackTabs tabs={[{ id: 'combinados', label: 'Combinados' }, { id: 'solo-marketing', label: 'Marketing' }, { id: 'solo-software', label: 'Software' }]}>
       <PackGroup id="combinados" title="Combinados" setupLabel="Pago inicial"
-        lead="Web o app + marketing en un solo plan, más barato que contratarlos por separado. El onboarding de marketing va incluido."
+        lead="Web o app + marketing en un solo plan, más barato que contratarlos por separado."
         packs={COMBO_PACKS} note={`Precio de lanzamiento por los 3 primeros meses; después rige la mensualidad indicada. ${ADS_NOTE}`} />
       <PackGroup id="solo-marketing" title="Solo marketing" setupLabel="Onboarding único"
         lead={`Redes, captación de leads y anuncios. Onboarding único de ${MARKETING_ONBOARDING.price}: ${MARKETING_ONBOARDING.includes.toLowerCase()}.`}

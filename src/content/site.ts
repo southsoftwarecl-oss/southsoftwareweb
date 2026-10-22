@@ -133,7 +133,7 @@ export const COMBO_PACKS: MktPack[] = [
   { name: 'Total', tag: 'Web + App + Marketing Full', setup: 'desde $1.790.000', monthly: 'desde $599.990', launch: 'desde $549.990',
     includes: ['Sitio Pyme', 'App MVP/PWA con pago por hitos', 'Marketing Full con lanzamiento de la app'], ideal: 'Negocio que lanza una app o plataforma' },
 ];
-/** Onboarding único de los planes solo marketing (gratis en los combinados). */
+/** Onboarding único de los planes solo marketing (se cobra también en los combinados). */
 export const MARKETING_ONBOARDING = { price: '$99.990', includes: 'Auditoría de redes, perfil y bio, píxel de Meta y GA4' };
 export const MARKETING_PACKS: MktPack[] = [
   { name: 'Marketing Básico', setup: '$99.990', monthly: '$189.990', launch: '$149.990',

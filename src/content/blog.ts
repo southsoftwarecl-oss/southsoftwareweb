@@ -40,7 +40,7 @@ export const POSTS: Post[] = [
         'E-commerce: $699.990 + $59.990 al mes. Tienda con Webpay o Mercado Pago, carga inicial de hasta 50 productos, despacho, retiro y correos automáticos, parches de seguridad y monitoreo.',
         'Software a medida: desde $1.900.000 + desde $79.990 al mes, para sistemas internos, reservas o portales.',
       ] },
-      'Si además quieres que te ayudemos a conseguir clientes, en [Arma tu pack](/packs) puedes sumar un plan de marketing o Meta Ads (Facebook e Instagram). Al combinar software y marketing mensual, la mensualidad total baja 15 % y el onboarding de marketing es gratis. La pauta publicitaria, lo que se le paga a Meta, va siempre aparte.',
+      'Si además quieres que te ayudemos a conseguir clientes, en [Arma tu pack](/packs) puedes sumar un plan de marketing o Meta Ads (Facebook e Instagram). Al combinar software y marketing mensual, la mensualidad total baja 15 %. El onboarding de marketing ($99.990) se paga aparte. La pauta publicitaria, lo que se le paga a Meta, va siempre aparte.',
       { h2: 'Errores comunes al cotizar una web' },
       { ul: [
         'Comparar solo el pago inicial: una web barata con mensualidades altas, o sin mantención, puede salir más cara al año.',
