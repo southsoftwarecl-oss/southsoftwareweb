@@ -89,18 +89,22 @@ function frameText(out: { scale: number; posY: number }, w: number, h: number, b
   out.scale = scale; out.posY = posY;
 }
 
-function Liquid({ lines, font, cfg, tokens, onFirst }: { lines: Lines; font: string; cfg: TierCfg; tokens: Tokens; onFirst: () => void }) {
+/** Cuadros renderizados (con el logo ya en sus destinos) antes de avisar que el canvas puede cubrir el póster:
+ *  el primero compila shaders y sube texturas; los siguientes ya salen a ritmo normal (sin saltos al hacer el fundido). */
+const WARM_FRAMES = 4;
+
+function Liquid({ lines, font, cfg, tokens, onFirst, fromPoster, handoffMs }: { lines: Lines; font: string; cfg: TierCfg; tokens: Tokens; onFirst: () => void; fromPoster: boolean; handoffMs: number }) {
   const { gl, scene, camera, size, viewport, invalidate } = useThree();
   const group = useRef<THREE.Group>(null);
   // estado mutable del frame (sin setState en useFrame, sin asignaciones por frame)
   const S = useRef({
-    engine: null as LiquidEngine | null, intro: { v: RT.static ? 1 : 0 }, prog: 0, mix: 0, mixFrom: 1, goingUp: false, upStart: 0,
+    engine: null as LiquidEngine | null, intro: { v: RT.static || fromPoster ? 1 : 0 }, warm: -1, still: false, freeze: fromPoster, t0: 0, prog: 0, mix: 0, mixFrom: 1, goingUp: false, upStart: 0,
     mouseW: new THREE.Vector3(99, 99, 0), mouseT: new THREE.Vector3(), mouseL: new THREE.Vector3(), last: new THREE.Vector2(-1, -1),
     velPx: new THREE.Vector2(), velW: new THREE.Vector2(), velL: new THREE.Vector2(), speed: 0, peak: 0, cursor: 0,
     ripO: new THREE.Vector3(99, 99, 0), ripW: new THREE.Vector3(99, 99, 0), ripT: 9, rotY: 0, fr: { scale: 1, posY: 0 }, ripA: 0, touchAt: -1, liquid: 0.85,
     ray: new THREE.Raycaster(), plane: new THREE.Plane(new THREE.Vector3(0, 0, 1), 0), ndc: new THREE.Vector2(), inv: new THREE.Matrix4(),
     mouseUv: new THREE.Vector2(-9, -9), statusTop: null as number | null, hero: null as HTMLElement | null, heroTop: 0, heroH: 1,
-    f: null as FrameInput | null, scale: 1,
+    f: null as FrameInput | null, scale: 1, onFirst: null as (() => void) | null,
     // loop de formas y cámara
     tl: 0, skip: false, fixedTl: null as number | null, ph: { a: 0, b: 0, u: 0, hold: true, hp: 0, i: 0, segEnd: 0 } as Phase,
     camR: 13, orbit: 0, rec: false, simT: 0, tilt: new THREE.Vector2(), tiltOn: false, dust: null as Dust | null,
@@ -122,13 +126,18 @@ function Liquid({ lines, font, cfg, tokens, onFirst }: { lines: Lines; font: str
     grp?.add(engine.points);
     const dust = new Dust(cfg.dust, tokens.chrome1); st.dust = dust; scene.add(dust.points);
     const qtl = new URLSearchParams(location.search).get('tl'); st.fixedTl = qtl !== null && forcedTier() ? Number(qtl) : null; st.rec = !!forcedTier() && /[?&]rec\b/.test(location.search); // QA: congelar el loop en un instante
+    st.still = !!forcedTier() && /[?&]poster\b/.test(location.search); // QA ?poster: primer cuadro exacto (t=0, cámara fija, sin polvo) para regenerar el póster
+    if (st.still) dust.points.visible = false;
     // destinos: se rasteriza el texto (una vez, con la fuente ya cargada) y el resto se calcula en un Worker
     let alive = true, worker: Worker | null = null;
     const apply = (r: Targets) => {
       if (!alive) return;
       engine.applyTargets(r, RT.static || st.intro.v > 0.5 ? 'text' : 'scatter');
-      engine.points.visible = true; invalidate();
-      requestAnimationFrame(() => requestAnimationFrame(() => { if (alive) onFirst(); }));
+      engine.points.visible = true;
+      // precompila los programas de la escena (evita el tirón de compilación en el primer cuadro visible)
+      try { gl.compile(scene, camera); } catch { /* opcional */ }
+      st.warm = 0; invalidate(); // useFrame cuenta WARM_FRAMES cuadros reales y recién ahí avisa (onFirst)
+      st.onFirst = () => { if (alive) onFirst(); };
     };
     engine.points.visible = false;
     const run = () => {
@@ -152,17 +161,17 @@ function Liquid({ lines, font, cfg, tokens, onFirst }: { lines: Lines; font: str
       scene.remove(dust.points); dust.dispose(); st.dust = null;
       env?.dispose(); matcap?.dispose();
     };
-  }, [gl, scene, cfg, tokens, lines, font, invalidate, onFirst]);
+  }, [gl, scene, camera, cfg, tokens, lines, font, invalidate, onFirst]);
 
   // intro: uIn 0→1 en 2,4 s (ease 'south') cuando se abre el preloader
   useEffect(() => {
-    if (RT.static) return;
+    if (RT.static || fromPoster) return; // con póster el logo ya está armado: sin vuelo de entrada (el póster se disuelve en él)
     setupGsap();
     const st = S.current;
     let tw: gsap.core.Tween | null = null;
     const off = onIntro(() => { tw = gsap.to(st.intro, { v: 1, duration: 1.2, ease: 'south' }); });
     return () => { off(); tw?.kill(); };
-  }, []);
+  }, [fromPoster]);
 
   // progreso de scroll del hero vía ScrollTrigger (no se mide el DOM en cada frame)
   useEffect(() => {
@@ -217,12 +226,15 @@ function Liquid({ lines, font, cfg, tokens, onFirst }: { lines: Lines; font: str
     if (!E || !f || !g) return;
     const dt = Math.min(delta, 1 / 30);
     // QA ?rec: reloj simulado (dt fijo) para grabar el loop con GPU por software sin cámara acelerada
-    const t = st.rec ? (st.simT += dt) : state.clock.elapsedTime;
+    // con póster: todo queda congelado en el cuadro del póster (t=0, cámara frontal, loop detenido) hasta terminar el
+    // fundido; después el reloj arranca desde 0, así el movimiento nace suave desde la pose del póster.
+    if (st.freeze && st.warm === -1 && st.onFirst === null && st.t0 < 0) { st.freeze = false; st.t0 = state.clock.elapsedTime; }
+    const t = st.still || st.freeze ? 0 : st.rec ? (st.simT += dt) : state.clock.elapsedTime - st.t0;
     const touch = TOUCH();
     const mix = 0; // (el morph texto→esfera por scroll fue reemplazado por el loop de formas)
     // --- loop de formas: arranca cuando termina la intro; congelado en reduced motion / captura ---
     const ph = st.ph;
-    if (!RT.static && st.intro.v >= 1) {
+    if (!RT.static && !st.still && !st.freeze && st.intro.v >= 1) {
       if (st.fixedTl !== null) st.tl = st.fixedTl;
       else { if (st.skip) { phaseAt(st.tl, ph); st.tl = ph.hold ? ph.segEnd : ph.segEnd + 1e-3; } st.tl += dt; }
     }
@@ -235,7 +247,7 @@ function Liquid({ lines, font, cfg, tokens, onFirst }: { lines: Lines; font: str
     // --- cámara: dolly-in lento en cada hold, push-in en transiciones, órbita suave, micro-shake, retroceso por scroll ---
     const desk = size.width >= 760 && size.width >= size.height;
     const logoW = ph.hold ? (ph.a === 0 ? 1 : 0) : ph.a === 0 ? 1 - tu : ph.b === 0 ? tu : 0; // cuánto "es logo" la escena
-    if (!RT.static) {
+    if (!RT.static && !st.still && !st.freeze) {
       const dolly = ph.hold ? ease(ph.hp) * (ph.a === 0 ? (desk ? 0.7 : 0) : desk ? 1.6 : 0.6) : 0;
       const push = ph.hold ? 0 : Math.sin(Math.PI * ph.u) * 0.6;
       const r = 13 - dolly - push + ease(Math.min(1, st.prog * 1.2)) * 6;
@@ -269,7 +281,7 @@ function Liquid({ lines, font, cfg, tokens, onFirst }: { lines: Lines; font: str
     st.speed = st.velPx.length();
     // radio: 70 px CSS → unidades de mundo (20 % menor en táctil)
     const radius = (70 * (touch ? 0.8 : 1) * VIS_H) / innerHeight;
-    const active = !RT.static && (touch ? touchLive : over);
+    const active = !RT.static && !st.freeze && !st.still && (touch ? touchLive : over);
     st.cursor = damp(st.cursor, active ? 1 : 0, 8, dt);
     // onda: nace donde el cursor se detiene (o mientras el dedo se mueve)
     st.ripT += dt; st.ripA *= Math.exp(-1.4 * dt);
@@ -283,7 +295,7 @@ function Liquid({ lines, font, cfg, tokens, onFirst }: { lines: Lines; font: str
     // --- encuadre (escala/posición) y rotación del grupo (damp λ3, máx ±.12 Y / ±.07 X) ---
     frameText(st.fr, size.width, size.height, E.bounds, st.statusTop);
     g.scale.setScalar(st.fr.scale); g.position.y = st.fr.posY;
-    if (!RT.static) {
+    if (!RT.static && !st.freeze && !st.still) {
       const live = over || touchLive;
       st.rotY = damp(st.rotY, live ? THREE.MathUtils.clamp(m.nx, -1, 1) * 0.12 : 0, 3, dt);
       g.rotation.x = damp(g.rotation.x, live ? THREE.MathUtils.clamp(-m.ny, -1, 1) * 0.07 : 0, 3, dt);
@@ -305,6 +317,10 @@ function Liquid({ lines, font, cfg, tokens, onFirst }: { lines: Lines; font: str
       a: ph.a, b: ph.b, u: ph.u, burst, sweep, steps: st.fixedTl !== null ? 6 : 1,
     });
     E.frame(f, scene, camera);
+    if (st.warm >= 0 && ++st.warm >= WARM_FRAMES) {
+      st.warm = -1; st.onFirst?.(); st.onFirst = null;
+      if (st.freeze) window.setTimeout(() => { st.t0 = -1; }, handoffMs + 50); // t0 = -1 → se libera en el próximo cuadro
+    }
   }, 1);
 
   return <group ref={group} />;
@@ -325,7 +341,7 @@ function VisibilityLoop() {
   return null;
 }
 
-export default function ParticleScene({ lines = LOGO_LINES, font, tier, tokens, onReady }: { lines?: Lines; font: string; tier: Tier; tokens: Tokens; onReady?: () => void }) {
+export default function ParticleScene({ lines = LOGO_LINES, font, tier, tokens, onReady, fromPoster = false, handoffMs = 800 }: { lines?: Lines; font: string; tier: Tier; tokens: Tokens; onReady?: () => void; fromPoster?: boolean; handoffMs?: number }) {
   // degradación progresiva: 0 = completo, 1 = sin fluido, 2 = DPR 1, 3 = menos partículas
   const [level, setLevel] = useState(0);
   // fundido de 400 ms póster → canvas cuando el primer frame WebGL con el logo está listo
@@ -342,7 +358,7 @@ export default function ParticleScene({ lines = LOGO_LINES, font, tier, tokens, 
   return (
     <Canvas
       className="gl-wrap"
-      style={{ position: 'absolute', inset: 0, opacity: shown ? 1 : 0, transition: 'opacity .4s ease' }}
+      style={{ position: 'absolute', inset: 0, opacity: shown ? 1 : 0, transition: fromPoster ? `opacity ${handoffMs}ms cubic-bezier(.45,0,.25,1)` : 'opacity .4s ease' }}
       dpr={dpr}
       gl={{ antialias: false, powerPreference: 'high-performance', alpha: false, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1, outputColorSpace: THREE.SRGBColorSpace }}
       camera={{ fov: FOV, near: 0.1, far: 100, position: [0, 0, 13] }}
@@ -352,7 +368,7 @@ export default function ParticleScene({ lines = LOGO_LINES, font, tier, tokens, 
     >
       <PerformanceMonitor onDecline={() => { if (!forcedTier()) setLevel((l) => Math.min(l + 1, 3)); }} flipflops={3} bounds={() => [45, 58]} ms={250} iterations={8} onFallback={() => { if (!forcedTier()) setLevel(3); }} />
       <VisibilityLoop />
-      <Liquid lines={lines} font={font} cfg={cfg} tokens={tokens} onFirst={first} />
+      <Liquid lines={lines} font={font} cfg={cfg} tokens={tokens} onFirst={first} fromPoster={fromPoster} handoffMs={handoffMs} />
     </Canvas>
   );
 }

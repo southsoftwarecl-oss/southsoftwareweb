@@ -103,3 +103,7 @@ html.rm .gl-ph{transition:none}
  .cookie-actions{gap:6px;flex:none}
  .cookie-actions .cookie-btn{flex:none;height:36px;padding:0 14px;font-size:13px}
 }
+/* Póster del hero (LCP): mismo encuadre que el primer cuadro del canvas (ver HeroCanvas.tsx) */
+.hero .gl-poster{position:absolute;left:0;right:0;top:0;height:60%;display:block;overflow:hidden;z-index:0;transition:opacity .2s linear}
+.hero .gl-poster img{position:absolute;top:0;left:50%;height:100%;width:auto;max-width:none;transform:translateX(-50%);display:block}
+@media (max-width:759px){.hero .gl-poster img{left:0;width:100%;height:auto;transform:none}}

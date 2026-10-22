@@ -32,18 +32,24 @@ function readTokens(): Tokens {
   return { bg: v('--bg'), accent: v('--accent'), deep: v('--accent-deep'), chrome1: v('--chrome-1'), chrome2: v('--chrome-2'), chrome3: v('--chrome-3') };
 }
 
+/** Fundido póster → canvas: el canvas (opaco) entra ENCIMA del póster, que sigue al 100 % hasta que el canvas cubre
+ *  todo; recién ahí se retira. Sin bajón de brillo ni salto. */
+const HANDOFF_MS = 800;
+
 /**
- * Póster estático del logo armado en partículas (render real del canvas, AVIF/WebP < 40 KB): es el LCP del primer
- * paint y se funde en 400 ms al canvas cuando su primer frame WebGL está listo. Es la mitad superior del canvas
- * (mismo ancho y escala; cubrir todo el viewport haría que Chrome lo trate como fondo y no como LCP); absoluto → CLS 0.
+ * Póster estático del logo armado en partículas: es el LCP del primer paint. Se genera desde el PRIMER cuadro real del
+ * canvas (scripts/hero-poster.mjs, `?gl=high&poster`), así que coincide en posición, escala, color y luz con lo que
+ * dibuja el canvas al tomar el relevo. Cubre el 60 % superior del hero (todo el viewport haría que Chrome lo trate como
+ * fondo y no como LCP); absoluto → CLS 0. Escalado igual que la cámara: en desktop por ALTO (FOV vertical fijo) y
+ * centrado; en vertical por ANCHO (el encuadre del logo se ajusta al ancho).
  */
 function Poster({ ready }: { ready: boolean }) {
   return (
-    <div className={`gl-ph${ready ? ' out' : ''}`} aria-hidden="true" style={{ position: 'absolute', left: 0, right: 0, top: 0, height: '50%', display: 'block', transition: 'opacity .4s ease', zIndex: 0 }}><picture>
-      <source media="(max-width: 759px)" type="image/avif" srcSet="/hero/poster-m.avif" />
-      <source media="(max-width: 759px)" type="image/webp" srcSet="/hero/poster-m.webp" />
-      <source type="image/avif" srcSet="/hero/poster-d.avif" />
-      <img src="/hero/poster-d.webp" alt="" width={1440} height={450} fetchPriority="high" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: '50% 0', display: 'block' }} />
+    <div className={`gl-ph gl-poster${ready ? ' out' : ''}`} aria-hidden="true"><picture>
+      <source media="(max-width: 759px)" type="image/avif" srcSet="/hero/poster-m.avif 1x, /hero/poster-m@2x.avif 2x" />
+      <source media="(max-width: 759px)" type="image/webp" srcSet="/hero/poster-m.webp 1x, /hero/poster-m@2x.webp 2x" />
+      <source type="image/avif" srcSet="/hero/poster-d.avif 1x, /hero/poster-d@2x.avif 2x" />
+      <img src="/hero/poster-d.webp" srcSet="/hero/poster-d.webp 1x, /hero/poster-d@2x.webp 2x" alt="" width={1440} height={540} fetchPriority="high" decoding="async" />
     </picture></div>
   );
 }
@@ -51,6 +57,7 @@ function Poster({ ready }: { ready: boolean }) {
 export default function HeroCanvas({ font, lines }: { font: string; lines?: typeof LOGO_LINES }) {
   const [boot, setBoot] = useState<{ tier: Tier; tokens: Tokens } | null>(null);
   const [ready, setReady] = useState(false);
+  const [handed, setHanded] = useState(false); // el canvas ya cubre el póster (fin del fundido)
   // Capacidades del dispositivo (constantes): en SSR se asume WebGL y equipo normal
   const ok = useSyncExternalStore(noop, hasWebGL, () => true);
 
@@ -82,8 +89,9 @@ export default function HeroCanvas({ font, lines }: { font: string; lines?: type
   if (!ok) return poster ? <Poster ready={false} /> : <div className="gl-fallback" aria-hidden="true" />;
   return (
     <>
-      {poster ? <Poster ready={ready} /> : <div className={`gl-ph${ready ? ' out' : ''}`} aria-hidden="true">{lines.map((l, i) => <span key={i}>{l.text}</span>)}</div>}
-      {boot && <ParticleScene font={font} lines={lines} tier={boot.tier} tokens={boot.tokens} onReady={() => setReady(true)} />}
+      {poster ? <Poster ready={handed} /> : <div className={`gl-ph${ready ? ' out' : ''}`} aria-hidden="true">{lines.map((l, i) => <span key={i}>{l.text}</span>)}</div>}
+      {boot && <ParticleScene font={font} lines={lines} tier={boot.tier} tokens={boot.tokens} fromPoster={poster} handoffMs={HANDOFF_MS}
+        onReady={() => { setReady(true); if (poster) window.setTimeout(() => setHanded(true), HANDOFF_MS + 50); }} />}
     </>
   );
 }
