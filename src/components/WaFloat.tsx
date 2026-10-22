@@ -14,8 +14,10 @@ export default function WaFloat() {
     return () => io.disconnect();
   }, []);
   return (
+    <aside aria-label="WhatsApp" className="wa-float-wrap">
     <a ref={ref} className="wa-float" href={waLink('Hola, quiero cotizar un proyecto con South Software')} target="_blank" rel="noopener noreferrer" aria-label="Escribir por WhatsApp">
       <WaIcon />
     </a>
+    </aside>
   );
 }

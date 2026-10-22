@@ -8,7 +8,7 @@ import './globals.css';
 import './premium.css';
 import { fontVars } from '@/lib/fonts';
 import { BRAND, SITE_URL } from '@/content/site';
-import { orgJsonLd } from '@/lib/seo';
+import { orgJsonLd, websiteJsonLd } from '@/lib/seo';
 import Preloader from '@/components/Preloader';
 import Nav from '@/components/Nav';
 import Footer from '@/components/Footer';
@@ -65,6 +65,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="grain" aria-hidden="true" />
         <MotionRoot />
         <JsonLd data={orgJsonLd} />
+        <JsonLd data={websiteJsonLd} />
         {/* GA4 + aviso de cookies: nada se renderiza sin NEXT_PUBLIC_GA_ID */}
         {GA_ID && <Analytics gaId={GA_ID} />}
       </body>

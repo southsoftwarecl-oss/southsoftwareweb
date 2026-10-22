@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const c = CASES.find((x) => x.slug === slug);
   if (!c) return {};
-  return pageMeta({ title: `${c.name} — Caso`, description: `${c.summary} Proyecto de South Software (${c.meta}).`, path: `/proyectos/${c.slug}` });
+  return pageMeta({ title: `${c.name} — Caso de desarrollo web`, description: c.seoDesc, path: `/proyectos/${c.slug}` });
 }
 
 export default async function CasePage({ params }: { params: Promise<{ slug: string }> }) {
@@ -31,7 +31,7 @@ export default async function CasePage({ params }: { params: Promise<{ slug: str
   const metrics = c.metrics.filter((m) => m.value);
   return (
     <Page>
-      <PageHero crumb={[{ href: '/proyectos', label: 'Proyectos' }, { href: '', label: c.name }]} eyebrow={c.meta} title={c.name} lead={c.summary}>
+      <PageHero path={`/proyectos/${c.slug}`} crumb={[{ href: '/proyectos', label: 'Proyectos' }, { href: '', label: c.name }]} eyebrow={c.meta} title={c.name} lead={c.summary}>
         <div className="case-kv" data-reveal>
           <div><small>Servicio</small><span>{c.service}</span></div>
           <div><small>Stack</small><span>{c.stack.join(' · ')}</span></div>

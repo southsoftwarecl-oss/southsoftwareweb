@@ -4,12 +4,13 @@ import { BRAND, MARKETING_SERVICES, PACKS, SERVICES, SITE_URL } from '@/content/
 
 const OG_IMAGE = { url: '/opengraph-image.jpg', width: 1200, height: 630, alt: 'South Software — Software & Marketing' };
 
-export function pageMeta({ title, description, path }: { title: string; description: string; path: string }): Metadata {
+export function pageMeta({ title, description, path, absolute, noindex }: { title: string; description: string; path: string; absolute?: boolean; noindex?: boolean }): Metadata {
   return {
-    title, description,
+    title: absolute ? { absolute: title } : title, description,
+    ...(noindex ? { robots: { index: false, follow: true } } : {}),
     alternates: { canonical: path },
-    openGraph: { title: `${title} · South Software`, description, url: path, type: 'website', locale: 'es_CL', siteName: 'South Software', images: [OG_IMAGE] },
-    twitter: { card: 'summary_large_image', title: `${title} · South Software`, description, images: [OG_IMAGE.url] },
+    openGraph: { title: absolute ? title : `${title} · South Software`, description, url: path, type: 'website', locale: 'es_CL', siteName: 'South Software', images: [OG_IMAGE] },
+    twitter: { card: 'summary_large_image', title: absolute ? title : `${title} · South Software`, description, images: [OG_IMAGE.url] },
   };
 }
 
@@ -24,6 +25,7 @@ export const orgJsonLd = {
   description: BRAND.description,
   email: BRAND.email,
   telephone: BRAND.phoneE164,
+  // solo país (sin calle ni ciudad): no es una dirección física
   address: { '@type': 'PostalAddress', addressCountry: 'CL' },
   areaServed: { '@type': 'Country', name: 'Chile' },
   knowsAbout: [...SERVICES.map((s) => s.title), ...MARKETING_SERVICES.map((s) => s.title)],
@@ -74,3 +76,27 @@ export const packsJsonLd = {
     })),
   },
 };
+
+/** WebSite (sin SearchAction: el sitio no tiene buscador). */
+export const websiteJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  '@id': `${SITE_URL}/#website`,
+  url: SITE_URL,
+  name: BRAND.name,
+  inLanguage: 'es-CL',
+  publisher: { '@id': `${SITE_URL}/#org` },
+};
+
+/** BreadcrumbList desde las migas visibles (href '' = página actual, sin `item`). */
+export function breadcrumbJsonLd(crumb: { href: string; label: string }[], currentPath?: string) {
+  const items = [{ href: '/', label: 'Inicio' }, ...crumb];
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((c, i) => {
+      const href = c.href || currentPath;
+      return { '@type': 'ListItem', position: i + 1, name: c.label, ...(href ? { item: `${SITE_URL}${href === '/' ? '' : href}` || SITE_URL } : {}) };
+    }),
+  };
+}

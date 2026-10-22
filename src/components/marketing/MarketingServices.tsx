@@ -1,3 +1,4 @@
+import Link from 'next/link';
 /** Marketing digital : home y /servicios. Textos en content/site.ts. */
 import './marketing.css';
 import { MARKETING_SERVICES } from '@/content/site';
@@ -14,9 +15,9 @@ export default function MarketingServices({ n, compact = false }: { n: number; c
           {MARKETING_SERVICES.map((s, i) => (
             <article className="mk-card" key={s.slug} id={`mk-${s.slug}`}>
               <span className="mono mk-n">M{i + 1}</span>
-              <h3>{s.title}</h3>
+              <h3>{compact ? s.title : <Link href={`/servicios/${s.slug}`} className="mk-h-link">{s.title}</Link>}</h3>
               <p>{s.desc}</p>
-              {compact ? <a className="mk-link" href="/servicios#marketing">Ver más</a> : null}
+              {compact ? <Link className="mk-link" href={`/servicios/${s.slug}`}>Ver más</Link> : null}
               {!compact && <p className="mk-inc">{s.includes.join(' · ')}</p>}
             </article>
           ))}

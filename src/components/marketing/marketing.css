@@ -22,7 +22,7 @@
 @media (max-width:1024px){.mk-grid{grid-template-columns:1fr 1fr}.mkp-head{display:block}}
 @media (max-width:640px){.mk-grid{grid-template-columns:1fr}}
 .sec.mk-sec{padding:48px 0}
-.mk-sec .mk-card p.mk-inc{margin-top:12px;font-size:12.5px;line-height:1.5;opacity:.8}
+.mk-sec .mk-card p.mk-inc{margin-top:12px;font-size:12.5px;line-height:1.5}
 .sec.mk-compact{padding:16px 0 24px}
 .mk-compact .sec-head{margin-bottom:24px}
 .mk-compact .mk-card{padding:20px}.mk-compact .mk-card h3{font-size:17px;margin:8px 0 6px}.mk-compact .mk-card p{font-size:14px;margin:0}

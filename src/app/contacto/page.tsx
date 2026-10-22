@@ -2,6 +2,7 @@
  * Contacto: brief conversacional (tarjeta "Tu brief" en vivo + formulario con chips)
  * y canales directos con microinteracciones. Estilos en ./contacto.css.
  */
+import { JsonLd } from '@/components/ui';
 import Page from '@/components/Page';
 import BriefStudio from '@/components/contacto/BriefStudio';
 import CopyEmail from '@/components/contacto/CopyEmail';
@@ -10,12 +11,12 @@ import LiquidPool from '@/components/contacto/LiquidPool';
 import ChileClock from '@/components/contacto/ChileClock';
 import { ArrowIcon } from '@/components/ui';
 import { BRAND, WA_URL } from '@/content/site';
-import { pageMeta } from '@/lib/seo';
+import { breadcrumbJsonLd, pageMeta } from '@/lib/seo';
 import './contacto.css';
 
 export const metadata = pageMeta({
-  title: 'Contacto',
-  description: 'Agenda una reunión de 30 minutos sin costo con South Software. Software a medida, web, apps, seguridad y datos para todo Chile.',
+  title: 'Contacto: cotiza tu desarrollo web o software',
+  description: 'Cotiza tu desarrollo web, app o software a medida con South Software. Agenda una reunión de 30 minutos sin costo o escríbenos por WhatsApp hoy mismo.',
   path: '/contacto',
 });
 
@@ -63,6 +64,7 @@ export default function Contacto() {
           </div>
         </div>
       </section>
+      <JsonLd data={breadcrumbJsonLd([{ href: '', label: 'Contacto' }], '/contacto')} />
     </Page>
   );
 }

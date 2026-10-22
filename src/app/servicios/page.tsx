@@ -16,8 +16,8 @@ import { pageMeta, servicesJsonLd } from '@/lib/seo';
 import './servicios.css';
 
 export const metadata = pageMeta({
-  title: 'Servicios',
-  description: 'Software & Marketing: software a medida, sitios web, apps, seguridad y datos, más gestión de redes sociales, captación de leads, Meta Ads y contenido.',
+  title: 'Desarrollo de software, web y marketing digital',
+  description: 'Desarrollo de software, desarrollo web, apps móviles, seguridad, datos y marketing digital con Meta Ads para pymes en Chile. Cotiza tu proyecto hoy.',
   path: '/servicios',
 });
 

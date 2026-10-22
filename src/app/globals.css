@@ -13,7 +13,7 @@
 
 /* ============ 2) Sistema de diseño v2 (preview) ============ */
 /* ===== South Software · design system v2 ===== */
-:root{--bg:#0A0A0B;--bg2:#0F0F11;--fg:#EDEDEF;--muted:#8A8F98;--dim:#757A84;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.14);--card:rgba(255,255,255,.022);
+:root{--bg:#0A0A0B;--bg2:#0F0F11;--fg:#EDEDEF;--muted:#8A8F98;--dim:#868B95;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.14);--card:rgba(255,255,255,.022);
 /* Paleta acero/cromo (v2): sin violeta. --accent = texto/acentos sobre fondo oscuro; --accent-fill = rellenos con texto blanco */
 --accent:#8FB4E3;--accent-rgb:143,180,227;--accent-fill:#2F5C96;--accent-deep:#244A7F;--accent-deep-rgb:36,74,127;
 --chrome-1:#EEF2F6;--chrome-2:#A4ADB8;--chrome-3:#7F8894;--ease:cubic-bezier(.16,1,.3,1);--radius:20px;
