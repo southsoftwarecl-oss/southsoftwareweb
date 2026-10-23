@@ -20,7 +20,7 @@ http.createServer((req, res) => {
     if (u.pathname === '/auth/v1/user' && req.method === 'PUT') { if (!authed) return send(res, 401, { msg: 'invalid JWT' }); state.password = body.password; return send(res, 200, USER); }
     if (u.pathname === '/auth/v1/recover') { state.recovers.push(body.email); return send(res, 200, {}); }
     if (u.pathname === '/auth/v1/logout') { state.tokens.delete(auth); return send(res, 204); }
-    if (u.pathname === '/rest/v1/staff') return authed ? send(res, 200, [{ role: 'owner' }]) : send(res, 200, []);
+    if (u.pathname === '/rest/v1/staff') return authed ? send(res, 200, [{ role: 'owner', display_name: 'Mathias Jara' }]) : send(res, 200, []);
     if (u.pathname.startsWith('/rest/v1/')) return send(res, 200, []);
     if (u.pathname === '/') return send(res, 200, { ok: true });
     send(res, 404, { msg: 'not found' });

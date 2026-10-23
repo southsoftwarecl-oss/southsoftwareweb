@@ -7,35 +7,33 @@ import { authMode } from '@/lib/supabase/env';
 import { supabaseUser } from '@/lib/supabase/server';
 import { currentAdmin } from '@/lib/admin/auth';
 import { moveLead } from '@/lib/admin/leads';
+import { loginAllowed, loginFailed, loginKey, loginSucceeded } from '@/lib/admin/ratelimit';
 import { STAGES, type StageId } from '@/lib/admin/model';
 
-const tries = new Map<string, number[]>();
-const WINDOW = 15 * 60 * 1000;
 
 export async function login(_: { error?: string } | undefined, form: FormData): Promise<{ error?: string }> {
   const h = await headers();
   const ip = (h.get('x-forwarded-for') || '').split(',')[0].trim() || 'local';
-  const now = Date.now();
-  const list = (tries.get(ip) || []).filter((t) => now - t < WINDOW);
-  if (list.length >= 5) return { error: 'Demasiados intentos. Espera 15 minutos.' };
+  const key = await loginKey(ip);
+  if (!(await loginAllowed(key))) return { error: 'Demasiados intentos. Espera 15 minutos.' };
   const pass = String(form.get('password') || '');
 
   if (authMode() === 'supabase') {
     const email = String(form.get('email') || '').trim().slice(0, 160);
     const sb = await supabaseUser();
     const { error } = await sb.auth.signInWithPassword({ email, password: pass });
-    if (error) { list.push(now); tries.set(ip, list); return { error: 'Correo o contraseña incorrectos.' }; }
+    if (error) { await loginFailed(key); return { error: 'Correo o contraseña incorrectos.' }; }
     if (!(await currentAdmin())) { await sb.auth.signOut(); return { error: 'Tu cuenta no tiene acceso al panel.' }; }
-    tries.delete(ip);
+    loginSucceeded(key);
     redirect('/admin');
   }
 
   if (!adminConfigured()) return { error: 'El panel está desactivado: faltan variables de entorno del servidor.' };
   if (!(await safeEqual(pass, process.env.ADMIN_PASSWORD!))) {
-    list.push(now); tries.set(ip, list);
+    await loginFailed(key);
     return { error: 'Contraseña incorrecta.' };
   }
-  tries.delete(ip);
+  loginSucceeded(key);
   (await cookies()).set(SESSION_COOKIE, await createSession(), {
     httpOnly: true, sameSite: 'strict', secure: process.env.NODE_ENV === 'production' && !process.env.ADMIN_INSECURE_COOKIE, path: '/admin', maxAge: SESSION_TTL_S,
   });
