@@ -86,16 +86,16 @@ export default function LeadsBoard({ leads: initial, stages, view, sample, now, 
         aria-roledescription="tarjeta movible" aria-label={`${leadTitle(l)}, ${label(l.stage)}`}
         draggable={canMove} onDragStart={(e) => { setDrag(l.id); e.dataTransfer.setData('text/plain', l.id); e.dataTransfer.effectAllowed = 'move'; }} onDragEnd={() => { setDrag(null); setOver(null); }}
         onKeyDown={(e) => onCardKey(e, l)} onDoubleClick={() => setDetail(l.id)}>
-        <header>
+        <div className="lc-h">
           <span className="lc-av" aria-hidden="true">{anon ? '?' : initials(l.name!)}</span>
           <button type="button" className={`lc-t${anon ? ' anon' : ''}`} onClick={() => setDetail(l.id)}>{leadTitle(l)}</button>
           {l.channel === 'reservar_cupo' && <span className="chip gold sm"><Sparkles size={11} aria-hidden="true" /> Fundador</span>}
-        </header>
+        </div>
         {typeof p.empresa === 'string' && <div className="lc-sub">{p.empresa}</div>}
         <div className="lc-src"><span className="src"><ch.icon size={12} aria-hidden="true" />{CH_LONG[l.channel] || ch.label}</span>{l.pack && <b>{l.pack}</b>}{labels(l) && <b title={labels(l)!.join(', ')}>Armó: {labels(l)!.join(', ')}</b>}</div>
         {typeof p.tipo === 'string' && <div className="lc-sub">Tipo: {p.tipo}{typeof p.presupuesto === 'string' ? ` · ${p.presupuesto}` : ''}</div>}
         {(l.setup != null || l.monthly != null) && <div className="lc-amt adm-amt"><b>{l.setup != null ? clp(l.setup) : 'Sin pago inicial'}</b>{l.monthly != null && <span> + {clp(l.monthly)}/mes</span>}</div>}
-        <footer>
+        <div className="lc-f">
           <span className={late ? 'late' : ''} title={abs(l.createdAt)}>{late && <Clock size={12} aria-hidden="true" />}{late ? '+24 h sin contactar' : ago(l.createdAt, now)}</span>
           {canMove && (
             <form className="adm-move" onSubmit={(e) => { e.preventDefault(); const v = (new FormData(e.currentTarget).get('stage') as string) || ''; if (v) move(l.id, v); }}>
@@ -107,7 +107,7 @@ export default function LeadsBoard({ leads: initial, stages, view, sample, now, 
               <button type="submit" className="btn-a secondary sm">Mover</button>
             </form>
           )}
-        </footer>
+        </div>
       </article>
     );
   };
@@ -162,10 +162,10 @@ export default function LeadsBoard({ leads: initial, stages, view, sample, now, 
       {current && (
         <div className="sheet-ovl" onMouseDown={(e) => e.target === e.currentTarget && setDetail(null)}>
           <aside className="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-t" onKeyDown={(e) => e.key === 'Escape' && setDetail(null)}>
-            <header>
+            <div className="sheet-h">
               <div><h2 id="sheet-t">{leadTitle(current)}</h2><span className={`stchip st-${current.stage}`}><i className={`dot st-${current.stage}`} />{label(current.stage)}</span></div>
               <button type="button" className="btn-a ghost icon sm a-tip" data-tip="Cerrar (Esc)" aria-label="Cerrar detalle" onClick={() => setDetail(null)} autoFocus><X size={16} /></button>
-            </header>
+            </div>
             <dl className="sheet-dl">
               <dt>Origen</dt><dd>{CH_LONG[current.channel] || CH[current.channel]?.label}</dd>
               <dt>Llegó</dt><dd>{abs(current.createdAt)}</dd>
@@ -178,8 +178,8 @@ export default function LeadsBoard({ leads: initial, stages, view, sample, now, 
             </dl>
             {current.message && <><h3>Mensaje</h3><p className="sheet-msg">{current.message}</p></>}
             {sample && <p className="adm-note">Datos de ejemplo: nada de esto existe en la base de datos.</p>}
-            <footer><Link href="/admin/solicitudes" className="btn-a ghost sm" onClick={() => setDetail(null)}>Cerrar</Link>
-              {canMove && current.stage === 'nuevo' && <button type="button" className="btn-a primary sm" onClick={() => move(current.id, 'contactado')}>Marcar contactado <ChevronRight size={14} aria-hidden="true" /></button>}</footer>
+            <div className="sheet-f"><Link href="/admin/solicitudes" className="btn-a ghost sm" onClick={() => setDetail(null)}>Cerrar</Link>
+              {canMove && current.stage === 'nuevo' && <button type="button" className="btn-a primary sm" onClick={() => move(current.id, 'contactado')}>Marcar contactado <ChevronRight size={14} aria-hidden="true" /></button>}</div>
           </aside>
         </div>
       )}
