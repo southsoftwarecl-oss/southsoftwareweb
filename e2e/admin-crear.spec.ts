@@ -49,8 +49,8 @@ test.describe('+ Crear', () => {
     await page.goto('/admin/solicitudes?ejemplo=1');
     await expect(page.getByText('datos de ejemplo', { exact: false }).first()).toBeVisible();
     const c = page.locator('[data-stage="nuevo"]').getByTestId('lead-card').filter({ hasText: 'Ferretería Ejemplo' });
-    await c.getByLabel('Mover a').selectOption('contactado');
-    await c.getByRole('button', { name: 'Mover' }).click();
+    await c.getByRole('button', { name: 'Acciones: Ferretería Ejemplo' }).click();
+    await page.getByRole('menuitem', { name: 'Contactado' }).click();
     await expect(page.getByText('(ejemplo, no se guarda)')).toBeVisible();
     await page.goto('/admin/solicitudes');
     await expect(page.getByText('Ferretería Ejemplo')).toHaveCount(0);
@@ -63,5 +63,83 @@ test.describe('+ Crear', () => {
     await expect(page.getByRole('dialog', { name: 'Clínica Demo' })).toBeVisible();
     await page.keyboard.press('Escape');
     await expect(page.getByRole('dialog')).toHaveCount(0);
+  });
+
+  test('Reglas de etapa: Propuesta exige cotización, Aceptado exige aceptada, Reunión fecha, Cancelado motivo; versiones', async ({ page }) => {
+    await login(page);
+    const name = 'Reglas E2E ' + Date.now();
+    await page.goto('/admin/solicitudes/nueva');
+    await page.getByLabel('Nombre o empresa *').fill(name);
+    await page.getByLabel('Correo').fill('reglas@example.com');
+    await page.getByRole('button', { name: 'Crear solicitud' }).click();
+    await expect(page).toHaveURL(/creada=1/);
+    const card = () => page.getByTestId('lead-card').filter({ hasText: name });
+    const moveTo = async (st: string) => { await card().getByRole('button', { name: `Acciones: ${name}` }).click(); await page.getByRole('menuitem', { name: st, exact: true }).click(); };
+    // Reunión pide fecha
+    await moveTo('Reunión');
+    await page.getByLabel('Fecha y hora de la reunión').fill('2026-11-05T10:30');
+    await page.getByRole('button', { name: 'Mover a Reunión' }).click();
+    await expect(page.locator('[data-stage="reunion"]').getByTestId('lead-card').filter({ hasText: name })).toBeVisible();
+    // Propuesta sin cotización → error + abrir cotizaciones
+    await moveTo('Propuesta');
+    await expect(page.getByText('crea primero una cotización')).toBeVisible();
+    await page.getByRole('button', { name: 'Abrir cotizaciones' }).click();
+    const dlg = page.getByRole('dialog', { name });
+    await dlg.getByRole('button', { name: 'Nueva cotización' }).click();
+    await dlg.getByLabel('Ítems (uno por línea)').fill('Sitio pyme\nMarketing Pro');
+    await dlg.getByLabel('Pago inicial (CLP)').fill('349990');
+    await dlg.getByLabel('Mensualidad (CLP)').fill('39990');
+    await dlg.getByRole('button', { name: 'Guardar borrador' }).click();
+    await expect(dlg.getByText('v1')).toBeVisible();
+    // Nueva versión → v1 queda de solo lectura
+    await dlg.getByRole('button', { name: 'Nueva versión' }).click();
+    await dlg.getByLabel('Pago inicial (CLP)').fill('299990');
+    await dlg.getByRole('button', { name: 'Guardar borrador' }).click();
+    await expect(dlg.getByText('v2')).toBeVisible();
+    await expect(dlg.getByText('Versiones anteriores (1)')).toBeVisible();
+    await page.keyboard.press('Escape');
+    await moveTo('Propuesta');
+    await expect(page.locator('[data-stage="propuesta"]').getByTestId('lead-card').filter({ hasText: name })).toBeVisible();
+    // Aceptado sin aceptada → error; aceptar → ok
+    await moveTo('Aceptado');
+    await expect(page.getByText('marca una cotización como aceptada')).toBeVisible();
+    await page.getByRole('button', { name: 'Abrir cotizaciones' }).click();
+    await page.getByRole('dialog', { name }).getByRole('button', { name: 'Aceptar' }).click();
+    await expect(page.getByRole('dialog', { name }).getByText('Aceptada')).toBeVisible();
+    await page.keyboard.press('Escape');
+    await moveTo('Aceptado');
+    await expect(page.locator('[data-stage="aceptado"]').getByTestId('lead-card').filter({ hasText: name })).toBeVisible();
+    // Cancelado pide motivo
+    await moveTo('Cancelado');
+    await page.getByLabel('Motivo').selectOption('Precio');
+    await page.getByRole('button', { name: 'Cancelar solicitud' }).click();
+    await expect(page.locator('[data-stage="cancelado"]').getByTestId('lead-card').filter({ hasText: name })).toBeVisible();
+  });
+
+  test('Mover con teclado (Espacio + flecha) y clic derecho', async ({ page }) => {
+    await login(page);
+    await page.goto('/admin/solicitudes?ejemplo=1');
+    const c = page.locator('[data-stage="nuevo"]').getByTestId('lead-card').filter({ hasText: 'Ferretería Ejemplo' });
+    await page.waitForLoadState('networkidle'); // esperar hidratación antes de usar teclado
+    await expect(async () => {
+      await c.focus();
+      await page.keyboard.press(' ');
+      await expect(page.getByText('levantada', { exact: false })).toBeAttached({ timeout: 1000 });
+    }).toPass();
+    await page.keyboard.press('ArrowRight');
+    await expect(page.locator('[data-stage="contactado"]').getByTestId('lead-card').filter({ hasText: 'Ferretería Ejemplo' })).toBeVisible();
+    const d = page.getByTestId('lead-card').filter({ hasText: 'Clínica Demo' });
+    await d.click({ button: 'right', position: { x: 60, y: 50 } });
+    await expect(page.getByRole('menu', { name: 'Acciones: Clínica Demo' })).toBeVisible();
+    await page.keyboard.press('Escape');
+  });
+
+  test('Kanban a 1440: todas las columnas visibles sin cortar', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await login(page);
+    await page.goto('/admin/solicitudes?ejemplo=1');
+    const kb = page.getByRole('list', { name: 'Etapas' });
+    const [sw, cw] = await kb.evaluate((e) => [e.scrollWidth, e.clientWidth]);
+    expect(sw).toBeLessThanOrEqual(cw + 1);
   });
 });

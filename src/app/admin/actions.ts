@@ -8,6 +8,7 @@ import { supabaseUser } from '@/lib/supabase/server';
 import { currentAdmin } from '@/lib/admin/auth';
 import { moveLead, saveManualLead } from '@/lib/admin/leads';
 import { METHODS, registerPayment, type MethodId } from '@/lib/admin/charges';
+import { createQuote, listQuotes, newVersion, quoteState, setVersionStatus } from '@/lib/admin/quotes';
 import { loginAllowed, loginFailed, loginKey, loginSucceeded } from '@/lib/admin/ratelimit';
 import { STAGES, type StageId } from '@/lib/admin/model';
 
@@ -95,14 +96,63 @@ export async function recordPayment(_: FormState, form: FormData): Promise<FormS
   return { ok: r.status === 'pagado' ? 'Pago registrado. El cobro quedó pagado.' : 'Pago parcial registrado. El cobro quedó con saldo pendiente.' };
 }
 
-/** Mover desde el tablero (drag & drop, teclado o menú). Reglas validadas en servidor; devuelve error legible. */
-export async function moveRequestTo(id: string, stage: string): Promise<{ ok: boolean; error?: string }> {
+/** Mover desde el tablero (drag & drop, teclado o menú). Reglas validadas en servidor (y en BD con 0005). */
+export async function moveRequestTo(id: string, stage: string, extra: { meetingAt?: string; reason?: string } = {}): Promise<{ ok: boolean; error?: string; need?: 'fecha' | 'motivo' | 'cotizacion' | 'aceptada' }> {
   const me = await currentAdmin();
   if (!me) return { ok: false, error: 'Tu sesión expiró. Vuelve a entrar.' };
   if (me.role === 'lectura') return { ok: false, error: 'Tu rol es de solo lectura.' };
-  if (!/^[0-9a-f-]{36}$/i.test(id) || !STAGES.some((s) => s.id === stage)) return { ok: false, error: 'Movimiento no válido.' };
+  if (!UUID.test(id) || !STAGES.some((s) => s.id === stage)) return { ok: false, error: 'Movimiento no válido.' };
   if (stage === 'activo') return { ok: false, error: '“Activo” se asigna al dar de alta al cliente.' };
-  const ok = await moveLead(id, stage as StageId);
+  const clean: { meetingAt?: string; reason?: string } = {};
+  if (stage === 'reunion') {
+    const d = extra.meetingAt ? new Date(extra.meetingAt) : null;
+    if (!d || Number.isNaN(d.getTime())) return { ok: false, need: 'fecha', error: 'Para pasar a Reunión indica fecha y hora.' };
+    clean.meetingAt = d.toISOString();
+  }
+  if (stage === 'cancelado') {
+    const r = (extra.reason || '').trim().slice(0, 300);
+    if (!r) return { ok: false, need: 'motivo', error: 'Para cancelar indica el motivo.' };
+    clean.reason = r;
+  }
+  if (stage === 'propuesta' || stage === 'aceptado') {
+    const q = await quoteState(id);
+    if (stage === 'propuesta' && !q.any) return { ok: false, need: 'cotizacion', error: 'Para pasar a Propuesta crea primero una cotización.' };
+    if (stage === 'aceptado' && !q.accepted) return { ok: false, need: 'aceptada', error: 'Para pasar a Aceptado marca una cotización como aceptada.' };
+  }
+  const ok = await moveLead(id, stage as StageId, clean);
   if (ok) revalidatePath('/admin/solicitudes');
   return ok ? { ok } : { ok, error: 'No se pudo mover. Intenta de nuevo.' };
+}
+
+const UUID = /^[0-9a-f-]{36}$/i;
+const canWrite = async () => { const me = await currentAdmin(); return !!me && me.role !== 'lectura'; };
+const parseDraft = (d: { items?: unknown; setup?: unknown; monthly?: unknown; notes?: unknown }) => {
+  const items = (Array.isArray(d.items) ? d.items : []).map((x) => String(x).trim().slice(0, 200)).filter(Boolean).slice(0, 40);
+  const setup = Math.round(Number(d.setup) || 0), monthly = Math.round(Number(d.monthly) || 0);
+  if (!items.length) return { error: 'Agrega al menos un ítem.' } as const;
+  if (setup < 0 || monthly < 0 || !Number.isSafeInteger(setup) || !Number.isSafeInteger(monthly)) return { error: 'Montos no válidos.' } as const;
+  if (setup === 0 && monthly === 0) return { error: 'Indica pago inicial o mensualidad.' } as const;
+  return { draft: { items, setup, monthly, notes: d.notes ? String(d.notes).trim().slice(0, 2000) : null } } as const;
+};
+
+export async function getQuotes(requestId: string) {
+  if (!(await currentAdmin()) || !UUID.test(requestId)) return { quotes: [], error: 'Sin acceso.' };
+  return listQuotes(requestId);
+}
+export async function addQuote(requestId: string, title: string, d: { items: string[]; setup: number; monthly: number; notes?: string }) {
+  if (!(await canWrite())) return { ok: false, error: 'Tu rol no puede crear cotizaciones.' };
+  if (!UUID.test(requestId)) return { ok: false, error: 'Solicitud no válida.' };
+  const p = parseDraft(d); if ('error' in p) return { ok: false, error: p.error };
+  return createQuote(requestId, (title || 'Cotización').trim().slice(0, 160), p.draft);
+}
+export async function addQuoteVersion(quoteId: string, d: { items: string[]; setup: number; monthly: number; notes?: string }) {
+  if (!(await canWrite())) return { ok: false, error: 'Tu rol no puede editar cotizaciones.' };
+  if (!UUID.test(quoteId)) return { ok: false, error: 'Cotización no válida.' };
+  const p = parseDraft(d); if ('error' in p) return { ok: false, error: p.error };
+  return newVersion(quoteId, p.draft);
+}
+export async function decideQuote(versionId: string, status: string) {
+  if (!(await canWrite())) return { ok: false, error: 'Tu rol no puede cambiar cotizaciones.' };
+  if (!UUID.test(versionId) || !['enviada', 'aceptada', 'rechazada'].includes(status)) return { ok: false, error: 'Cambio no válido.' };
+  return setVersionStatus(versionId, status as 'enviada' | 'aceptada' | 'rechazada');
 }

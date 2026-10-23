@@ -12,7 +12,7 @@ export type LeadInput = {
   pack?: string | null; builder?: Record<string, unknown> | null; setup?: number | null; monthly?: number | null;
   referrer?: string | null; ipHash?: string | null; userAgent?: string | null;
 };
-export type Lead = LeadInput & { id: string; stage: StageId; createdAt: string };
+export type Lead = LeadInput & { id: string; stage: StageId; createdAt: string; updatedAt?: string; meetingAt?: string | null; lostReason?: string | null };
 
 type Mem = { leads: Lead[] };
 const g = globalThis as unknown as { __ssLeads?: Mem };
@@ -50,16 +50,16 @@ export async function saveLead(l: LeadInput): Promise<boolean> {
   return !error;
 }
 
-type Row = { id: string; channel: Lead['channel']; stage: StageId; payload: Record<string, unknown>; name: string | null; email: string | null; phone: string | null; message: string | null; builder_config: { pack?: string } | null; shown_setup: number | null; shown_monthly: number | null; created_at: string };
+type Row = { id: string; channel: Lead['channel']; stage: StageId; payload: Record<string, unknown>; name: string | null; email: string | null; phone: string | null; message: string | null; builder_config: { pack?: string } | null; shown_setup: number | null; shown_monthly: number | null; created_at: string; updated_at?: string; next_action_at?: string | null; lost_reason?: string | null };
 
 export async function listLeads(): Promise<{ leads: Lead[]; error?: string }> {
   const be = leadsBackend();
   if (be === 'memory') return { leads: mem().leads };
   if (be === 'off') return { leads: [], error: 'Base de datos no configurada.' };
   const sb = await supabaseUser();
-  const { data, error } = await sb.from('requests').select('id,channel,stage,payload,name,email,phone,message,builder_config,shown_setup,shown_monthly,created_at').is('deleted_at', null).order('created_at', { ascending: false }).limit(500);
+  const { data, error } = await sb.from('requests').select('id,channel,stage,payload,name,email,phone,message,builder_config,shown_setup,shown_monthly,created_at,updated_at,next_action_at,lost_reason').is('deleted_at', null).order('created_at', { ascending: false }).limit(500);
   if (error) return { leads: [], error: 'No se pudieron leer las solicitudes.' };
-  return { leads: (data as Row[]).map((r) => ({ id: r.id, channel: r.channel, stage: r.stage, payload: r.payload, name: r.name, email: r.email, phone: r.phone, message: r.message, pack: r.builder_config?.pack ?? null, builder: r.builder_config, setup: r.shown_setup, monthly: r.shown_monthly, createdAt: r.created_at })) };
+  return { leads: (data as Row[]).map((r) => ({ id: r.id, channel: r.channel, stage: r.stage, payload: r.payload, name: r.name, email: r.email, phone: r.phone, message: r.message, pack: r.builder_config?.pack ?? null, builder: r.builder_config, setup: r.shown_setup, monthly: r.shown_monthly, createdAt: r.created_at, updatedAt: r.updated_at, meetingAt: r.next_action_at ?? null, lostReason: r.lost_reason ?? null })) };
 }
 
 /** Solicitud ingresada a mano por el equipo (canal "manual"). Usa la sesión del usuario: RLS exige rol owner/admin/ventas. */
@@ -77,13 +77,21 @@ export async function saveManualLead(l: Omit<LeadInput, 'channel'>): Promise<boo
   return !error;
 }
 
-export async function moveLead(id: string, stage: StageId): Promise<boolean> {
+export async function moveLead(id: string, stage: StageId, extra: { meetingAt?: string; reason?: string } = {}): Promise<boolean> {
   const be = leadsBackend();
-  if (be === 'memory') { const l = mem().leads.find((x) => x.id === id); if (l) l.stage = stage; return !!l; }
+  const now = new Date().toISOString();
+  if (be === 'memory') {
+    const l = mem().leads.find((x) => x.id === id);
+    if (l) { l.stage = stage; l.updatedAt = now; if (extra.meetingAt) l.meetingAt = extra.meetingAt; if (extra.reason) l.lostReason = extra.reason; }
+    return !!l;
+  }
   if (be === 'off') return false;
   const sb = await supabaseUser();
-  const { error } = await sb.from('requests').update({ stage, updated_at: new Date().toISOString() }).eq('id', id);
-  if (!error) await sb.from('request_events').insert({ request_id: id, kind: 'stage', data: { to: stage } });
+  const patch: Record<string, unknown> = { stage, updated_at: now };
+  if (extra.meetingAt) { patch.next_action = 'Reunión'; patch.next_action_at = extra.meetingAt; }
+  if (extra.reason) patch.lost_reason = extra.reason;
+  const { error } = await sb.from('requests').update(patch).eq('id', id);
+  if (!error) await sb.from('request_events').insert({ request_id: id, kind: 'stage', data: { to: stage, ...(extra.meetingAt ? { meeting_at: extra.meetingAt } : {}), ...(extra.reason ? { reason: extra.reason } : {}) } });
   return !error;
 }
 

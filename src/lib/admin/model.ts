@@ -13,3 +13,6 @@ export type StageId = (typeof STAGES)[number]['id'];
 export type ChannelId = (typeof CHANNELS)[number]['id'];
 export type SubscriptionStatus = 'pendiente_alta' | 'activo' | 'pausado' | 'cancelado';
 export type ChargeStatus = 'programado' | 'por_cobrar' | 'enviado' | 'pagado' | 'parcial' | 'vencido' | 'anulado';
+
+/** Días sin respuesta para considerar una propuesta "sin respuesta" (seguimiento en Inicio). Configurable aquí. */
+export const PROPOSAL_STALE_DAYS = 5;

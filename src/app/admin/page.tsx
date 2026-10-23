@@ -62,17 +62,17 @@ async function Home() {
 
       <div className="kgrid">
         <Kpi icon={Inbox} tone="brand" label="Solicitudes (últimos 7 días)" foot={<>{d.newCount} en “Nuevo” · <Link href="/admin/solicitudes">ver</Link></>}>
-          {d.leadsError ? <div className="kv empty">Sin conexión</div> : (
-            <div className="kv-row"><b className="kv" data-testid="kpi-new">{d.week}</b><Delta cur={d.week} prev={d.prevWeek} />{d.spark && <Spark data={d.spark} label="Solicitudes por día, últimos 30 días" />}</div>
+          {d.leadsError ? <div className="a-kv empty">Sin conexión</div> : (
+            <div className="kv-row"><b className="a-kv" data-testid="kpi-new">{d.week}</b><Delta cur={d.week} prev={d.prevWeek} />{d.spark && <Spark data={d.spark} label="Solicitudes por día, últimos 30 días" />}</div>
           )}
         </Kpi>
         <Kpi icon={Clock} tone={d.stale.length ? 'warn' : 'ok'} label="Sin contactar > 24 h" foot={d.stale.length ? 'Respóndelas primero' : 'Todo respondido a tiempo'}>
-          <div className="kv-row"><b className="kv">{d.stale.length}</b></div>
+          <div className="kv-row"><b className="a-kv">{d.stale.length}</b></div>
         </Kpi>
         {d.charges.length ? (
           <>
-            <Kpi icon={CalendarClock} tone="brand" label="Por cobrar este mes"><b className="kv">{clp(d.monthDue ?? 0)}</b></Kpi>
-            <Kpi icon={AlertTriangle} tone={d.overdue.length ? 'bad' : 'ok'} label="Cobros vencidos" foot={`${d.overdue.length} cobro${d.overdue.length === 1 ? '' : 's'}`}><b className="kv">{clp(d.overdueSum ?? 0)}</b></Kpi>
+            <Kpi icon={CalendarClock} tone="brand" label="Por cobrar este mes"><b className="a-kv">{clp(d.monthDue ?? 0)}</b></Kpi>
+            <Kpi icon={AlertTriangle} tone={d.overdue.length ? 'bad' : 'ok'} label="Cobros vencidos" foot={`${d.overdue.length} cobro${d.overdue.length === 1 ? '' : 's'}`}><b className="a-kv">{clp(d.overdueSum ?? 0)}</b></Kpi>
           </>
         ) : (
           <div className="adm-card kmoney">
@@ -83,9 +83,9 @@ async function Home() {
         )}
         <div className="adm-card kfound">
           <div className="kpi2-h"><span className="ichip gold"><Sparkles size={16} aria-hidden="true" /></span><span>Promoción Clientes Fundadores</span></div>
-          {used === null ? <div className="kv empty">Sin conexión</div> : (
+          {used === null ? <div className="a-kv empty">Sin conexión</div> : (
             <>
-              <div className="kv-row"><b className="kv">{used}</b><span className="kv-of">de {FOUNDERS_PROMO.seats} cupos usados</span></div>
+              <div className="kv-row"><b className="a-kv">{used}</b><span className="kv-of">de {FOUNDERS_PROMO.seats} cupos usados</span></div>
               <div className="prog" role="progressbar" aria-valuemin={0} aria-valuemax={FOUNDERS_PROMO.seats} aria-valuenow={used} aria-label="Cupos Fundadores usados"><i style={{ width: `${(used / FOUNDERS_PROMO.seats) * 100}%` }} /></div>
             </>
           )}

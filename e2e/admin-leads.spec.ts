@@ -18,9 +18,11 @@ test.describe('solicitudes → panel', () => {
     await page.goto('/admin/solicitudes');
     const c = page.locator('[data-stage="nuevo"]').getByTestId('lead-card').filter({ hasText: nombre });
     await expect(c).toContainText('Formulario de contacto');
-    await expect(c).toContainText('Tipo: E-commerce');
-    await c.getByLabel('Mover a').selectOption('contactado');
-    await c.getByRole('button', { name: 'Mover' }).click();
+    await c.getByRole('button', { name: nombre, exact: true }).click();
+    await expect(page.getByRole('dialog', { name: nombre })).toContainText('E-commerce');
+    await page.keyboard.press('Escape');
+    await c.getByRole('button', { name: `Acciones: ${nombre}` }).click();
+    await page.getByRole('menuitem', { name: 'Contactado' }).click();
     await expect(page.locator('[data-stage="contactado"]').getByTestId('lead-card').filter({ hasText: nombre })).toBeVisible();
   });
 
