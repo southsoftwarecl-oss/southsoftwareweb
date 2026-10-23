@@ -29,7 +29,10 @@ export async function mfaStart(): Promise<EnrollStart> {
   const name = 'Panel ' + new Intl.DateTimeFormat('es-CL', { timeZone: 'America/Santiago', dateStyle: 'short', timeStyle: 'short' }).format(new Date());
   const { data, error } = await c.sb.auth.mfa.enroll({ factorType: 'totp', friendlyName: name, issuer: 'South Software' });
   if (error || !data) return { error: 'No se pudo iniciar el registro. Intenta de nuevo.' };
-  return { factorId: data.id, qr: data.totp.qr_code, secret: data.totp.secret };
+  // supabase-js entrega `data:image/svg+xml;utf-8,<svg…>` sin codificar; un "#" en el SVG corta el data URI. Se re-codifica.
+  const raw = data.totp.qr_code.replace(/^data:image\/svg\+xml;utf-8,/, '');
+  const qr = raw.startsWith('<') ? 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(raw) : data.totp.qr_code;
+  return { factorId: data.id, qr, secret: data.totp.secret };
 }
 
 export async function mfaConfirm(factorId: string, _prev: MfaResult, form: FormData): Promise<MfaResult> {
