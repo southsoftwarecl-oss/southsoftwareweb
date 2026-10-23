@@ -28,7 +28,7 @@ async function Board({ searchParams }: { searchParams: Promise<SP> }) {
   const filtered = !!(q || sp.canal);
   return (
     <>
-      {sample && <div className="sample-band" role="note"><FlaskConical size={15} aria-hidden="true" /> Estás viendo <b>datos de ejemplo</b>. Nada se guarda. <Link href={qs({ ejemplo: undefined })}>Volver a los datos reales</Link></div>}
+      {sample && <div className="sample-band" role="note"><FlaskConical size={15} aria-hidden="true" /><span>Estás viendo <b>datos de ejemplo</b>. Nada se guarda. <Link href={qs({ ejemplo: undefined })}>Volver a los datos reales</Link></span></div>}
       {sp.creada === '1' && !sample && <p className="adm-ok" role="status">Solicitud creada en “Nuevo”.</p>}
       <form className="toolbar" action="/admin/solicitudes" role="search">
         {sp.vista && <input type="hidden" name="vista" value={sp.vista} />}{sample && <input type="hidden" name="ejemplo" value="1" />}
