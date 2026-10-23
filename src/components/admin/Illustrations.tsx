@@ -1,0 +1,7 @@
+/** Ilustraciones lineales planas (currentColor) para estados vacíos. */
+const P = { width: 120, height: 88, viewBox: '0 0 120 88', fill: 'none', stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const, className: 'ill', 'aria-hidden': true };
+export const IllInbox = () => (<svg {...P}><rect x="20" y="18" width="80" height="54" rx="8" opacity=".35" /><path d="M20 50h22l6 9h24l6-9h22" /><path d="M44 32h32M50 40h20" opacity=".6" /></svg>);
+export const IllCalendar = () => (<svg {...P}><rect x="24" y="16" width="72" height="58" rx="8" opacity=".35" /><path d="M24 30h72M40 10v12M80 10v12" /><circle cx="44" cy="46" r="3" /><circle cx="60" cy="46" r="3" opacity=".5" /><circle cx="76" cy="46" r="3" opacity=".5" /><circle cx="44" cy="60" r="3" opacity=".5" /><path d="M56 60l4 4 8-8" /></svg>);
+export const IllPeople = () => (<svg {...P}><circle cx="48" cy="34" r="10" /><path d="M30 68c2-11 9-17 18-17s16 6 18 17" /><circle cx="78" cy="38" r="8" opacity=".5" /><path d="M70 68c1-8 5-12 10-13 6 1 10 5 11 13" opacity=".5" /></svg>);
+export const IllTag = () => (<svg {...P}><path d="M30 20h30l32 32-30 30-32-32z" opacity=".35" /><circle cx="44" cy="34" r="4" /><path d="M58 52l12 12M52 58l12 12" opacity=".6" /></svg>);
+export const IllCheck = () => (<svg {...P}><circle cx="60" cy="44" r="28" opacity=".35" /><path d="M48 44l8 8 16-16" /></svg>);

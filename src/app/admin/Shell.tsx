@@ -1,40 +1,35 @@
-import Link from 'next/link';
 import { Suspense } from 'react';
-import Guard from './Guard';
+import { connection } from 'next/server';
+import { redirect } from 'next/navigation';
+import AppShell from '@/components/admin/AppShell';
+import { currentAdmin } from '@/lib/admin/auth';
+import { listLeads } from '@/lib/admin/leads';
 import { logout } from './actions';
 
-const NAV = [
-  { href: '/admin', label: 'Inicio' },
-  { href: '/admin/solicitudes', label: 'Solicitudes' },
-  { href: '/admin/clientes', label: 'Clientes' },
-  { href: '/admin/cobros', label: 'Cobros' },
-  { href: '/admin/catalogo', label: 'Catálogo' },
-];
-
-/** Marco común de las vistas protegidas. `current` = href activo. */
-export default function AdminShell({ current, title, children }: { current: string; title: string; children: React.ReactNode }) {
+/** Esqueleto con la misma geometría del shell (sin spinner de página). */
+function Skeleton() {
   return (
-    <Suspense fallback={<div className="adm-loading" role="status">Cargando…</div>}>
-      <Guard>
-        <div className="adm-app">
-          <header className="adm-top">
-            <Link href="/admin" className="adm-brand">South Software <span>· Panel</span></Link>
-            <nav aria-label="Panel">
-              {NAV.map((n) => <Link key={n.href} href={n.href} aria-current={n.href === current ? 'page' : undefined}>{n.label}</Link>)}
-            </nav>
-            <form action={logout}><button type="submit" className="adm-btn ghost">Salir</button></form>
-          </header>
-          <div className="adm-banner" role="note">Vista previa · fase 2. Solicitudes con datos reales; clientes, cobros y edición de catálogo llegan en las próximas fases. El catálogo se lee del sitio publicado.</div>
-          <main className="adm-main">
-            <h1>{title}</h1>
-            {children}
-          </main>
-        </div>
-      </Guard>
-    </Suspense>
+    <div className="sh" aria-busy="true" aria-label="Cargando">
+      <aside className="sb" /><div className="main"><header className="tb" /><main className="content"><div style={{ height: 32, width: 180, borderRadius: 6, background: 'var(--bg-muted)' }} /></main></div>
+    </div>
   );
 }
 
-export function Empty({ title, children }: { title: string; children?: React.ReactNode }) {
-  return <div className="adm-empty"><strong>{title}</strong>{children && <p>{children}</p>}</div>;
+/** Verificación en servidor (además del proxy): sin sesión válida ni rol de equipo no se renderiza nada del panel. */
+async function Guarded(props: { title: string; description?: string; actions?: React.ReactNode; children: React.ReactNode }) {
+  await connection();
+  const me = await currentAdmin();
+  if (!me) redirect('/admin/login?e=acceso');
+  const { leads } = await listLeads();
+  const badges = { solicitudes: leads.filter((l) => l.stage === 'nuevo').length };
+  return <AppShell {...props} badges={badges} user={{ email: me.email, role: me.role }} logout={logout} />;
+}
+
+/** Marco común de las vistas protegidas. `current` se mantiene por compatibilidad (el activo se deduce de la ruta). */
+export default function AdminShell({ title, description, actions, children }: { current?: string; title: string; description?: string; actions?: React.ReactNode; children: React.ReactNode }) {
+  return <Suspense fallback={<Skeleton />}><Guarded title={title} description={description} actions={actions}>{children}</Guarded></Suspense>;
+}
+
+export function Empty({ title, children, ill, actions }: { title: string; children?: React.ReactNode; ill?: React.ReactNode; actions?: React.ReactNode }) {
+  return <div className="adm-empty">{ill}<strong>{title}</strong>{children && <p>{children}</p>}{actions && <div className="acts">{actions}</div>}</div>;
 }

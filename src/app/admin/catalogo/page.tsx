@@ -4,7 +4,7 @@ import { clp } from '@/lib/admin/billing';
 
 export const metadata = { title: 'Catálogo' };
 const TITLES: Record<Category, string> = { combinado: 'Combinados', marketing: 'Solo marketing', software: 'Solo software' };
-const money = (n: number | null, from: boolean) => (n == null ? '—' : `${from ? 'desde ' : ''}${clp(n)}`);
+const money = (n: number | null, from: boolean) => (n == null ? 'No aplica' : `${from ? 'desde ' : ''}${clp(n)}`);
 
 export default function Catalogo() {
   return (
@@ -25,9 +25,9 @@ export default function Catalogo() {
                 <tr key={p.slug} data-pack={p.slug}>
                   <td data-l="Pack"><b>{p.name}</b> {p.featured && <span className="adm-tag">Recomendado</span>}{p.tag && <div className="adm-note">{p.tag}</div>}</td>
                   <td data-l="Pago inicial" className="n">{money(p.setup, /^desde/i.test(p.raw.setup))}{p.milestones && <div className="adm-note">hitos {p.milestones.join('/')}</div>}</td>
-                  <td data-l="Mensual lanzamiento" className="n">{p.launchMonthly != null ? `${money(p.launchMonthly, /^desde/i.test(p.raw.launch || ''))} × ${p.launchMonths} meses` : '—'}</td>
+                  <td data-l="Mensual lanzamiento" className="n">{p.launchMonthly != null ? `${money(p.launchMonthly, /^desde/i.test(p.raw.launch || ''))} × ${p.launchMonths} meses` : 'No aplica'}</td>
                   <td data-l="Mensual" className="n">{money(p.regularMonthly, /^desde/i.test(p.raw.monthly))}</td>
-                  <td data-l="Incluye">{p.features.length ? p.features.length + ' ítems' : '—'}</td>
+                  <td data-l="Incluye">{p.features.length ? p.features.length + ' ítems' : 'Sin detalle'}</td>
                 </tr>
               ))}
             </tbody>

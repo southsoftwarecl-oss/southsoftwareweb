@@ -4,6 +4,7 @@ import { Suspense } from 'react';
 import { authMode } from '@/lib/supabase/env';
 import { supabaseUser } from '@/lib/supabase/server';
 import { PasswordForm } from '../AuthForms';
+import AuthLayout from '@/components/admin/AuthLayout';
 
 export const metadata = { title: 'Crear contraseña' };
 
@@ -16,12 +17,12 @@ async function Body({ searchParams }: { searchParams: Promise<{ nuevo?: string }
   return (
     <>
       <h1>{nuevo ? 'Bienvenido al panel' : 'Nueva contraseña'}</h1>
-      <p className="adm-note">{nuevo ? 'Crea tu contraseña para ' : 'Cuenta: '}<b>{user.email}</b></p>
+      <p className="sub">{nuevo ? 'Crea tu contraseña para ' : 'Cuenta: '}<b>{user.email}</b></p>
       <PasswordForm />
     </>
   );
 }
 
 export default function Clave(props: { searchParams: Promise<{ nuevo?: string }> }) {
-  return <div className="adm-login"><div className="adm-card"><Suspense fallback={null}><Body {...props} /></Suspense></div></div>;
+  return <AuthLayout><Suspense fallback={null}><Body {...props} /></Suspense></AuthLayout>;
 }

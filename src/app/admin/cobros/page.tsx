@@ -1,6 +1,7 @@
 import { connection } from 'next/server';
 import { Suspense } from 'react';
 import AdminShell, { Empty } from '../Shell';
+import { IllCalendar } from '@/components/admin/Illustrations';
 import Simulador from './Simulador';
 
 export const metadata = { title: 'Cobros' };
@@ -16,7 +17,7 @@ export default function Cobros() {
     <AdminShell current="/admin/cobros" title="Cobros">
       <section className="adm-section">
         <h2>Próximos cobros</h2>
-        <Empty title="Aún no hay cobros registrados">Aquí aparecerán los cobros programados, los que vencen en 7 días y los vencidos (en rojo).</Empty>
+        <Empty ill={<IllCalendar />} title="Aún no hay cobros registrados">Aquí aparecerán los cobros programados, los que vencen en 7 días y los vencidos (en rojo).</Empty>
       </section>
       <section className="adm-section">
         <h2>Simulador de calendario</h2>

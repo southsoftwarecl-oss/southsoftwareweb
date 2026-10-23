@@ -1,13 +1,14 @@
 import Link from 'next/link';
 import { ResetForm } from '../AuthForms';
+import AuthLayout from '@/components/admin/AuthLayout';
 export const metadata = { title: 'Recuperar contraseña' };
 export default function Recuperar() {
   return (
-    <div className="adm-login"><div className="adm-card">
+    <AuthLayout>
       <h1>Recuperar contraseña</h1>
-      <p className="adm-note">Te enviaremos un enlace para crear una nueva.</p>
+      <p className="sub">Te enviaremos un enlace para crear una nueva. Vence en 24 horas.</p>
       <ResetForm />
-      <p className="adm-note"><Link href="/admin/login">Volver a entrar</Link></p>
-    </div></div>
+      <div className="auth-links"><Link href="/admin/login">← Volver a entrar</Link></div>
+    </AuthLayout>
   );
 }

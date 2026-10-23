@@ -1,6 +1,7 @@
 import { connection } from 'next/server';
 import { Suspense } from 'react';
 import AdminShell, { Empty } from '../Shell';
+import { IllInbox } from '@/components/admin/Illustrations';
 import { moveRequest } from '../actions';
 import { STAGES, CHANNELS } from '@/lib/admin/model';
 import { ageHours, listLeads, type Lead } from '@/lib/admin/leads';
@@ -26,7 +27,7 @@ function Card({ l }: { l: Lead }) {
       {l.pack && <div>Pack: {l.pack}</div>}
       {Array.isArray((l.builder as { labels?: string[] } | null)?.labels) && <div>Armó: {((l.builder as { labels: string[] }).labels).join(', ')}</div>}
       {p.tipo && <div>Tipo: {String(p.tipo)}{p.presupuesto ? ` · ${String(p.presupuesto)}` : ''}</div>}
-      {(l.setup != null || l.monthly != null) && <div className="adm-amt">{l.setup != null ? clp(l.setup) : '—'} + {l.monthly != null ? clp(l.monthly) : '—'}/mes</div>}
+      {(l.setup != null || l.monthly != null) && <div className="adm-amt">{l.setup != null ? clp(l.setup) : 'sin pago inicial'} + {l.monthly != null ? clp(l.monthly) : 'sin mensualidad'}/mes</div>}
       {l.message && <p className="adm-msg">{l.message.length > 160 ? l.message.slice(0, 160) + '…' : l.message}</p>}
       {l.email && <div><a href={`mailto:${l.email}`}>{l.email}</a></div>}
       <form action={moveRequest} className="adm-move">
@@ -48,7 +49,7 @@ async function Board() {
   return (
     <>
       {error && <p className="adm-err" role="alert">{error}</p>}
-      {!error && leads.length === 0 && <Empty title="Aún no llegan solicitudes">Cuando alguien use el formulario, “Elegir pack”, “Arma tu pack” o “Reservar cupo”, aparecerá aquí en Nuevo.</Empty>}
+      {!error && leads.length === 0 && <Empty ill={<IllInbox />} title="Aún no llegan solicitudes">Cuando alguien use el formulario, “Elegir pack”, “Arma tu pack” o “Reservar cupo”, aparecerá aquí en Nuevo.</Empty>}
       <div className="adm-kanban" style={{ marginTop: 20 }}>
         {STAGES.map((s) => {
           const col = leads.filter((l) => l.stage === s.id);
