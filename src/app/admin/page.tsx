@@ -1,3 +1,4 @@
+import { PROPOSAL_STALE_DAYS } from '@/lib/admin/model';
 import Link from 'next/link';
 import { connection } from 'next/server';
 import { Suspense } from 'react';
@@ -102,11 +103,19 @@ async function Home() {
               <li key={c.id}><div><b>{c.client}</b><small>{c.concept}</small></div><span className={`chip ${c.due && c.due < d.today ? 'bad' : 'warn'}`}>{c.due && c.due < d.today ? 'Vencido' : 'Vence hoy'}</span><b className="num">{clp(c.amount - c.paid)}</b><Link href={`/admin/cobros/pago?cobro=${c.id}`} className="btn-a primary sm">Registrar pago</Link></li>
             ))}</ul>
           ) : <Empty ill={<IllCalendar />} title="Aún no hay cobros">Cuando registres el primer cliente, aquí verás lo que vence hoy y en los próximos 7 días. Mientras tanto puedes probar el <Link href="/admin/cobros">simulador de calendario</Link>.</Empty>}
-          <h3 className="hsub">Seguimientos</h3>
-          {d.stale.length ? (
-            <ul className="rows">{d.stale.slice(0, 6).map((l) => (
-              <li key={l.id}><div><b>{leadTitle(l)}</b><small>{chan(l.channel)} · {ago(l.createdAt, d.now)}</small></div><span className="chip warn">+24 h en Nuevo</span><Link href="/admin/solicitudes" className="btn-a secondary sm">Abrir</Link></li>
+          {d.meetingsToday.length > 0 && (<>
+            <h3 className="hsub">Reuniones de hoy</h3>
+            <ul className="rows" data-testid="meetings-today">{d.meetingsToday.map((l) => (
+              <li key={l.id}><div><b>{leadTitle(l)}</b><small>{chan(l.channel)}</small></div><span className="chip brand">{new Intl.DateTimeFormat('es-CL', { timeZone: 'America/Santiago', hour: '2-digit', minute: '2-digit' }).format(new Date(l.meetingAt!))} h</span><Link href={`/admin/solicitudes?solicitud=${l.id}`} className="btn-a secondary sm">Abrir</Link></li>
             ))}</ul>
+          </>)}
+          <h3 className="hsub">Seguimientos</h3>
+          {d.stale.length + d.staleProposals.length ? (
+            <ul className="rows" data-testid="followups">{[...d.stale.slice(0, 6).map((l) => (
+              <li key={l.id}><div><b>{leadTitle(l)}</b><small>{chan(l.channel)} · {ago(l.createdAt, d.now)}</small></div><span className="chip warn">+24 h en Nuevo</span><Link href={`/admin/solicitudes?solicitud=${l.id}`} className="btn-a secondary sm">Abrir</Link></li>
+            )), ...d.staleProposals.slice(0, 6).map((l) => (
+              <li key={l.id}><div><b>{leadTitle(l)}</b><small>Propuesta enviada · {ago(l.updatedAt || l.createdAt, d.now)}</small></div><span className="chip warn">Sin respuesta +{PROPOSAL_STALE_DAYS} días</span><Link href={`/admin/solicitudes?solicitud=${l.id}`} className="btn-a secondary sm">Abrir</Link></li>
+            ))]}</ul>
           ) : <div className="allgood"><IllCheck /><span>Todo al día. No hay solicitudes esperando respuesta.</span></div>}
         </section>
 

@@ -2,6 +2,7 @@
 import { leadsBackend, listLeads, nowMs, type Lead } from './leads';
 import { listOpenCharges, type OpenCharge } from './charges';
 import { supabaseUser } from '@/lib/supabase/server';
+import { PROPOSAL_STALE_DAYS } from './model';
 
 const DAY = 86_400_000;
 const ymdCL = (ms: number) => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Santiago' }).format(new Date(ms));
@@ -9,7 +10,7 @@ const ymdCL = (ms: number) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Amer
 export type HomeData = {
   now: number; today: string; hour: number; longDate: string;
   leads: Lead[]; leadsError?: string;
-  week: number; prevWeek: number; spark: number[] | null; newCount: number; stale: Lead[];
+  week: number; prevWeek: number; spark: number[] | null; newCount: number; stale: Lead[]; staleProposals: Lead[]; meetingsToday: Lead[];
   charges: OpenCharge[]; dueToday: OpenCharge[]; overdue: OpenCharge[]; monthDue: number | null; overdueSum: number | null;
   foundersUsed: number | null; clients: number | null; payments: number | null;
 };
@@ -49,6 +50,10 @@ export async function homeData(): Promise<HomeData> {
     now, today, hour, longDate, leads, leadsError: error, week, prevWeek, spark,
     newCount: leads.filter((l) => l.stage === 'nuevo').length,
     stale: leads.filter((l) => l.stage === 'nuevo' && now - t(l) > DAY),
+    // Propuesta sin respuesta: lleva más de PROPOSAL_STALE_DAYS en la etapa (updatedAt = último cambio de etapa).
+    staleProposals: leads.filter((l) => l.stage === 'propuesta' && now - new Date(l.updatedAt || l.createdAt).getTime() > PROPOSAL_STALE_DAYS * DAY),
+    meetingsToday: leads.filter((l) => l.stage === 'reunion' && l.meetingAt && ymdCL(new Date(l.meetingAt).getTime()) === today)
+      .sort((a, b) => a.meetingAt!.localeCompare(b.meetingAt!)),
     charges, dueToday, overdue,
     monthDue: charges.length ? charges.filter((c) => c.due?.startsWith(month)).reduce((a, c) => a + bal(c), 0) : null,
     overdueSum: charges.length ? overdue.reduce((a, c) => a + bal(c), 0) : null,
