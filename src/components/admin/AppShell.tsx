@@ -8,7 +8,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   LayoutDashboard, Inbox, Users, Wallet, Package, Search, Plus, ChevronRight, PanelLeftClose, PanelLeftOpen,
-  Sun, Moon, Monitor, LogOut, Calculator, Keyboard, MoreHorizontal, FilePlus2, Banknote, type LucideIcon,
+  Sun, Moon, Monitor, LogOut, Calculator, Keyboard, MoreHorizontal, FilePlus2, Banknote, ShieldCheck, type LucideIcon,
 } from 'lucide-react';
 import { getThemePref, setThemePref, type ThemePref } from './theme';
 import { Monogram, Wordmark } from './Brand';
@@ -99,6 +99,7 @@ export default function AppShell({ title, badges, user, logout, actions, descrip
             <span className="a-av" aria-hidden="true">{initials(user.name || user.email || 'South Software')}</span>
             <div style={{ minWidth: 0 }}><div style={{ fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={user.email || undefined}>{user.name || user.email || 'Contraseña de respaldo'}</div><small>{ROLE[user.role] || user.role}</small></div>
           </div>
+          <Link href="/admin/seguridad" className="sb-link a-tip" data-tip={collapsed ? 'Seguridad' : undefined} aria-current={path === '/admin/seguridad' ? 'page' : undefined}><ShieldCheck size={18} strokeWidth={1.75} aria-hidden="true" /><span>Seguridad</span></Link>
           <form action={logout}><button type="submit" className="sb-link a-tip" data-tip={collapsed ? 'Salir' : undefined} aria-label="Salir" style={plainBtn}><LogOut size={18} strokeWidth={1.75} aria-hidden="true" /><span>Salir</span></button></form>
         </div>
       </aside>
@@ -133,6 +134,7 @@ export default function AppShell({ title, badges, user, logout, actions, descrip
                 ))}
                 <hr />
                 <button role="menuitem" type="button" onClick={() => { setMenu(null); setPalette(true); }}><Keyboard size={15} aria-hidden="true" /> Atajos: {mac ? '⌘K' : 'Ctrl K'}, G + letra, [</button>
+                <Link role="menuitem" href="/admin/seguridad" onClick={() => setMenu(null)}><ShieldCheck size={15} aria-hidden="true" /> Seguridad (verificación en dos pasos)</Link>
                 <form action={logout}><button role="menuitem" type="submit"><LogOut size={15} aria-hidden="true" /> Cerrar sesión</button></form>
               </div>
             )}

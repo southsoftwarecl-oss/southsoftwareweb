@@ -10,6 +10,9 @@ const GA_PORT = Number(process.env.E2E_GA_PORT || PORT + 1);
 /** Tercer servidor (mismo build .next) en modo Supabase contra un mock local de Auth (e2e/mock-supabase.mjs). */
 export const SB_PORT = PORT + 2;
 const SB_MOCK_PORT = PORT + 3;
+/** Cuarto servidor: modo Supabase con ADMIN_REQUIRE_MFA=1 contra su propio mock (factores aislados). */
+export const MFA_PORT = PORT + 4;
+const MFA_MOCK_PORT = PORT + 5;
 const GA_TEST_ID = 'G-TEST000000';
 const GSC_TEST_TOKEN = 'gsc-test-token';
 /**
@@ -60,6 +63,14 @@ export default defineConfig({
       reuseExistingServer: false,
       timeout: 60_000,
       env: { ...SERVER_ENV, SUPABASE_URL: `http://localhost:${SB_MOCK_PORT}`, SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_mock', LEADS_STORE: 'memory', ADMIN_PASSWORD: '', ADMIN_SESSION_SECRET: '', ADMIN_INSECURE_COOKIE: '1' },
+    },
+    { command: `node e2e/mock-supabase.mjs ${MFA_MOCK_PORT}`, url: `http://localhost:${MFA_MOCK_PORT}/`, reuseExistingServer: false, timeout: 20_000 },
+    {
+      command: `npx next start -p ${MFA_PORT}`,
+      url: `http://localhost:${MFA_PORT}/admin/login`,
+      reuseExistingServer: false,
+      timeout: 60_000,
+      env: { ...SERVER_ENV, SUPABASE_URL: `http://localhost:${MFA_MOCK_PORT}`, SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_mock', LEADS_STORE: 'memory', ADMIN_PASSWORD: '', ADMIN_SESSION_SECRET: '', ADMIN_INSECURE_COOKIE: '1', ADMIN_REQUIRE_MFA: '1' },
     },
     {
       // Build con NEXT_PUBLIC_GA_ID de prueba en .next-ga: se (re)construye solo si falta o es más viejo que .next

@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import { connection } from 'next/server';
 import { redirect } from 'next/navigation';
 import AppShell from '@/components/admin/AppShell';
-import { currentAdmin } from '@/lib/admin/auth';
+import { adminStatus } from '@/lib/admin/auth';
 import { listLeads } from '@/lib/admin/leads';
 import { logout } from './actions';
 
@@ -18,7 +18,8 @@ function Skeleton() {
 /** Verificación en servidor (además del proxy): sin sesión válida ni rol de equipo no se renderiza nada del panel. */
 async function Guarded(props: { title: string; description?: string; actions?: React.ReactNode; children: React.ReactNode }) {
   await connection();
-  const me = await currentAdmin();
+  const { me, needMfa } = await adminStatus();
+  if (needMfa) redirect('/admin/mfa');
   if (!me) redirect('/admin/login?e=acceso');
   const { leads } = await listLeads();
   const badges = { solicitudes: leads.filter((l) => l.stage === 'nuevo').length };

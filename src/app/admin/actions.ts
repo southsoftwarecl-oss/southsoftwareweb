@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { adminConfigured, createSession, safeEqual, SESSION_COOKIE, SESSION_TTL_S } from '@/lib/admin/session';
 import { authMode } from '@/lib/supabase/env';
 import { supabaseUser } from '@/lib/supabase/server';
-import { currentAdmin } from '@/lib/admin/auth';
+import { adminStatus, currentAdmin } from '@/lib/admin/auth';
 import { moveLead, saveManualLead } from '@/lib/admin/leads';
 import { METHODS, registerPayment, type MethodId } from '@/lib/admin/charges';
 import { createQuote, listQuotes, newVersion, quoteState, setVersionStatus } from '@/lib/admin/quotes';
@@ -25,7 +25,9 @@ export async function login(_: { error?: string } | undefined, form: FormData): 
     const sb = await supabaseUser();
     const { error } = await sb.auth.signInWithPassword({ email, password: pass });
     if (error) { await loginFailed(key); return { error: 'Correo o contraseña incorrectos.' }; }
-    if (!(await currentAdmin())) { await sb.auth.signOut(); return { error: 'Tu cuenta no tiene acceso al panel.' }; }
+    const st = await adminStatus();
+    if (st.needMfa) { loginSucceeded(key); redirect('/admin/mfa'); }
+    if (!st.me) { await sb.auth.signOut(); return { error: 'Tu cuenta no tiene acceso al panel.' }; }
     loginSucceeded(key);
     redirect('/admin');
   }

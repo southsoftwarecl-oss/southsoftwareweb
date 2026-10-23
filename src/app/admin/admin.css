@@ -285,3 +285,17 @@
 .q-items{margin:0;padding-left:18px;font-size:13px;color:var(--text-secondary)}.q-amt{font-size:13px}.q-acts{display:flex;flex-wrap:wrap;gap:6px}
 .q-old summary{cursor:pointer;font-size:12px;color:var(--text-tertiary)}.q-oldv{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--text-tertiary);padding:4px 0}
 .q-form{border-top:1px dashed var(--border);padding-top:10px}
+
+/* ===== R2b · Seguridad / MFA ===== */
+.admin-root .mfa-card h2{font-size:16px;margin:0 0 4px}
+.admin-root .mfa-state{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:10px;margin:14px 0;border:1px solid var(--border)}
+.admin-root .mfa-state.on{background:color-mix(in oklab,var(--ok,#16a34a) 10%,transparent);color:var(--fg)}
+.admin-root .mfa-state.off{background:color-mix(in oklab,var(--warn,#d97706) 10%,transparent)}
+.admin-root .mfa-state div{display:flex;flex-direction:column;gap:2px}.admin-root .mfa-state span{font-size:13px;color:var(--fg-muted)}
+.admin-root .mfa-list{list-style:none;padding:0;margin:0 0 14px;display:flex;flex-direction:column;gap:6px}
+.admin-root .mfa-list li{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1px solid var(--border);border-radius:8px}
+.admin-root .mfa-list li span{display:flex;flex-direction:column}.admin-root .mfa-list small{color:var(--fg-muted)}
+.admin-root .mfa-steps{padding-left:18px;display:flex;flex-direction:column;gap:14px;margin:0}
+.admin-root .mfa-qr{display:block;margin:10px 0;background:#fff;padding:8px;border-radius:8px;border:1px solid var(--border)}
+.admin-root .mfa-secret{display:block;font-family:ui-monospace,monospace;word-break:break-all;padding:8px;background:var(--bg-muted);border-radius:6px;margin:6px 0}
+.admin-root .mfa-code{font-family:ui-monospace,monospace;font-size:20px;letter-spacing:.2em;max-width:180px}
