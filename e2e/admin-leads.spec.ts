@@ -17,7 +17,7 @@ test.describe('solicitudes → panel', () => {
     await login(page);
     await page.goto('/admin/solicitudes');
     const c = page.locator('[data-stage="nuevo"]').getByTestId('lead-card').filter({ hasText: nombre });
-    await expect(c).toContainText('Formulario de contacto');
+    await expect(c).toContainText('Web');
     await c.getByRole('button', { name: nombre, exact: true }).click();
     await expect(page.getByRole('dialog', { name: nombre })).toContainText('E-commerce');
     await page.keyboard.press('Escape');

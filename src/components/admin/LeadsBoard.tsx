@@ -16,6 +16,8 @@ const CH: Record<string, { label: string; icon: typeof Mail }> = {
   arma_tu_pack: { label: 'Arma tu pack', icon: Blocks }, arma_tu_proyecto: { label: 'Arma tu proyecto', icon: Blocks },
   reservar_cupo: { label: 'Reservar cupo', icon: Ticket }, manual: { label: 'Ingreso manual', icon: PenLine },
 };
+/** Texto corto para la etiqueta de origen en la tarjeta (el largo va en el tooltip). */
+const CH_SHORT: Record<string, string> = { form_contacto: 'Web', elegir_pack: 'Elegir pack', arma_tu_pack: 'Arma tu pack', arma_tu_proyecto: 'Proyecto', reservar_cupo: 'Fundador', manual: 'Manual' };
 const CH_LONG: Record<string, string> = { form_contacto: 'Formulario de contacto', reservar_cupo: 'Reservar cupo Fundador', manual: 'Ingreso manual' };
 const clp = (n: number) => '$' + n.toLocaleString('es-CL');
 const COLLAPSED = new Set(['pausado', 'cancelado']);
@@ -37,6 +39,14 @@ export default function LeadsBoard({ leads: initial, stages, view, sample, now, 
   const [live, setLive] = useState('');
   const [picked, setPickedState] = useState<string | null>(null); // movimiento por teclado
   const pickedRef = useRef<string | null>(null);
+  // Desvanecido en los bordes solo cuando hay más columnas hacia ese lado
+  const [fade, setFade] = useState({ l: false, r: false });
+  const kbRef = useRef<HTMLDivElement>(null);
+  const updFade = (e: HTMLElement) => { const l = e.scrollLeft > 4, r = e.scrollLeft + e.clientWidth < e.scrollWidth - 4; setFade((f) => (f.l === l && f.r === r ? f : { l, r })); };
+  useEffect(() => {
+    const el = kbRef.current; if (!el) return;
+    const ro = new ResizeObserver(() => updFade(el)); ro.observe(el); return () => ro.disconnect();
+  }, [view]);
   const setPicked = (v: string | null) => { pickedRef.current = v; setPickedState(v); };
   const [detail, setDetail] = useState<string | null>(openId || null);
   const [, start] = useTransition();
@@ -103,14 +113,15 @@ export default function LeadsBoard({ leads: initial, stages, view, sample, now, 
         onKeyDown={(e) => onCardKey(e, l)} onDoubleClick={() => setDetail(l.id)}
         onContextMenu={(e) => { if (!canMove) return; e.preventDefault(); openMenu(l.id, e.clientX, e.clientY); }}>
         <div className="lc-h">
-          <button type="button" className={`lc-t${anon ? ' anon' : ''}`} onClick={() => { setDetail(l.id); setTab('resumen'); }}>{leadTitle(l)}</button>
-          {l.channel === 'reservar_cupo' && <span className="chip gold sm a-tip" data-tip="Cliente Fundador"><Sparkles size={11} aria-hidden="true" /><span className="sr">Fundador</span></span>}
+          <button type="button" className={`lc-t${anon ? ' anon' : ''}`} title={leadTitle(l)} onClick={() => { setDetail(l.id); setTab('resumen'); }}>{leadTitle(l)}</button>
           {canMove && <button type="button" className="lc-more a-tip" data-tip="Acciones (M)" aria-label={`Acciones: ${leadTitle(l)}`} aria-haspopup="menu" onClick={(e) => { const r = e.currentTarget.getBoundingClientRect(); openMenu(l.id, r.right - 220, r.bottom + 4); }}><MoreHorizontal size={15} /></button>}
         </div>
         {what && <div className="lc-pack" title={what}>{l.pack ? what : `Armó: ${what}`}</div>}
         {(l.setup != null || l.monthly != null) && <div className="lc-amt adm-amt"><b>{l.setup != null ? clp(l.setup) : 'Sin pago inicial'}</b>{l.monthly != null && <span> + {clp(l.monthly)}/mes</span>}</div>}
         <div className="lc-f">
-          <span className="src"><ch.icon size={12} aria-hidden="true" />{CH_LONG[l.channel] || ch.label}</span>
+          {(() => { const full = l.channel === 'reservar_cupo' ? 'Cliente Fundador · Reservar cupo' : CH_LONG[l.channel] || ch.label; const I = l.channel === 'reservar_cupo' ? Sparkles : ch.icon; return (
+            <span className={`src a-tip${l.channel === 'reservar_cupo' ? ' gold' : ''}`} data-tip={full} title={full} aria-label={`Origen: ${full}`}><I size={12} aria-hidden="true" />{CH_SHORT[l.channel] || ch.label}</span>
+          ); })()}
           <span className={late ? 'late' : ''} title={abs(since)}>{late && <Clock size={12} aria-hidden="true" />}{late ? '+24 h' : ago(since, now)}</span>
         </div>
       </article>
@@ -129,9 +140,9 @@ export default function LeadsBoard({ leads: initial, stages, view, sample, now, 
     <>
       <div className="sr" aria-live="assertive">{live}</div>
       {view === 'kanban' ? (
-        <div className="kb" role="list" aria-label="Etapas">
+        <div className={`kb${fade.l ? ' fl' : ''}${fade.r ? ' fr' : ''}`} role="list" aria-label="Etapas" ref={kbRef} onScroll={(e) => updFade(e.currentTarget)}>
           {cols.map((c) => {
-            const collapsed = COLLAPSED.has(c.id) && !open.has(c.id) && !c.items.length && drag === null;
+            const collapsed = COLLAPSED.has(c.id) && !open.has(c.id) && drag === null;
             const sum = c.items.reduce((a, l) => a + (l.setup || 0), 0);
             const invalid = drag !== null && c.id === 'activo';
             return (
@@ -142,7 +153,8 @@ export default function LeadsBoard({ leads: initial, stages, view, sample, now, 
                   <button type="button" className="kc-v" onClick={() => setOpen((s) => new Set(s).add(c.id))} aria-label={`Expandir ${c.label}`}><ChevronsLeftRight size={14} aria-hidden="true" /><span>{c.label}</span><b>{c.items.length}</b></button>
                 ) : (
                   <>
-                    <h2><i className={`dot st-${c.id}`} aria-hidden="true" />{c.label}<span>{c.items.length}</span></h2>
+                    <h2><i className={`dot st-${c.id}`} aria-hidden="true" />{c.label}<span>{c.items.length}</span>
+                      {COLLAPSED.has(c.id) && drag === null && <button type="button" className="kc-x a-tip" data-tip="Contraer" aria-label={`Contraer ${c.label}`} onClick={() => setOpen((s) => { const n = new Set(s); n.delete(c.id); return n; })}><ChevronsLeftRight size={13} aria-hidden="true" /></button>}</h2>
                     {sum > 0 && <div className="kc-sum">{clp(sum)} iniciales</div>}
                     {c.items.map(card)}
                     {drag !== null && !c.items.length && !invalid && <div className="kc-drop">Suelta aquí</div>}

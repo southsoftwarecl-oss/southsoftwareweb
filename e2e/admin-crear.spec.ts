@@ -24,7 +24,7 @@ test.describe('+ Crear', () => {
     await page.getByRole('button', { name: 'Crear solicitud' }).click();
     await expect(page).toHaveURL(/\/admin\/solicitudes\?creada=1$/);
     const card = page.locator('[data-stage="nuevo"] [data-testid="lead-card"]', { hasText: name });
-    await expect(card).toContainText('Ingreso manual');
+    await expect(card).toContainText('Manual');
   });
 
   test('Registrar pago: sin cobros muestra estado vacío honesto', async ({ page }) => {
@@ -113,6 +113,7 @@ test.describe('+ Crear', () => {
     await moveTo('Cancelado');
     await page.getByLabel('Motivo').selectOption('Precio');
     await page.getByRole('button', { name: 'Cancelar solicitud' }).click();
+    await page.getByRole('button', { name: 'Expandir Cancelado' }).click(); // Pausado y Cancelado quedan contraídas
     await expect(page.locator('[data-stage="cancelado"]').getByTestId('lead-card').filter({ hasText: name })).toBeVisible();
   });
 
@@ -134,12 +135,20 @@ test.describe('+ Crear', () => {
     await page.keyboard.press('Escape');
   });
 
-  test('Kanban a 1440: todas las columnas visibles sin cortar', async ({ page }) => {
+  test('Kanban a 1440: columnas ≥240 px, scroll horizontal con desvanecido; Pausado/Cancelado contraídas; nombre truncado con title', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await login(page);
     await page.goto('/admin/solicitudes?ejemplo=1');
     const kb = page.getByRole('list', { name: 'Etapas' });
-    const [sw, cw] = await kb.evaluate((e) => [e.scrollWidth, e.clientWidth]);
-    expect(sw).toBeLessThanOrEqual(cw + 1);
+    await expect(kb).toHaveClass(/\bfr\b/);
+    const w = await page.locator('[data-stage="nuevo"]').evaluate((e) => e.getBoundingClientRect().width);
+    expect(w).toBeGreaterThanOrEqual(240);
+    await expect(page.getByRole('button', { name: 'Expandir Pausado' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Expandir Cancelado' })).toBeVisible();
+    await kb.evaluate((e) => { e.style.scrollBehavior = 'auto'; e.scrollLeft = e.scrollWidth; });
+    await expect(kb).toHaveClass(/\bfl\b/);
+    const t = page.getByTestId('lead-card').first().locator('.lc-t');
+    expect(await t.getAttribute('title')).toBeTruthy();
+    expect(await t.evaluate((e) => getComputedStyle(e).textOverflow)).toBe('ellipsis');
   });
 });
