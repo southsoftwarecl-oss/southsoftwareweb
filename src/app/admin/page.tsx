@@ -12,7 +12,7 @@ async function NewLeads() {
   if (error) return <><b className="kpi-v empty">Sin conexión</b><div className="adm-note">{error}</div></>;
   const n = leads.filter((l) => ageHours(l.createdAt) < 7 * 24).length;
   const pending = leads.filter((l) => l.stage === 'nuevo').length;
-  return <><b data-testid="kpi-new">{n}</b><div className="adm-note">{pending} en “Nuevo” · <Link href="/admin/solicitudes">ver</Link></div></>;
+  return <><b className="kpi-v" data-testid="kpi-new">{n}</b><div className="adm-note">{pending} en “Nuevo” · <Link href="/admin/solicitudes">ver</Link></div></>;
 }
 
 export default function AdminHome() {

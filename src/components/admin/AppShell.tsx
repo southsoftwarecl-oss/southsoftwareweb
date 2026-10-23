@@ -79,7 +79,7 @@ export default function AppShell({ title, badges, user, logout, actions, descrip
             <div key={gname}>
               <div className="sb-group">{gname}</div>
               {nav.filter((n) => n.group === gname).map((n) => (
-                <Link key={n.href} href={n.href} className="sb-link tip" data-tip={collapsed ? n.label : undefined} aria-current={active?.href === n.href ? 'page' : undefined}>
+                <Link key={n.href} href={n.href} className="sb-link a-tip" data-tip={collapsed ? n.label : undefined} aria-current={active?.href === n.href ? 'page' : undefined}>
                   <n.icon size={18} strokeWidth={1.75} aria-hidden="true" /><span>{n.label}</span>
                   {!!n.badge && <b className="sb-badge" aria-label={`${n.badge} nuevas`}>{n.badge}</b>}
                 </Link>
@@ -88,18 +88,18 @@ export default function AppShell({ title, badges, user, logout, actions, descrip
           ))}
         </nav>
         <div className="sb-foot">
-          <button type="button" className="sb-link tip" onClick={toggleSb} data-tip={collapsed ? 'Expandir barra  [' : undefined} aria-label={collapsed ? 'Expandir barra lateral' : 'Colapsar barra lateral'} style={plainBtn}>
+          <button type="button" className="sb-link a-tip" onClick={toggleSb} data-tip={collapsed ? 'Expandir barra  [' : undefined} aria-label={collapsed ? 'Expandir barra lateral' : 'Colapsar barra lateral'} style={plainBtn}>
             {collapsed ? <PanelLeftOpen size={18} strokeWidth={1.75} aria-hidden="true" /> : <PanelLeftClose size={18} strokeWidth={1.75} aria-hidden="true" />}<span>Colapsar</span><kbd className="kbd" style={{ marginLeft: 'auto' }} hidden={collapsed}>[</kbd>
           </button>
           <div className="sb-user">
-            <span className="av" aria-hidden="true">{initials(user.email || 'South Software')}</span>
+            <span className="a-av" aria-hidden="true">{initials(user.email || 'South Software')}</span>
             <div style={{ minWidth: 0 }}><div style={{ fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email || 'Acceso provisorio'}</div><small>{ROLE[user.role] || user.role}</small></div>
           </div>
-          <form action={logout}><button type="submit" className="sb-link tip" data-tip={collapsed ? 'Salir' : undefined} aria-label="Salir" style={plainBtn}><LogOut size={18} strokeWidth={1.75} aria-hidden="true" /><span>Salir</span></button></form>
+          <form action={logout}><button type="submit" className="sb-link a-tip" data-tip={collapsed ? 'Salir' : undefined} aria-label="Salir" style={plainBtn}><LogOut size={18} strokeWidth={1.75} aria-hidden="true" /><span>Salir</span></button></form>
         </div>
       </aside>
 
-      <div className="main">
+      <div className="a-main">
         <header className="tb">
           <nav className="crumbs" aria-label="Migas de pan">
             {active && active.href !== '/admin' ? <><Link href="/admin" aria-label="Volver al inicio del panel">Panel</Link><ChevronRight size={14} aria-hidden="true" /><b>{title}</b></> : <b>{title}</b>}
@@ -112,7 +112,7 @@ export default function AppShell({ title, badges, user, logout, actions, descrip
             {menu === 'create' && (
               <div className="menu" role="menu" style={{ right: 0, top: 38 }}>
                 <Link role="menuitem" href="/admin/cobros" onClick={() => setMenu(null)}><Calculator size={15} aria-hidden="true" /> Simular calendario de cobros</Link>
-                <div className="lbl">Disponible pronto</div>
+                <div className="a-lbl">Disponible pronto</div>
                 <button role="menuitem" type="button" disabled style={{ opacity: .5 }}>Nueva solicitud manual</button>
                 <button role="menuitem" type="button" disabled style={{ opacity: .5 }}>Registrar pago</button>
               </div>
@@ -120,11 +120,11 @@ export default function AppShell({ title, badges, user, logout, actions, descrip
           </div>
           <div style={{ position: 'relative' }}>
             <button type="button" className="btn-a ghost icon sm" aria-label="Tema y cuenta" aria-haspopup="menu" aria-expanded={menu === 'user'} onClick={() => setMenu(menu === 'user' ? null : 'user')}>
-              <span className="av" style={{ width: 26, height: 26 }} aria-hidden="true">{initials(user.email || 'South Software')}</span>
+              <span className="a-av" style={{ width: 26, height: 26 }} aria-hidden="true">{initials(user.email || 'South Software')}</span>
             </button>
             {menu === 'user' && (
               <div className="menu" role="menu" style={{ right: 0, top: 38 }}>
-                <div className="lbl">Tema</div>
+                <div className="a-lbl">Tema</div>
                 {([['light', 'Claro', Sun], ['dark', 'Oscuro', Moon], ['system', 'Sistema', Monitor]] as const).map(([t, l, I]) => (
                   <button key={t} role="menuitemradio" aria-checked={theme === t} type="button" onClick={() => pickTheme(t)}><I size={15} aria-hidden="true" /> {l}</button>
                 ))}
@@ -136,7 +136,7 @@ export default function AppShell({ title, badges, user, logout, actions, descrip
           </div>
         </header>
         <main className="content" id="contenido">
-          <div className="ph">
+          <div className="a-ph">
             <div><h1>{title}</h1>{description && <p>{description}</p>}</div>
             {actions && <div className="ph-act">{actions}</div>}
           </div>

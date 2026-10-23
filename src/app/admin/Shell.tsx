@@ -10,7 +10,7 @@ import { logout } from './actions';
 function Skeleton() {
   return (
     <div className="sh" aria-busy="true" aria-label="Cargando">
-      <aside className="sb" /><div className="main"><header className="tb" /><main className="content"><div style={{ height: 32, width: 180, borderRadius: 6, background: 'var(--bg-muted)' }} /></main></div>
+      <aside className="sb" /><div className="a-main"><header className="tb" /><main className="content"><div style={{ height: 32, width: 180, borderRadius: 6, background: 'var(--bg-muted)' }} /></main></div>
     </div>
   );
 }

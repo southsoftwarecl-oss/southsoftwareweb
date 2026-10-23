@@ -32,8 +32,8 @@ export default function UiShowcase() {
         <div className="adm-field" style={{ minWidth: 200 }}><label htmlFor="u3">Con error</label><input id="u3" aria-invalid="true" defaultValue="12.345.678" /><span className="adm-err" style={{ margin: 0 }}>RUT no válido</span></div>
       </Sec>
       <Sec t="KPI">
-        <div className="adm-card kpi" style={{ minWidth: 200 }}><div className="kpi-l">Ejemplo con valor</div><div className="kpi-v">$ 1.234.000</div><div className="adm-note">dato de ejemplo</div></div>
-        <div className="adm-card kpi" style={{ minWidth: 200 }}><div className="kpi-l">Sin datos</div><div className="kpi-v empty">Aún no hay datos</div><div className="kpi-flat" /></div>
+        <div className="adm-card a-kpi" style={{ minWidth: 200 }}><div className="kpi-l">Ejemplo con valor</div><div className="kpi-v">$ 1.234.000</div><div className="adm-note">dato de ejemplo</div></div>
+        <div className="adm-card a-kpi" style={{ minWidth: 200 }}><div className="kpi-l">Sin datos</div><div className="kpi-v empty">Aún no hay datos</div><div className="kpi-flat" /></div>
       </Sec>
       <section className="adm-section"><h2>Tabla</h2>
         <table className="adm-table cards"><thead><tr><th>Cliente</th><th>Pack</th><th className="n">Monto</th><th>Estado</th></tr></thead>
