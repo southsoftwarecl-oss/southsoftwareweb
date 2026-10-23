@@ -94,3 +94,15 @@ export async function recordPayment(_: FormState, form: FormData): Promise<FormS
   revalidatePath('/admin/cobros'); revalidatePath('/admin');
   return { ok: r.status === 'pagado' ? 'Pago registrado. El cobro quedó pagado.' : 'Pago parcial registrado. El cobro quedó con saldo pendiente.' };
 }
+
+/** Mover desde el tablero (drag & drop, teclado o menú). Reglas validadas en servidor; devuelve error legible. */
+export async function moveRequestTo(id: string, stage: string): Promise<{ ok: boolean; error?: string }> {
+  const me = await currentAdmin();
+  if (!me) return { ok: false, error: 'Tu sesión expiró. Vuelve a entrar.' };
+  if (me.role === 'lectura') return { ok: false, error: 'Tu rol es de solo lectura.' };
+  if (!/^[0-9a-f-]{36}$/i.test(id) || !STAGES.some((s) => s.id === stage)) return { ok: false, error: 'Movimiento no válido.' };
+  if (stage === 'activo') return { ok: false, error: '“Activo” se asigna al dar de alta al cliente.' };
+  const ok = await moveLead(id, stage as StageId);
+  if (ok) revalidatePath('/admin/solicitudes');
+  return ok ? { ok } : { ok, error: 'No se pudo mover. Intenta de nuevo.' };
+}

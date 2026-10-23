@@ -43,4 +43,25 @@ test.describe('+ Crear', () => {
   test('/api/leads no acepta canal manual', async ({ request, baseURL }) => {
     expect((await request.post('/api/leads', { headers: { origin: baseURL! }, data: { channel: 'manual' } })).status()).toBe(422);
   });
+
+  test('Datos de ejemplo: banda visible, mover es local y nunca toca la BD', async ({ page }) => {
+    await login(page);
+    await page.goto('/admin/solicitudes?ejemplo=1');
+    await expect(page.getByText('datos de ejemplo', { exact: false }).first()).toBeVisible();
+    const c = page.locator('[data-stage="nuevo"]').getByTestId('lead-card').filter({ hasText: 'Ferretería Ejemplo' });
+    await c.getByLabel('Mover a').selectOption('contactado');
+    await c.getByRole('button', { name: 'Mover' }).click();
+    await expect(page.getByText('(ejemplo, no se guarda)')).toBeVisible();
+    await page.goto('/admin/solicitudes');
+    await expect(page.getByText('Ferretería Ejemplo')).toHaveCount(0);
+  });
+
+  test('Lista y detalle lateral', async ({ page }) => {
+    await login(page);
+    await page.goto('/admin/solicitudes?ejemplo=1&vista=lista');
+    await page.getByTestId('lead-row').filter({ hasText: 'Clínica Demo' }).click();
+    await expect(page.getByRole('dialog', { name: 'Clínica Demo' })).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+  });
 });
