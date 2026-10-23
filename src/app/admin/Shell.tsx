@@ -22,7 +22,7 @@ async function Guarded(props: { title: string; description?: string; actions?: R
   if (!me) redirect('/admin/login?e=acceso');
   const { leads } = await listLeads();
   const badges = { solicitudes: leads.filter((l) => l.stage === 'nuevo').length };
-  return <AppShell {...props} badges={badges} user={{ email: me.email, role: me.role }} logout={logout} />;
+  return <AppShell {...props} badges={badges} user={{ email: me.email, name: me.name, role: me.role }} logout={logout} />;
 }
 
 /** Marco común de las vistas protegidas. `current` se mantiene por compatibilidad (el activo se deduce de la ruta). */

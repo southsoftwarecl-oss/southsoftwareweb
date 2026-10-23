@@ -8,13 +8,14 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   LayoutDashboard, Inbox, Users, Wallet, Package, Search, Plus, ChevronRight, PanelLeftClose, PanelLeftOpen,
-  Sun, Moon, Monitor, LogOut, Calculator, Keyboard, MoreHorizontal, type LucideIcon,
+  Sun, Moon, Monitor, LogOut, Calculator, Keyboard, MoreHorizontal, FilePlus2, Banknote, type LucideIcon,
 } from 'lucide-react';
 import { getThemePref, setThemePref, type ThemePref } from './theme';
+import { Monogram, Wordmark } from './Brand';
 
 type NavItem = { href: string; label: string; icon: LucideIcon; group: 'General' | 'Oferta'; badge?: number; key: string };
 export type ShellProps = {
-  title: string; badges: { solicitudes: number }; user: { email: string | null; role: string };
+  title: string; badges: { solicitudes: number }; user: { email: string | null; name: string | null; role: string };
   logout: () => Promise<void>; actions?: React.ReactNode; description?: string; children: React.ReactNode;
 };
 
@@ -32,6 +33,8 @@ export default function AppShell({ title, badges, user, logout, actions, descrip
     { key: 'b', href: '/admin/cobros', label: 'Cobros', icon: Wallet, group: 'General' },
     { key: 'k', href: '/admin/catalogo', label: 'Catálogo', icon: Package, group: 'Oferta' },
   ], [badges.solicitudes]);
+  const canWrite = user.role !== 'lectura';
+  const canPay = user.role === 'owner' || user.role === 'admin';
   const active = nav.find((n) => n.href === path) || nav.find((n) => n.href !== '/admin' && path.startsWith(n.href));
   const [collapsed, setCollapsed] = useState(false);
   const [palette, setPalette] = useState(false);
@@ -71,8 +74,9 @@ export default function AppShell({ title, badges, user, logout, actions, descrip
     <div className="sh" data-collapsed={collapsed ? '1' : '0'}>
       <aside className="sb" aria-label="Navegación del panel">
         <div className="sb-head">
-          <span className="sb-logo" aria-hidden="true">S</span>
-          <span className="sb-title">Panel</span><span className="sb-beta">Beta</span>
+          <Link href="/admin" className="sb-brand" aria-label="South Software · Inicio del panel">
+            <Monogram size={26} className="sb-mono" /><span className="sb-title"><Wordmark height={15} title="South Software" /></span>
+          </Link>
         </div>
         <nav aria-label="Panel">
           {groups.map((gname) => (
@@ -92,8 +96,8 @@ export default function AppShell({ title, badges, user, logout, actions, descrip
             {collapsed ? <PanelLeftOpen size={18} strokeWidth={1.75} aria-hidden="true" /> : <PanelLeftClose size={18} strokeWidth={1.75} aria-hidden="true" />}<span>Colapsar</span><kbd className="kbd" style={{ marginLeft: 'auto' }} hidden={collapsed}>[</kbd>
           </button>
           <div className="sb-user">
-            <span className="a-av" aria-hidden="true">{initials(user.email || 'South Software')}</span>
-            <div style={{ minWidth: 0 }}><div style={{ fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email || 'Acceso provisorio'}</div><small>{ROLE[user.role] || user.role}</small></div>
+            <span className="a-av" aria-hidden="true">{initials(user.name || user.email || 'South Software')}</span>
+            <div style={{ minWidth: 0 }}><div style={{ fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={user.email || undefined}>{user.name || user.email || 'Contraseña de respaldo'}</div><small>{ROLE[user.role] || user.role}</small></div>
           </div>
           <form action={logout}><button type="submit" className="sb-link a-tip" data-tip={collapsed ? 'Salir' : undefined} aria-label="Salir" style={plainBtn}><LogOut size={18} strokeWidth={1.75} aria-hidden="true" /><span>Salir</span></button></form>
         </div>
@@ -111,16 +115,15 @@ export default function AppShell({ title, badges, user, logout, actions, descrip
             <button type="button" className="btn-a secondary sm" aria-haspopup="menu" aria-expanded={menu === 'create'} onClick={() => setMenu(menu === 'create' ? null : 'create')}><Plus size={15} aria-hidden="true" /> Crear</button>
             {menu === 'create' && (
               <div className="menu" role="menu" style={{ right: 0, top: 38 }}>
+                {canWrite && <Link role="menuitem" href="/admin/solicitudes/nueva" onClick={() => setMenu(null)}><FilePlus2 size={15} aria-hidden="true" /> Nueva solicitud</Link>}
+                {canPay && <Link role="menuitem" href="/admin/cobros/pago" onClick={() => setMenu(null)}><Banknote size={15} aria-hidden="true" /> Registrar pago</Link>}
                 <Link role="menuitem" href="/admin/cobros" onClick={() => setMenu(null)}><Calculator size={15} aria-hidden="true" /> Simular calendario de cobros</Link>
-                <div className="a-lbl">Disponible pronto</div>
-                <button role="menuitem" type="button" disabled style={{ opacity: .5 }}>Nueva solicitud manual</button>
-                <button role="menuitem" type="button" disabled style={{ opacity: .5 }}>Registrar pago</button>
               </div>
             )}
           </div>
           <div style={{ position: 'relative' }}>
             <button type="button" className="btn-a ghost icon sm" aria-label="Tema y cuenta" aria-haspopup="menu" aria-expanded={menu === 'user'} onClick={() => setMenu(menu === 'user' ? null : 'user')}>
-              <span className="a-av" style={{ width: 26, height: 26 }} aria-hidden="true">{initials(user.email || 'South Software')}</span>
+              <span className="a-av" style={{ width: 26, height: 26 }} aria-hidden="true">{initials(user.name || user.email || 'South Software')}</span>
             </button>
             {menu === 'user' && (
               <div className="menu" role="menu" style={{ right: 0, top: 38 }}>
@@ -153,13 +156,13 @@ export default function AppShell({ title, badges, user, logout, actions, descrip
         <button type="button" onClick={() => setPalette(true)} aria-label="Más secciones y búsqueda"><MoreHorizontal size={20} aria-hidden="true" />Más</button>
       </nav>
 
-      {palette && <Palette nav={nav} theme={pickTheme} onClose={() => setPalette(false)} />}
+      {palette && <Palette nav={nav} theme={pickTheme} canWrite={canWrite} canPay={canPay} onClose={() => setPalette(false)} />}
       {menu && <div style={{ position: 'fixed', inset: 0, zIndex: 15 }} onClick={() => setMenu(null)} aria-hidden="true" />}
     </div>
   );
 }
 
-function Palette({ nav, theme, onClose }: { nav: NavItem[]; theme: (t: ThemePref) => void; onClose: () => void }) {
+function Palette({ nav, theme, onClose, canWrite, canPay }: { nav: NavItem[]; theme: (t: ThemePref) => void; onClose: () => void; canWrite: boolean; canPay: boolean }) {
   const router = useRouter();
   const [q, setQ] = useState('');
   const [sel, setSel] = useState(0);
@@ -167,6 +170,8 @@ function Palette({ nav, theme, onClose }: { nav: NavItem[]; theme: (t: ThemePref
   const items = useMemo(() => {
     const all = [
       ...nav.map((n) => ({ group: 'Ir a', label: n.label, icon: n.icon, hint: `G ${n.key.toUpperCase()}`, run: () => router.push(n.href) })),
+      ...(canWrite ? [{ group: 'Acciones', label: 'Nueva solicitud', icon: FilePlus2, hint: '', run: () => router.push('/admin/solicitudes/nueva') }] : []),
+      ...(canPay ? [{ group: 'Acciones', label: 'Registrar pago', icon: Banknote, hint: '', run: () => router.push('/admin/cobros/pago') }] : []),
       { group: 'Acciones', label: 'Simular calendario de cobros', icon: Calculator, hint: '', run: () => router.push('/admin/cobros') },
       { group: 'Acciones', label: 'Tema claro', icon: Sun, hint: '', run: () => theme('light') },
       { group: 'Acciones', label: 'Tema oscuro', icon: Moon, hint: '', run: () => theme('dark') },
@@ -175,7 +180,7 @@ function Palette({ nav, theme, onClose }: { nav: NavItem[]; theme: (t: ThemePref
     const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     const n = norm(q.trim());
     return n ? all.filter((i) => norm(i.label).includes(n)) : all;
-  }, [q, nav, router, theme]);
+  }, [q, nav, router, theme, canWrite, canPay]);
   useEffect(() => { const prev = document.activeElement as HTMLElement | null; input.current?.focus(); return () => prev?.focus?.(); }, []);
   const run = (i: number) => { const it = items[i]; if (it) { onClose(); it.run(); } };
   return (

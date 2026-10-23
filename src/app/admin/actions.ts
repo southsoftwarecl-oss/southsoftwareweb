@@ -6,7 +6,8 @@ import { adminConfigured, createSession, safeEqual, SESSION_COOKIE, SESSION_TTL_
 import { authMode } from '@/lib/supabase/env';
 import { supabaseUser } from '@/lib/supabase/server';
 import { currentAdmin } from '@/lib/admin/auth';
-import { moveLead } from '@/lib/admin/leads';
+import { moveLead, saveManualLead } from '@/lib/admin/leads';
+import { METHODS, registerPayment, type MethodId } from '@/lib/admin/charges';
 import { loginAllowed, loginFailed, loginKey, loginSucceeded } from '@/lib/admin/ratelimit';
 import { STAGES, type StageId } from '@/lib/admin/model';
 
@@ -55,4 +56,41 @@ export async function moveRequest(form: FormData) {
   if (!STAGES.some((s) => s.id === stage) || stage === 'activo' || !/^[0-9a-f-]{36}$/i.test(id)) return;
   await moveLead(id, stage);
   revalidatePath('/admin/solicitudes');
+}
+
+export type FormState = { error?: string; ok?: string; fields?: Record<string, string> } | undefined;
+const str = (f: FormData, k: string, max = 200) => String(f.get(k) || '').trim().slice(0, max);
+
+/** + Crear → Nueva solicitud (canal manual). Solo owner/admin/ventas (también lo exige RLS). */
+export async function createManualRequest(_: FormState, form: FormData): Promise<FormState> {
+  const me = await currentAdmin();
+  if (!me || me.role === 'lectura') return { error: 'Tu rol no puede crear solicitudes.' };
+  const name = str(form, 'name', 120), email = str(form, 'email', 160), phone = str(form, 'phone', 40);
+  const company = str(form, 'company', 120), pack = str(form, 'pack', 80), message = str(form, 'message', 2000), source = str(form, 'source', 40);
+  const fields = { name, email, phone, company, pack, message, source };
+  if (!name) return { error: 'Escribe el nombre de la persona o empresa.', fields };
+  if (!email && !phone) return { error: 'Agrega al menos un correo o un teléfono.', fields };
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: 'El correo no parece válido.', fields };
+  const ok = await saveManualLead({ name, email: email || null, phone: phone || null, message: message || null, pack: pack || null, payload: { empresa: company || undefined, origen: source || 'manual', creado_por: me.email ?? 'equipo' } });
+  if (!ok) return { error: 'No se pudo guardar. Intenta de nuevo.', fields };
+  revalidatePath('/admin/solicitudes'); revalidatePath('/admin');
+  redirect('/admin/solicitudes?creada=1');
+}
+
+/** + Crear → Registrar pago sobre un cobro existente (total o parcial, cualquier medio). RLS: owner/admin. */
+export async function recordPayment(_: FormState, form: FormData): Promise<FormState> {
+  const me = await currentAdmin();
+  if (!me || (me.role !== 'owner' && me.role !== 'admin')) return { error: 'Solo dueño o administrador pueden registrar pagos.' };
+  const chargeId = str(form, 'charge', 40), method = str(form, 'method', 20) as MethodId, paidOn = str(form, 'paid_on', 10), note = str(form, 'note', 300);
+  const amount = Number(str(form, 'amount', 15).replace(/[^\d]/g, ''));
+  const fields = { charge: chargeId, method, paid_on: paidOn, note, amount: amount ? String(amount) : '' };
+  if (!/^[0-9a-z-]{8,40}$/i.test(chargeId)) return { error: 'Elige el cobro.', fields };
+  if (!METHODS.some((m) => m.id === method)) return { error: 'Elige el medio de pago.', fields };
+  if (!Number.isSafeInteger(amount) || amount <= 0) return { error: 'Ingresa un monto mayor a cero.', fields };
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(paidOn)) return { error: 'Ingresa la fecha del pago.', fields };
+  if (method === 'otro' && !note) return { error: 'Con "Otro", describe el medio en la nota.', fields };
+  const r = await registerPayment({ chargeId, amount, paidOn, method, note: note || null });
+  if (!r.ok) return { error: r.error, fields };
+  revalidatePath('/admin/cobros'); revalidatePath('/admin');
+  return { ok: r.status === 'pagado' ? 'Pago registrado. El cobro quedó pagado.' : 'Pago parcial registrado. El cobro quedó con saldo pendiente.' };
 }

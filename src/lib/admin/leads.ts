@@ -7,7 +7,7 @@ import { supabaseUser, supabaseWriter } from '@/lib/supabase/server';
 import type { ChannelId, StageId } from './model';
 
 export type LeadInput = {
-  channel: Exclude<ChannelId, 'manual'>; payload: Record<string, unknown>;
+  channel: ChannelId; payload: Record<string, unknown>;
   name?: string | null; email?: string | null; phone?: string | null; message?: string | null;
   pack?: string | null; builder?: Record<string, unknown> | null; setup?: number | null; monthly?: number | null;
   referrer?: string | null; ipHash?: string | null; userAgent?: string | null;
@@ -32,6 +32,7 @@ export async function hashIp(ip: string) {
 }
 
 export async function saveLead(l: LeadInput): Promise<boolean> {
+  if (l.channel === 'manual') return false; // la web nunca crea solicitudes manuales
   const be = leadsBackend();
   if (be === 'off') return false;
   if (be === 'memory') {
@@ -59,6 +60,21 @@ export async function listLeads(): Promise<{ leads: Lead[]; error?: string }> {
   const { data, error } = await sb.from('requests').select('id,channel,stage,payload,name,email,phone,message,builder_config,shown_setup,shown_monthly,created_at').is('deleted_at', null).order('created_at', { ascending: false }).limit(500);
   if (error) return { leads: [], error: 'No se pudieron leer las solicitudes.' };
   return { leads: (data as Row[]).map((r) => ({ id: r.id, channel: r.channel, stage: r.stage, payload: r.payload, name: r.name, email: r.email, phone: r.phone, message: r.message, pack: r.builder_config?.pack ?? null, builder: r.builder_config, setup: r.shown_setup, monthly: r.shown_monthly, createdAt: r.created_at })) };
+}
+
+/** Solicitud ingresada a mano por el equipo (canal "manual"). Usa la sesión del usuario: RLS exige rol owner/admin/ventas. */
+export async function saveManualLead(l: Omit<LeadInput, 'channel'>): Promise<boolean> {
+  const be = leadsBackend();
+  if (be === 'off') return false;
+  if (be === 'memory') { mem().leads.unshift({ ...l, channel: 'manual', id: crypto.randomUUID(), stage: 'nuevo', createdAt: new Date().toISOString() }); return true; }
+  const sb = await supabaseUser();
+  const { data: { user } } = await sb.auth.getUser();
+  const { error } = await sb.from('requests').insert({
+    channel: 'manual', payload: l.payload, name: l.name ?? null, email: l.email ?? null, phone: l.phone ?? null, message: l.message ?? null,
+    builder_config: l.pack ? { pack: l.pack } : null, shown_setup: l.setup ?? null, shown_monthly: l.monthly ?? null, owner: user?.id ?? null,
+  });
+  if (error) console.error('[leads] manual no guardada', error.code);
+  return !error;
 }
 
 export async function moveLead(id: string, stage: StageId): Promise<boolean> {
