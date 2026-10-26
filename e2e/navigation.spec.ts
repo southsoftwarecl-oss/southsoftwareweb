@@ -18,7 +18,7 @@ test.describe('Navegación', () => {
       await expect(page.locator(`#${id}`)).toHaveCount(1);
     }
     for (const id of ['proceso', 'stack', 'packs', 'por-que']) await expect(page.locator(`#${id}`)).toHaveCount(0);
-    await expect(page.locator('#precios .strip-p li')).toHaveCount(3);
+    await expect(page.locator('#precios .strip-p > li')).toHaveCount(3);
     await expect(page.locator('#precios')).toContainText('Desde $149.990');
     await expect(page.locator('footer')).toContainText('Hecho en Chile');
   });

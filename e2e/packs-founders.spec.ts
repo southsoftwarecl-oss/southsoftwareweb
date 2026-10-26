@@ -62,7 +62,7 @@ test('home: la franja de precios no tapa su CTA', async ({ page }) => {
   await settle(page);
   await page.locator('#precios').scrollIntoViewIfNeeded();
   await page.waitForTimeout(2200);
-  const items = await rects(page, '#precios .strip-p li');
+  const items = await rects(page, '#precios .strip-p > li');
   const [cta] = await rects(page, '#precios .strip-cta');
   expect(items.length).toBeGreaterThan(0);
   expect(items.filter((i) => hit(i, cta)).map((i) => i.name)).toEqual([]);

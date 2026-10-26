@@ -1,6 +1,7 @@
 /**
  * Franja de precios del home: "Desde $X" para los packs principales
  * (lista HOME_PACKS en content/site.ts; valores tomados tal cual de PACKS) + CTA a /packs.
+ * Cada tarjeta trae un desplegable "Ver qué incluye" con el arreglo `includes` del pack (independientes entre sí; tarjetas alineadas arriba).
  */
 import '../marketing/marketing.css';
 import { HOME_PACKS, PACKS } from '@/content/site';
@@ -24,6 +25,11 @@ export default function PacksTeaser({ n = 4 }: { n?: number }) {
                 <span className="mono">{p.name}</span>
                 <b>{from(p.setup)}</b>
                 <small>+ {p.monthly} / mes</small>
+                {/* desplegable nativo (<details>): teclado, lector de pantalla y sin JS; lista = includes de PACKS, tal cual */}
+                <details className="strip-inc" data-pack={p.name}>
+                  <summary><span>Ver qué incluye</span><i aria-hidden="true" /></summary>
+                  <ul aria-label={`Qué incluye ${p.name}`}>{p.includes.map((x) => <li key={x}>{x}</li>)}</ul>
+                </details>
               </li>
             ))}
           </ul>
