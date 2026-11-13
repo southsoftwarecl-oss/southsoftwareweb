@@ -1,7 +1,7 @@
 /**
  * Servicios (v3 "vivos"): selector de servicios con mini-demos + "Arma tu proyecto" (packs exactos de PACKS)
  * + proceso interactivo (#proceso) + stack vivo (#stack) + contacto. Misma información, menos alto.
- * La franja de precios se reemplazó por el configurador (muestra los precios de PACKS y enlaza a /packs).
+ * La franja de packs se reemplazó por el configurador (muestra el pack que calza y enlaza a /packs).
  */
 import Page from '@/components/Page';
 import PageHero from '@/components/PageHero';

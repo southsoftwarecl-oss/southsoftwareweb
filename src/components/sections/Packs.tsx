@@ -1,20 +1,10 @@
 /**
- * Packs con precio publicado (valores exactos en content/site.ts).
- * Motion "Forja de cromo" en lib/packs-motion.ts: el SSR renderiza SIEMPRE el precio final;
- * el JS solo lo envuelve en columnas de odómetro (aria-hidden) y deja el valor en aria-label + texto sr-only.
+ * Packs públicos: nombre, qué incluye y CTA de cotización (sin montos).
+ * Los valores siguen en content/site.ts para el panel admin.
  * Móvil (<760px): carrusel con scroll-snap, puntos y contador "n / 8" (aria-live).
  */
 import { CUSTOM_PACK, FOUNDERS, FOUNDERS_MESSAGE, PACKS, packMessage, waLink } from '@/content/site';
 import { Btn, SecHead } from '../ui';
-
-/** "desde $1.490.000" → { from: true, amount: "$1.490.000" }. No cambia el valor, solo separa el prefijo. */
-export function splitPrice(v: string) {
-  const m = /^(desde)\s+(.+)$/i.exec(v.trim());
-  return m ? { from: m[1], amount: m[2] } : { from: '', amount: v };
-}
-
-/** Monto que el odómetro hace rodar (el JS lo envuelve; sin JS queda como texto). */
-const Odo = ({ v }: { v: string }) => <span className="odo" data-odo={v}>{v}</span>;
 
 /** Check dibujable (pathLength=1 → strokeDashoffset 1→0). */
 const Check = () => (
@@ -32,41 +22,36 @@ export default function Packs({ n = 5, head = true }: { n?: number; head?: boole
   return (
     <section className="sec sec-packs" id="packs" style={head ? undefined : { paddingTop: 40 }} aria-label={head ? undefined : 'Solo software'}>
       <div className="wrap">
-        {head && <SecHead n={n} eyebrow="Packs y precios" title={<>Precio claro.<br /><span className="dim">Desde el primer día.</span></>}
-          lead="Un pago inicial para construir y una mensualidad que cubre hosting, dominio, respaldos, cambios y soporte. Valores brutos con boleta de honorarios." />}
+        {head && <SecHead n={n} eyebrow="Nuestros packs" title={<>Elige tu pack.<br /><span className="dim">Cotiza por WhatsApp.</span></>}
+          lead="Un pago inicial para construir y una mensualidad que cubre hosting, dominio, respaldos, cambios y soporte. Te cotizamos el pack que calza con tu negocio." />}
         <div className="packs" data-forja>
-          {PACKS.map((p) => {
-            const s = splitPrice(p.setup), m = splitPrice(p.monthly);
-            return (
-              <article className={`pack${p.featured ? ' feat' : ''}`} key={p.name}>
-                <i className="rim" aria-hidden="true"><i /></i>
-                {p.featured && <span className="badge">Recomendado<i aria-hidden="true" /></span>}
-                <div className="pk-c">
-                  <H className="pn">{p.name}</H>
-                  <small className="pl">Pago inicial{s.from && <> · {s.from}</>}</small>
-                  <div className="pr"><Odo v={s.amount} /></div>
-                  <div className="mo">+ <b>{m.from && <>{m.from} </>}<Odo v={m.amount} /></b> / mes</div>
-                  <ul className={p.includes.length > SHORT ? 'long' : undefined}>{p.includes.map((x, k) => <li key={x} className={k >= SHORT ? 'pk-x' : undefined}><Check /><span>{x}</span></li>)}</ul>
-                  {p.includes.length > SHORT && (
-                    // móvil: los ítems extra se pliegan para que la tarjeta no crezca (en ≥761px esto se oculta y se ve la lista completa)
-                    <details className="pk-more"><summary>Ver {p.includes.length - SHORT} más</summary>
-                      <ul>{p.includes.slice(SHORT).map((x) => <li key={x}><Check /><span>{x}</span></li>)}</ul>
-                    </details>
-                  )}
-                  <Btn href={waLink(packMessage(p))} external variant={p.featured ? 'primary' : 'ghost'} icon={false} lead={{ channel: 'elegir_pack', pack: p.name }}>Elegir pack</Btn>
-                </div>
-              </article>
-            );
-          })}
+          {PACKS.map((p) => (
+            <article className={`pack${p.featured ? ' feat' : ''}`} key={p.name}>
+              <i className="rim" aria-hidden="true"><i /></i>
+              {p.featured && <span className="badge">Recomendado<i aria-hidden="true" /></span>}
+              <div className="pk-c">
+                <H className="pn">{p.name}</H>
+                <small className="pl">Pago inicial + mensualidad</small>
+                <div className="pr">Pide tu cotización</div>
+                <ul className={p.includes.length > SHORT ? 'long' : undefined}>{p.includes.map((x, k) => <li key={x} className={k >= SHORT ? 'pk-x' : undefined}><Check /><span>{x}</span></li>)}</ul>
+                {p.includes.length > SHORT && (
+                  // móvil: los ítems extra se pliegan para que la tarjeta no crezca (en ≥761px esto se oculta y se ve la lista completa)
+                  <details className="pk-more"><summary>Ver {p.includes.length - SHORT} más</summary>
+                    <ul>{p.includes.slice(SHORT).map((x) => <li key={x}><Check /><span>{x}</span></li>)}</ul>
+                  </details>
+                )}
+                <Btn href={waLink(packMessage(p))} external variant={p.featured ? 'primary' : 'ghost'} icon={false} lead={{ channel: 'elegir_pack', pack: p.name }}>Cotiza por WhatsApp</Btn>
+              </div>
+            </article>
+          ))}
           <article className="pack">
             <i className="rim" aria-hidden="true"><i /></i>
             <div className="pk-c">
               <H className="pn">{CUSTOM_PACK.name}</H>
-              <small className="pl">Pago inicial · desde</small>
-              <div className="pr">{splitPrice(CUSTOM_PACK.setup).amount}</div>
-              <div className="mo">+ <b>{CUSTOM_PACK.monthly}</b> / mes</div>
+              <small className="pl">Según alcance</small>
+              <div className="pr">Pide tu cotización</div>
               <ul>{['Sistema interno, reservas o portal', 'Prototipo antes de programar', 'Pago por hitos', 'Soporte mensual'].map((x) => <li key={x}><Check /><span>{x}</span></li>)}</ul>
-              <Btn href={waLink(packMessage(CUSTOM_PACK))} external variant="ghost" icon={false} lead={{ channel: 'elegir_pack', pack: CUSTOM_PACK.name }}>Conversemos</Btn>
+              <Btn href={waLink(packMessage(CUSTOM_PACK))} external variant="ghost" icon={false} lead={{ channel: 'elegir_pack', pack: CUSTOM_PACK.name }}>Cotiza por WhatsApp</Btn>
             </div>
           </article>
         </div>

@@ -81,7 +81,7 @@ export default function Configurator() {
   return (
     <div className="cfg" ref={root} id="arma-tu-proyecto" aria-labelledby={`${id}-t`}>
       <div className="cfg-l">
-        <div className="cfg-h"><h2 id={`${id}-t`}>Arma tu proyecto</h2><p>Tres preguntas y te mostramos el pack que calza, con su precio publicado.</p></div>
+        <div className="cfg-h"><h2 id={`${id}-t`}>Arma tu proyecto</h2><p>Tres preguntas y te mostramos el pack que calza. Cotiza por WhatsApp.</p></div>
         <Group name={id} k="01" legend="¿Qué necesitas?" opts={NEEDS} value={N} onPick={(v, el) => pickNeed(v as Need, el)} />
         <Group name={id} k="02" legend="¿Tamaño?" opts={SIZES} value={S} onPick={(v, el) => pickSize(v as Size, el)} />
         <Group name={id} k="03" legend="¿Para cuándo?" opts={WHENS} value={when} onPick={(v) => setWhen(v as When)} />
@@ -91,9 +91,7 @@ export default function Configurator() {
           <div className="cfg-card" data-pack={pack.name}>
             <span className="mono">{pack.quote ? 'A medida' : 'Pack recomendado'}</span>
             <h3 className="cfg-name">{pack.name}</h3>
-            {pack.quote
-              ? <p className="cfg-price"><b>Cotización</b><small>Sin precio fijo: depende del alcance.</small></p>
-              : <p className="cfg-price"><b className="cfg-setup">{pack.setup}</b><small>pago inicial + <span className="cfg-monthly">{pack.monthly}</span> / mes</small></p>}
+            <p className="cfg-price"><b>Pide tu cotización</b><small>Pago inicial + mensualidad, según el alcance.</small></p>
             <ul>{pack.includes.map((x) => <li className="cfg-li" key={x}>{x}</li>)}</ul>
             <div className="cfg-cta">
               <a className="btn btn-primary cfg-wa" href={waHref(pack.name, answers)} target="_blank" rel="noopener noreferrer"><span className="t"><span>{cta}</span><span aria-hidden="true">{cta}</span></span></a>
@@ -104,7 +102,7 @@ export default function Configurator() {
           <div className="cfg-card cfg-empty">
             <span className="mono">Tu pack</span>
             <h3 className="cfg-name">Elige qué necesitas</h3>
-            <p>Precios exactos de nuestros packs, sin “cotiza para saber”. Si es un sistema a medida, lo cotizamos en una reunión de 30 minutos.</p>
+            <p>Te mostramos el pack que calza y lo cotizamos por WhatsApp o en una reunión de 30 minutos.</p>
             <div className="cfg-cta"><Link className="btn btn-ghost" href="/packs"><span className="t"><span>Ver todos los packs</span><span aria-hidden="true">Ver todos los packs</span></span></Link></div>
           </div>
         )}

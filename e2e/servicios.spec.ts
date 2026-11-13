@@ -97,7 +97,7 @@ test('hash abre el ítem del acordeón @mobile', async ({ page }) => {
   await expect(page.locator('#sva-apps-moviles')).toHaveAttribute('aria-expanded', 'false');
 });
 
-test('configurador: pack y precios EXACTOS de PACKS y WhatsApp con el nombre', async ({ page }) => {
+test('configurador: pack de PACKS, CTA de cotización y WhatsApp con el nombre', async ({ page }) => {
   test.setTimeout(150_000); // 7 × 3 combinaciones
   await open(page);
   const cfg = page.locator('#arma-tu-proyecto');
@@ -108,18 +108,16 @@ test('configurador: pack y precios EXACTOS de PACKS y WhatsApp con el nombre', a
       const want = packFor(n.v, s.v);
       const card = cfg.locator('.cfg-card');
       await expect(card.locator('.cfg-name')).toHaveText(want.name);
+      await expect(card.locator('.cfg-price b')).toHaveText('Pide tu cotización');
       if (!want.quote) {
         const p = PACKS.find((x) => x.name === want.name)!;
         expect(p, `${want.name} existe en PACKS`).toBeTruthy();
-        await expect(card.locator('.cfg-setup')).toHaveText(p.setup);
-        await expect(card.locator('.cfg-monthly')).toHaveText(p.monthly);
         await expect(card.locator('.cfg-li')).toHaveText(p.includes);
-      } else {
-        await expect(card.locator('.cfg-price b')).toHaveText('Cotización');
       }
+      await expect(card).not.toContainText('$');
       const href = await card.locator('.cfg-wa').getAttribute('href');
       expect(href).toContain(encodeURIComponent(want.name));
-      expect(decodeURIComponent(href!.split('text=')[1])).toContain(`Hola, me interesa el pack ${want.name} (`);
+      expect(decodeURIComponent(href!.split('text=')[1])).toContain(`Hola, me interesa el pack ${want.name}`);
       await expect(card.locator('a[href="/packs"]')).toBeVisible();
     }
   }

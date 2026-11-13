@@ -703,7 +703,7 @@ html.rm .story .live,html.capture .story .live{animation:none}
 @media (max-width:760px){.pack li.pk-x{display:none}.pack ul.long{flex:0;margin-bottom:10px}.pk-more{display:block;margin:0 0 22px;font-size:13.5px;color:#b3b7bf}.pk-more summary{cursor:pointer;color:var(--fg,#EEF2F6);font-size:13px;list-style:none;padding:6px 0}.pk-more summary::-webkit-details-marker{display:none}.pk-more summary::after{content:" +"}.pk-more[open] summary::after{content:" −"}.pk-more ul{margin:8px 0 0;padding-top:0;border-top:0;gap:7px}}
 .pack .ck{width:12px;height:9px;margin-top:6px;stroke:var(--accent);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;overflow:visible}
 .pack .ck path{stroke-dasharray:1;stroke-dashoffset:0}
-.pack .btn{--h:42px;font-size:13.5px}
+.pack .btn{--h:42px;font-size:13px;width:100%;box-sizing:border-box;padding:0 14px}
 .pack.feat{border-color:rgba(var(--accent-rgb),.5);background:linear-gradient(180deg,rgba(var(--accent-rgb),.10),rgba(var(--accent-rgb),.01) 60%);translate:0 -8px 30px;box-shadow:0 40px 80px -30px rgba(36,74,127,.45);z-index:1}
 .pack.feat .rim{opacity:.75}
 .pack .badge{position:absolute;top:24px;right:24px;z-index:2;overflow:hidden;font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;padding:4px 8px;border-radius:6px;background:rgba(var(--accent-rgb),.15);color:var(--accent);border:1px solid rgba(var(--accent-rgb),.35)}

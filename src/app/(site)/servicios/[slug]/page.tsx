@@ -95,7 +95,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
         <div className="wrap">
           <div className="cs-cta">
             <Btn href={waLink(`Hola, quiero cotizar ${short.toLowerCase()} con South Software`)} external>Cotizar por WhatsApp</Btn>
-            <Btn href="/packs" variant="ghost">Ver packs y precios</Btn>
+            <Btn href="/packs" variant="ghost">Ver packs</Btn>
           </div>
           <nav aria-label="Otros servicios" className="svc-others">
             <span className="mono">Otros servicios</span>

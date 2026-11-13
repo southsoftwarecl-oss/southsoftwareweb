@@ -1,4 +1,4 @@
-/** Tabla comparativa colapsable de los packs combinados (valores exactos de content/site.ts). */
+/** Tabla comparativa colapsable de los packs combinados (qué incluye, sin montos). */
 import { COMBO_PACKS } from '@/content/site';
 
 export default function Compare() {
@@ -8,9 +8,9 @@ export default function Compare() {
         <summary>Comparar packs combinados</summary>
         <div className="pk-tw">
           <table>
-            <thead><tr><th scope="col">Pack</th><th scope="col">Incluye</th><th scope="col">Pago inicial</th><th scope="col">Lanzamiento</th><th scope="col">Mensual</th></tr></thead>
+            <thead><tr><th scope="col">Pack</th><th scope="col">Incluye</th></tr></thead>
             <tbody>{COMBO_PACKS.map((p) => (
-              <tr key={p.name}><th scope="row">{p.name}</th><td>{p.tag}</td><td>{p.setup}</td><td>{p.launch ?? 'No aplica'}</td><td>{p.monthly}</td></tr>
+              <tr key={p.name}><th scope="row">{p.name}</th><td>{p.tag}</td></tr>
             ))}</tbody>
           </table>
         </div>

@@ -4,7 +4,7 @@
  * y formulario conectado a /api/contact (mismos campos y valores que antes: la API y zod no cambian).
  * - Tipo de proyecto: radio group de chips (name="tipo") con "gota" de --accent-fill.
  * - Presupuesto: control segmentado (name="presupuesto") con indicador de cromo (Flip).
- * - Packs de referencia según el tipo (precios exactos de PACKS).
+ * - Packs de referencia según el tipo (nombres de PACKS, sin montos).
  * - Sin JS: los radios son nativos y el formulario cae a mailto (CSP form-action lo permite).
  * El motion (lib/contact-motion.ts) se carga en idle; sin él, los cambios son instantáneos.
  */
@@ -221,7 +221,7 @@ export default function BriefStudio({ head }: { head: ReactNode }) {
           <p className="packref">
             <span className="mono">Packs de referencia</span>
             {!packs ? <span className="dim">Elige un tipo para ver packs.</span>
-              : packs.length ? packs.map((p) => <span key={p.name} className="pk"><b>{p.name}</b> {p.setup} + {p.monthly}/mes</span>)
+              : packs.length ? packs.map((p) => <span key={p.name} className="pk"><b>{p.name}</b></span>)
               : <span className="pk"><b>Software a medida</b> Cotización</span>}
             <Link href="/packs" className="arw">Ver packs <i aria-hidden="true">→</i></Link>
           </p>

@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 const PAGES = [
-  { link: 'Packs', url: '/packs', h1: /Precio claro/ },
+  { link: 'Packs', url: '/packs', h1: /Elige tu pack/ },
   { link: 'Servicios', url: '/servicios', h1: /Software & Marketing/ },
   { link: 'Proyectos', url: '/proyectos', h1: /Sitios que venden/ },
   { link: 'Nosotros', url: '/nosotros', h1: /hace crecer/ },
@@ -19,7 +19,8 @@ test.describe('Navegación', () => {
     }
     for (const id of ['proceso', 'stack', 'packs', 'por-que']) await expect(page.locator(`#${id}`)).toHaveCount(0);
     await expect(page.locator('#precios .strip-p > li')).toHaveCount(3);
-    await expect(page.locator('#precios')).toContainText('Desde $149.990');
+    await expect(page.locator('#precios')).toContainText('Pide tu cotización');
+    await expect(page.locator('#precios')).not.toContainText('$');
     await expect(page.locator('footer')).toContainText('Hecho en Chile');
   });
 
@@ -60,19 +61,16 @@ test.describe('Navegación', () => {
     await expect(page.locator('h1:visible')).toContainText('Cada detalle');
   });
 
-  test('/packs: precios exactos y JSON-LD', async ({ page }) => {
+  test('/packs: CTA de cotización, sin montos, y JSON-LD', async ({ page }) => {
     const res = await page.goto('/packs#solo-software');
     expect(res?.status()).toBe(200);
-    await expect(page).toHaveTitle(/Precios de desarrollo web y marketing en Chile · South Software/);
-    for (const price of ['$149.990', '$349.990', '$549.990', '$699.990', 'desde $1.490.000', '$249.990', 'desde $390.000']) {
-      // packs v3: "desde" va en la línea pequeña (.pl) y el monto en .pr (una sola línea)
-      const amount = price.replace(/^desde\s+/, '');
-      const card = page.locator('.pack', { has: page.locator('.pr', { hasText: amount }) }).first();
-      await expect(card.locator('.pr')).toBeVisible();
-      if (amount !== price) await expect(card.locator('.pl')).toContainText('desde');
-    }
+    await expect(page).toHaveTitle(/Packs de desarrollo web y marketing en Chile · South Software/);
+    await expect(page.locator('#packs .pack .pr').first()).toHaveText('Pide tu cotización');
+    await expect(page.locator('#packs')).not.toContainText('$');
     const ld = (await page.locator('script[type="application/ld+json"]').allTextContents()).join();
     expect(ld).toContain('OfferCatalog');
+    expect(ld).not.toMatch(/"price"\s*:/);
+    expect(ld).not.toContain('priceCurrency');
   });
 
   test('anclas antiguas del home redirigen (#packs → /packs, #proceso → /servicios#proceso)', async ({ page }) => {

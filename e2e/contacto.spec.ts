@@ -1,9 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
-import { PACKS } from '../src/content/site';
-
 /**
  * /contacto "brief conversacional": alturas, título, chips/presupuesto, tarjeta del brief,
- * packs de referencia (precios EXACTOS de PACKS), envío (dry-run), copiar email, WhatsApp con número real,
+ * packs de referencia (nombres de PACKS, sin montos), envío (dry-run), copiar email, WhatsApp con número real,
  * sin cursor personalizado / violeta, reduced motion y fallback sin JS.
  */
 const errorsOf = (page: Page) => {
@@ -55,7 +53,7 @@ test.describe('contacto · desktop 1440×900', () => {
     await expect(page.getByLabel('Cuéntanos tu idea')).toHaveAttribute('placeholder', '¿Qué vende tu tienda y cuántos productos tienes?');
   });
 
-  test('packs de referencia: nombres y precios exactos de PACKS', async ({ page }) => {
+  test('packs de referencia: nombres de PACKS, sin montos', async ({ page }) => {
     await page.goto('/contacto');
     const map: Record<string, string[]> = {
       'Sitio web': ['Emprende', 'Pyme'], 'E-commerce': ['E-commerce', 'Vitrina Digital'], 'App móvil': ['App'],
@@ -66,7 +64,7 @@ test.describe('contacto · desktop 1440×900', () => {
       await page.getByRole('radio', { name: tipo, exact: true }).click();
       const pks = ref.locator('.pk');
       if (!names.length) { await expect(pks).toHaveText(['Software a medida Cotización']); continue; }
-      await expect(pks).toHaveText(names.map((n) => { const p = PACKS.find((x) => x.name === n)!; return `${p.name} ${p.setup} + ${p.monthly}/mes`; }));
+      await expect(pks).toHaveText(names);
     }
     await expect(ref.getByRole('link', { name: /Ver packs/ })).toHaveAttribute('href', '/packs');
   });

@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { clp, fmt, quote, quoteMessage } from '../src/content/arma';
+import { clp, quote, quoteMessage } from '../src/content/arma';
 import { CUSTOM_PACK, MARKETING_ONBOARDING, MARKETING_PACKS, PACKS } from '../src/content/site';
 
 /** "Arma tu pack" (/packs#arma-tu-pack): totales en vivo, regla combo y WhatsApp precargado. */
@@ -15,10 +15,6 @@ async function open(page: Page) {
   return errors;
 }
 const sec = (page: Page) => page.locator('#arma-tu-pack');
-const totals = async (page: Page) => ({
-  setup: (await sec(page).locator('[data-total="setup"]').textContent())!.trim(),
-  monthly: (await sec(page).locator('[data-total="monthly"]').textContent())!.replace('/mes', '').trim(),
-});
 const wa = async (page: Page) => new URL((await sec(page).locator('.atp-cta').getAttribute('href'))!).searchParams.get('text');
 
 test('lógica de precios: solo de site.ts, combo 15 % y onboarding cobrado', () => {
@@ -40,7 +36,7 @@ test('lógica de precios: solo de site.ts, combo 15 % y onboarding cobrado', () 
 const next = (page: Page) => sec(page).getByRole('button', { name: 'Siguiente' }).click();
 const stepTxt = (page: Page) => sec(page).locator('.atp-step');
 
-test('flujo paso a paso: web + marketing, totales, combo, onboarding cobrado y WhatsApp', async ({ page }) => {
+test('flujo paso a paso: web + marketing, combo, onboarding y WhatsApp sin montos', async ({ page }) => {
   const errors = await open(page);
   await expect(stepTxt(page)).toHaveText('Paso 1 de 2');
   await expect(sec(page).getByRole('button', { name: 'Elige al menos una opción' })).toBeDisabled();
@@ -50,7 +46,8 @@ test('flujo paso a paso: web + marketing, totales, combo, onboarding cobrado y W
   await next(page);
   await expect(sec(page).getByRole('heading', { name: 'Tu página web' })).toBeFocused();
   await sec(page).getByLabel('Sitio pyme').check();
-  expect(await totals(page)).toEqual({ setup: P('Pyme').setup, monthly: P('Pyme').monthly });
+  await expect(sec(page).locator('.atp-ask')).toHaveText('Pide tu cotización');
+  await expect(sec(page)).not.toContainText('$');
   await next(page);
   await expect(stepTxt(page)).toHaveText('Paso 3 de 4');
   await sec(page).getByRole('radio', { name: 'Marketing Básico' }).check();
@@ -59,15 +56,15 @@ test('flujo paso a paso: web + marketing, totales, combo, onboarding cobrado y W
   await sec(page).getByLabel('Onboarding de marketing').check();
   const q = quote(['sitio-pyme', 'pro', 'onboarding']);
   expect(q.setup).toBe(n(P('Pyme').setup) + n(MARKETING_ONBOARDING.price));
-  expect(await totals(page)).toEqual({ setup: clp(q.setup), monthly: clp(q.monthly) });
   await expect(sec(page).locator('.atp-combo')).toBeVisible();
+  await expect(sec(page).locator('.atp-combo')).toContainText('15 %');
   // atrás conserva estado
   await sec(page).getByRole('button', { name: 'Atrás' }).click();
   await expect(sec(page).getByLabel('Sitio pyme')).toBeChecked();
   await next(page); await next(page);
   await expect(stepTxt(page)).toHaveText('Paso 4 de 4');
   await expect(sec(page).locator('.atp-detail')).toContainText('Onboarding de marketing');
-  await expect(sec(page).locator('.atp-detail')).toContainText(MARKETING_ONBOARDING.price);
+  await expect(sec(page)).not.toContainText('$');
   await expect(sec(page)).not.toContainText(/gratis/i);
   await sec(page).getByLabel('Día').selectOption('Martes');
   await sec(page).getByLabel('Horario').selectOption('19:00 a 22:00');
@@ -75,7 +72,8 @@ test('flujo paso a paso: web + marketing, totales, combo, onboarding cobrado y W
   const when = 'Martes, 19:00 a 22:00 (hora de Chile)';
   expect(text).toBe(quoteMessage(q, when));
   expect(text).toContain('Sitio pyme, Marketing Pro, Onboarding de marketing');
-  expect(text).toContain(`Pago inicial ${clp(q.setup)} + ${clp(q.monthly)}/mes (con 15 % de descuento combo)`);
+  expect(text).toContain('Aplica descuento combo 15 %');
+  expect(text).not.toMatch(/\$/);
   expect(text).toContain('Martes, 19:00 a 22:00');
   const href = (await sec(page).locator('.atp-cta').getAttribute('href'))!;
   expect(href.startsWith('https://wa.me/56964710361?')).toBe(true);
@@ -85,11 +83,10 @@ test('flujo paso a paso: web + marketing, totales, combo, onboarding cobrado y W
   // reiniciar
   await sec(page).getByRole('button', { name: 'Reiniciar' }).click();
   await expect(stepTxt(page)).toHaveText('Paso 1 de 2');
-  await expect(sec(page).locator('[data-total="setup"]')).toHaveText('$0');
   expect(errors).toEqual([]);
 });
 
-test('escritorio y app con "desde", extras de seguridad y teclado', async ({ page }) => {
+test('escritorio y app, extras de seguridad y teclado', async ({ page }) => {
   await open(page);
   await sec(page).getByLabel('Software de escritorio').focus();
   await page.keyboard.press('Space');
@@ -100,9 +97,10 @@ test('escritorio y app con "desde", extras de seguridad y teclado', async ({ pag
   await sec(page).getByLabel('App', { exact: true }).check();
   await next(page);
   await sec(page).getByLabel('Software a medida').check();
-  await expect(sec(page).locator('[data-total="setup"]')).toContainText('desde ');
+  await expect(sec(page).locator('.atp-list')).toContainText('Software a medida');
+  await expect(sec(page).locator('.atp-ask')).toHaveText('Pide tu cotización');
+  await expect(sec(page)).not.toContainText('$');
   const q = quote(['seguridad', 'app', 'a-medida']);
-  expect(await totals(page)).toEqual({ setup: fmt(q.setup, true), monthly: fmt(q.monthly, true) });
   expect(q.combo).toBe(false);
 });
 
@@ -111,7 +109,7 @@ test('home: la franja de precios enlaza a Arma tu pack', async ({ page }) => {
   await expect(page.locator('#precios a[href="/packs#arma-tu-pack"]')).toHaveCount(1);
 });
 
-test('móvil 390×844: sin overflow y totales visibles @mobile', async ({ page }) => {
+test('móvil 390×844: sin overflow y resumen visible @mobile', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   const errors = await open(page);
   await sec(page).getByLabel('Página web').check();
@@ -121,8 +119,8 @@ test('móvil 390×844: sin overflow y totales visibles @mobile', async ({ page }
   await next(page);
   await sec(page).getByRole('radio', { name: 'Marketing Básico' }).check();
   await expect(sec(page).locator('.atp-sum')).toBeInViewport();
-  const q = quote(['landing', 'basico']);
-  expect(await totals(page)).toEqual({ setup: clp(q.setup), monthly: clp(q.monthly) });
+  await expect(sec(page).locator('.atp-ask')).toHaveText('Pide tu cotización');
+  await expect(sec(page)).not.toContainText('$');
   const m = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }));
   expect(m.sw).toBe(m.cw);
   expect(errors).toEqual([]);

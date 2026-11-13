@@ -1,19 +1,17 @@
 'use client';
-/** "Arma tu pack": pedido paso a paso (lógica y precios en content/arma.ts). */
+/** "Arma tu pack": pedido paso a paso (lógica en content/arma.ts; sin montos en pantalla). */
 import './marketing.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { CATEGORIES, DAYS, EXTRA_ITEMS, PLAN_ITEMS, SLOTS, clp, fmt, itemById, quote, quoteMessage, type CatId, type Item } from '@/content/arma';
+import { CATEGORIES, DAYS, EXTRA_ITEMS, PLAN_ITEMS, SLOTS, itemById, quote, quoteMessage, type CatId, type Item } from '@/content/arma';
 import { ADS_NOTE, waLink } from '@/content/site';
 import { Btn } from '../ui';
-
-const price = (i: Item) => [i.setup ? `${i.from ? 'desde ' : ''}${clp(i.setup)} inicial` : '', i.monthly ? `${i.from ? 'desde ' : ''}${clp(i.monthly)}/mes` : ''].filter(Boolean).join(' + ');
 
 function Card({ i, type, name, checked, onChange }: { i: Item; type: 'checkbox' | 'radio'; name: string; checked: boolean; onChange: () => void }) {
   return (
     <label className="atp-card">
       <input type={type} name={name} value={i.id} aria-label={i.label} checked={checked} onChange={onChange} />
       <i className="atp-mk" aria-hidden="true" />
-      <span className="atp-name">{i.label}</span><span className="atp-price">{price(i)}</span><span className="atp-note">{i.note}</span>
+      <span className="atp-name">{i.label}</span><span className="atp-note">{i.note}</span>
     </label>
   );
 }
@@ -52,7 +50,7 @@ export default function ArmaTuPack() {
       <div className="wrap">
         <div className="mkp-head">
           <h2 className="h3" id="atp-t">Arma tu pack</h2>
-          <p className="lead">Elige lo principal, suma complementos y ve el total al instante. Al combinar software con marketing mensual, la mensualidad baja 15 %.</p>
+          <p className="lead">Elige lo principal, suma complementos y agenda una reunión. Al combinar software con marketing mensual, la mensualidad baja 15 %.</p>
         </div>
         <div className="atp">
           <div className="atp-form">
@@ -105,11 +103,11 @@ export default function ArmaTuPack() {
                   {q.items.length === 0 ? <p className="atp-empty">Aún no eliges servicios. Vuelve atrás para sumar alguno.</p> : (
                     <table className="atp-detail">
                       <caption className="sr">Detalle por ítem</caption>
-                      <thead><tr><th scope="col">Servicio</th><th scope="col">Pago inicial</th><th scope="col">Mensual</th></tr></thead>
-                      <tbody>{q.items.map((i) => <tr key={i.id}><th scope="row">{i.label}</th><td>{i.setup ? fmt(i.setup, i.from) : '—'}</td><td>{i.monthly ? fmt(i.monthly, i.from) : '—'}</td></tr>)}</tbody>
+                      <thead><tr><th scope="col">Servicio</th></tr></thead>
+                      <tbody>{q.items.map((i) => <tr key={i.id}><th scope="row">{i.label}</th></tr>)}</tbody>
                     </table>
                   )}
-                  <p className="fine">Valor aproximado: lo confirmamos en la reunión. El onboarding y el pago inicial siempre se cobran. {ADS_NOTE}</p>
+                  <p className="fine">Te enviamos la cotización en la reunión. El onboarding y el pago inicial se confirman ahí. {ADS_NOTE}</p>
                   <fieldset className="atp-when">
                     <legend>¿Cuándo te acomoda la reunión? (lunes a sábado, 10:00 a 22:00, hora de Chile)</legend>
                     <label>Día<select value={day} onChange={(e) => setDay(e.target.value)}><option value="">Elige un día</option>{DAYS.map((d) => <option key={d}>{d}</option>)}</select></label>
@@ -130,17 +128,14 @@ export default function ArmaTuPack() {
               {q.items.length === 0 ? <p className="atp-empty">Aún no eliges servicios.</p> : (
                 <ul className="atp-list">{q.items.map((i) => <li key={i.id}>{i.label}</li>)}</ul>
               )}
-              <dl className="atp-tot">
-                <div><dt>Pago inicial</dt><dd data-total="setup" key={'s' + q.setup}>{fmt(q.setup, q.from)}</dd></div>
-                <div><dt>Mensual</dt><dd data-total="monthly" key={'m' + q.monthly}>{fmt(q.monthly, q.from)}<small>/mes</small></dd></div>
-              </dl>
-              {q.combo && <p className="atp-combo">Descuento combo 15 % aplicado: mensual sin descuento {fmt(q.monthlyBase, q.from)}.</p>}
+              <p className="atp-ask">Pide tu cotización</p>
+              {q.combo && <p className="atp-combo">Descuento combo 15 % aplicable al combinar software y marketing mensual.</p>}
             </div>
             {cur === 'summary' && q.items.length > 0
               ? <><Btn href={waLink(quoteMessage(q, when))} external className="atp-cta" lead={{ channel: 'arma_tu_pack', items: q.items.map((i) => i.id), when: when || undefined }}>Agendar por WhatsApp</Btn>
                   <a className="atp-link atp-alt" href="/contacto">O usa el formulario de contacto</a></>
               : <p className="atp-off atp-cta">{q.items.length ? 'Sigue hasta el resumen para agendar' : 'Elige al menos un servicio'}</p>}
-            <p className="fine">Valores brutos en CLP. “desde” = precio base según alcance. {ADS_NOTE}</p>
+            <p className="fine">Te cotizamos según el alcance, sin compromiso. {ADS_NOTE}</p>
           </aside>
         </div>
       </div>

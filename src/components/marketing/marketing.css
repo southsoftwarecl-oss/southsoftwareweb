@@ -15,6 +15,7 @@
 .mkp .badge{position:absolute;top:-11px;left:22px;font-size:11px;padding:3px 10px;border-radius:999px;background:#EEF2F6;color:#0B0D10}
 .mkp-n{font-size:22px;margin:0}.mkp-tag{display:block;color:var(--dim);margin:6px 0 14px;font-size:11px}
 .mkp .pl{color:var(--dim);font-size:12px}.mkp-setup{font-size:28px;font-weight:600;margin:4px 0}
+.mkp-ask{font-size:22px;font-weight:600;margin:8px 0 12px;color:var(--fg,#EEF2F6)}
 .mkp-mo{color:var(--dim)}.mkp-mo b{color:var(--fg,#EEF2F6)}
 .mkp-launch{margin-top:10px;font-size:13px;padding:8px 10px;border:1px dashed var(--line);border-radius:10px}
 .mkp ul{list-style:none;padding:0;margin:16px 0;font-size:14px;color:var(--dim);flex:1}.mkp li{padding:6px 0;border-top:1px solid var(--line)}
@@ -63,6 +64,7 @@
 .atp-empty{color:var(--dim);font-size:14px;margin:0 0 8px}
 .atp-list{list-style:none;padding:0;margin:0 0 14px;display:flex;flex-wrap:wrap;gap:6px}
 .atp-list li{font-size:12.5px;padding:5px 10px;border:1px solid var(--line);border-radius:999px;color:#EEF2F6}
+.atp-ask{font-size:18px;font-weight:600;margin:12px 0 8px;color:var(--fg,#EEF2F6)}
 .atp-tot{margin:0;border-top:1px solid var(--line)}
 .atp-tot>div{display:flex;flex-direction:column;gap:2px;padding:14px 0;border-bottom:1px solid var(--line)}
 .atp-tot dt{color:var(--dim);font-size:12px;letter-spacing:.08em;text-transform:uppercase}
@@ -108,3 +110,6 @@
 @media (max-width:1100px){.atp-sum{position:sticky;top:auto;bottom:0;z-index:5;padding:14px 18px;background:var(--bg,#0A0A0B);box-shadow:0 -20px 40px -10px rgba(0,0,0,.9)}.atp-sum .atp-off{display:none}.atp-sum .atp-list,.atp-sum .fine,.atp-sum h3{display:none}.atp-tot{display:grid;grid-template-columns:1fr 1fr;gap:12px;border:0}.atp-tot>div{border:0;padding:4px 0}.atp-tot dd{font-size:22px}.atp-sum .atp-cta{margin-top:10px}}
 @media (max-width:640px){.atp-when{grid-template-columns:1fr}.atp-h{font-size:21px}}
 @media (prefers-reduced-motion:reduce){.atp-panel,.atp-panel .atp-card,.atp-tot dd{animation:none}.atp-bar li{transition:none}}
+
+/* CTA de cotización: el texto es más largo que "Elegir pack" */
+.mkp .btn{width:100%;box-sizing:border-box;font-size:13px;padding:0 12px}

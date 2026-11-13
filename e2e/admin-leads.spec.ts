@@ -36,7 +36,7 @@ test.describe('solicitudes → panel', () => {
 
   test('"Elegir pack" en /packs guarda la intención con precios del servidor y sigue abriendo WhatsApp', async ({ page, context }) => {
     await page.goto('/packs');
-    const btn = page.locator('a[data-lead][href*="wa.me"]', { hasText: 'Elegir pack' }).first();
+    const btn = page.locator('a[data-lead][href*="wa.me"]', { hasText: 'Cotiza por WhatsApp' }).first();
     const lead = JSON.parse((await btn.getAttribute('data-lead'))!) as { pack: string };
     const [resp] = await Promise.all([
       page.waitForResponse((r) => r.url().endsWith('/api/leads')),

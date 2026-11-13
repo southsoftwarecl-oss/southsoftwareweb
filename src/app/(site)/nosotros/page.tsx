@@ -18,7 +18,7 @@ import { breadcrumbJsonLd, pageMeta } from '@/lib/seo';
 
 export const metadata = pageMeta({
   title: 'Nosotros: desarrollo de software y marketing',
-  description: 'Somos South Software, equipo de desarrollo de software y marketing digital para pymes de Chile: precios publicados y trato directo. Conversemos.',
+  description: 'Somos South Software, equipo de desarrollo de software y marketing digital para pymes de Chile: cotización clara y trato directo. Conversemos.',
   path: '/nosotros',
 });
 

@@ -32,9 +32,6 @@ export const orgJsonLd = {
   sameAs: [BRAND.instagram.url, BRAND.facebook.url],
 };
 
-/** Convierte "$349.990" o "desde $1.490.000" a número CLP. */
-const clp = (s: string) => Number(s.replace(/[^\d]/g, ''));
-
 export const servicesJsonLd = {
   '@context': 'https://schema.org',
   '@graph': [
@@ -49,15 +46,14 @@ export const servicesJsonLd = {
     {
       '@type': 'OfferCatalog', name: 'Packs South Software',
       itemListElement: PACKS.map((p) => ({
-        '@type': 'Offer', name: `Pack ${p.name}`, priceCurrency: 'CLP',
-        priceSpecification: { '@type': 'PriceSpecification', price: clp(p.setup), priceCurrency: 'CLP', ...(p.setup.startsWith('desde') ? { minPrice: clp(p.setup) } : {}) },
+        '@type': 'Offer', name: `Pack ${p.name}`,
         description: p.includes.join('. '), seller: { '@id': `${SITE_URL}/#org` },
       })),
     },
   ],
 };
 
-/** /packs: catálogo de ofertas (Service + Offer) con los precios publicados en PACKS. */
+/** /packs: catálogo de ofertas (Service + Offer) sin montos públicos. */
 export const packsJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Service',
@@ -70,8 +66,7 @@ export const packsJsonLd = {
   hasOfferCatalog: {
     '@type': 'OfferCatalog', name: 'Packs South Software',
     itemListElement: PACKS.map((p) => ({
-      '@type': 'Offer', name: `Pack ${p.name}`, priceCurrency: 'CLP', url: `${SITE_URL}/packs`,
-      priceSpecification: { '@type': 'PriceSpecification', price: clp(p.setup), priceCurrency: 'CLP', ...(p.setup.startsWith('desde') ? { minPrice: clp(p.setup) } : {}) },
+      '@type': 'Offer', name: `Pack ${p.name}`, url: `${SITE_URL}/packs`,
       description: p.includes.join('. '), seller: { '@id': `${SITE_URL}/#org` },
     })),
   },

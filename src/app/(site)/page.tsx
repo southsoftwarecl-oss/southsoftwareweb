@@ -1,6 +1,6 @@
 /**
  * Home (v2, compacto): Hero → Proof → Servicios (teaser) → Historia fijada →
- * Proyectos destacados → Franja de precios → CTA/contacto. Proceso, Stack y
+ * Proyectos destacados → Franja de packs → CTA/contacto. Proceso, Stack y
  * "Por qué" viven en /servicios y /nosotros; los packs completos en /packs.
  */
 import Page from '@/components/Page';

@@ -41,9 +41,9 @@ export function waLink(text: string) {
   const keep = query.split('&').filter((kv) => kv && !/^text=/.test(kv));
   return `${base}?${[...keep, `text=${encodeURIComponent(text)}`].join('&')}`;
 }
-/** Mensaje de "Elegir pack" (valores EXACTOS de PACKS). */
-export const packMessage = (p: { name: string; setup: string; monthly: string }) =>
-  `Hola, me interesa el pack ${p.name} (pago inicial ${p.setup} + ${p.monthly}/mes). ¿Conversamos?`;
+/** Mensaje de "Cotiza por WhatsApp" (nombre del pack, sin precios). */
+export const packMessage = (p: { name: string; setup?: string; monthly?: string }) =>
+  `Hola, me interesa el pack ${p.name}. ¿Conversamos?`;
 export const FOUNDERS_MESSAGE = 'Quiero reservar un cupo de Cliente Fundador';
 
 /** Navegación principal (mismo pill del preview). */
@@ -148,11 +148,11 @@ export const MARKETING_PACKS: MktPack[] = [
   { name: 'Marketing Básico', setup: '$99.990', monthly: '$189.990', launch: '$149.990',
     includes: ['Instagram + Facebook', '8 posts y 4 historias al mes', 'Respuestas en 48 h', 'Reporte mensual'] },
   { name: 'Marketing Pro', setup: '$99.990', monthly: '$349.990', launch: '$299.990', featured: true,
-    includes: ['Instagram + Facebook', '12 piezas al mes (2 reels) e historias semanales', 'Respuestas en 24 h', 'Gestión de 1 campaña de Meta Ads (pauta hasta $400.000)'] },
+    includes: ['Instagram + Facebook', '12 piezas al mes (2 reels) e historias semanales', 'Respuestas en 24 h', 'Gestión de 1 campaña de Meta Ads (pauta según acuerdo)'] },
   { name: 'Marketing Full / Captación', setup: '$99.990', monthly: '$549.990', launch: '$489.990',
     includes: ['Instagram + Facebook + TikTok', '16 piezas al mes (4 reels)', 'Meta Ads y landing de captación', 'Seguimiento de leads por WhatsApp y reunión mensual'] },
   { name: 'Solo Ads', setup: '$99.990', monthly: '$149.990', launch: null,
-    includes: ['Gestión de Meta Ads (Facebook e Instagram)', 'Hasta 3 campañas', 'Pauta hasta $400.000', 'Sobre ese monto, +15 % de la pauta'] },
+    includes: ['Gestión de Meta Ads (Facebook e Instagram)', 'Hasta 3 campañas', 'Pauta según acuerdo', 'Comisión sobre la pauta cuando corresponde'] },
 ];
 /** Software a medida (pack opcional de la propuesta). */
 export const CUSTOM_PACK = { name: 'Software a medida', setup: 'desde $1.900.000', monthly: 'desde $79.990' };
@@ -249,7 +249,7 @@ export const TESTIMONIALS: { quote: string; name: string; company: string }[] = 
 
 export const WHY = [
   ['Todo queda a tu nombre', 'Dominio, código, contenidos y cuentas te pertenecen. Nunca secuestramos tu marca.'],
-  ['Precio publicado', 'Packs de software y marketing con valores visibles. Sabes cuánto cuesta antes de la primera reunión.'],
+  ['Cotización clara', 'Te contamos qué incluye cada pack y te cotizamos antes de empezar. Sabes cómo trabajamos desde la primera conversación.'],
   ['Sin permanencia', 'Mensualidad mes a mes con 30 días de aviso en los planes con pago inicial.'],
   ['Trato directo', 'Trabajamos con empresas de todo Chile, por videollamada o en persona.'],
   ['Seguridad desde el día uno', 'HTTPS, respaldos automáticos y buenas prácticas en cada proyecto.'],
@@ -269,10 +269,10 @@ export const FOUNDERS = {
  * /nosotros — manifiesto (texto idéntico al publicado; solo cambia su presentación).
  * `MANIFESTO_KEYS`: frases que se "cromean" al completarse (deben aparecer tal cual en MANIFESTO).
  */
-export const MANIFESTO = 'Creemos que cualquier pyme, esté donde esté, merece la misma calidad técnica que una gran empresa. Por eso publicamos nuestros precios, dejamos todo a tu nombre y te atiende quien programa.';
+export const MANIFESTO = 'Creemos que cualquier pyme, esté donde esté, merece la misma calidad técnica que una gran empresa. Por eso cotizamos con claridad, dejamos todo a tu nombre y te atiende quien programa.';
 /** Manifiesto en frases para el scrollytelling (mismo texto, partido). */
-export const MANIFESTO_LINES = ['Cualquier pyme merece la misma calidad técnica que una gran empresa.', 'Por eso publicamos nuestros precios.', 'Dejamos todo a tu nombre.', 'Y te atiende quien programa.'] as const;
-export const MANIFESTO_KEYS = ['misma calidad técnica', 'publicamos nuestros precios', 'todo a tu nombre', 'te atiende quien programa'] as const;
+export const MANIFESTO_LINES = ['Cualquier pyme merece la misma calidad técnica que una gran empresa.', 'Por eso cotizamos con claridad.', 'Dejamos todo a tu nombre.', 'Y te atiende quien programa.'] as const;
+export const MANIFESTO_KEYS = ['misma calidad técnica', 'cotizamos con claridad', 'todo a tu nombre', 'te atiende quien programa'] as const;
 export const MANIFESTO_SIDE = [
   ['Cobertura', 'Todo Chile · remoto y presencial'],
   ['Atención', 'Directa, con quien programa tu proyecto'],

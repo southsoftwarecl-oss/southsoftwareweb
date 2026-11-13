@@ -2,12 +2,11 @@ import { expect, test, type Page } from '@playwright/test';
 import { COMBO_PACKS, CUSTOM_PACK, MARKETING_PACKS, PACKS, WA_URL } from '../src/content/site';
 
 /**
- * Packs v3 — "Forja de cromo" (/packs). Precios exactos de PACKS tras la animación, una sola línea de precio,
+ * Packs v3 — "Forja de cromo" (/packs). Nombres y CTA de cotización (sin montos públicos),
  * tilt ≤4° sobre Pyme con el resto en opacity .78, carrusel móvil (snap x, abre en Pyme, ≤1.3 viewports),
  * reduced motion sin animaciones y sin violeta.
  */
 type G = { globalTimeline: { getChildren: (n: boolean, t: boolean, tl: boolean) => { targets?: () => Element[] }[] }; getProperty: (e: Element, p: string) => number };
-const AMOUNT = (v: string) => v.replace(/^desde\s+/i, '');
 
 async function open(page: Page, path = '/packs#solo-software') {
   const errors: string[] = [];
@@ -20,48 +19,24 @@ async function open(page: Page, path = '/packs#solo-software') {
 }
 const forged = (page: Page) => expect(page.locator('#packs .packs')).toHaveAttribute('data-forja', /done|static/, { timeout: 15000 });
 
-/** Lee lo que MUESTRAN las columnas del odómetro (posición de cada rodillo) y el aria-label. */
-const shown = (page: Page) => page.$$eval('#packs .pack', (cards) => cards.map((c) => {
-  const label = (c.querySelector('.pl')?.textContent || '').toLowerCase();
-  const odo = Array.from(c.querySelectorAll<HTMLElement>('.odo')).map((o) => {
-    const cols = o.querySelector('.cols');
-    if (!cols) return { aria: o.getAttribute('aria-label'), text: o.textContent, visual: o.textContent };
-    let visual = '';
-    cols.childNodes.forEach((n) => {
-      if (n.nodeType === 3) { visual += n.textContent; return; }
-      const reel = (n as HTMLElement).querySelector('.reel') as HTMLElement;
-      const ty = new DOMMatrix(getComputedStyle(reel).transform).m42;
-      visual += String(Math.round(-ty / (reel.getBoundingClientRect().height / 11)) % 10);
-    });
-    return { aria: o.getAttribute('aria-label'), text: o.querySelector('.sr')?.textContent ?? null, visual };
-  });
-  return { desde: label.includes('desde'), mo: c.querySelector('.mo')?.textContent || '', odo };
-}));
-
 for (const vp of [{ width: 1440, height: 900 }, { width: 1280, height: 680 }]) {
   test.describe(`packs desktop ${vp.width}x${vp.height}`, () => {
     test.use({ viewport: vp });
 
-    test('200, sin errores, precios exactos de PACKS y una sola línea', async ({ page }) => {
+    test('200, sin errores, nombres de PACKS y CTA de cotización', async ({ page }) => {
       const errors = await open(page);
       await page.locator('#packs .packs').scrollIntoViewIfNeeded();
       await forged(page);
-      await page.waitForTimeout(400);
-      const s = await shown(page);
-      expect(s.length).toBe(PACKS.length + 1);
-      PACKS.forEach((p, i) => {
-        const [setup, monthly] = s[i].odo;
-        for (const [o, v] of [[setup, p.setup], [monthly, p.monthly]] as const) {
-          expect(o.aria, `${p.name} aria-label`).toBe(AMOUNT(v));
-          expect(o.text, `${p.name} texto`).toBe(AMOUNT(v));
-          expect(o.visual, `${p.name} odómetro`).toBe(AMOUNT(v));
-        }
-        expect(s[i].desde ? `desde ${setup.aria}` : setup.aria, `${p.name} setup completo`).toBe(p.setup);
-        expect(s[i].mo.replace(/\s+/g, ' ')).toContain(p.monthly);
-      });
-      expect(s[PACKS.length].odo).toEqual([]); // "Cotización" no rueda
-      const lines = await page.$$eval('#packs .pack .pr', (els) => els.map((e) => e.getBoundingClientRect().height / parseFloat(getComputedStyle(e).lineHeight)));
-      lines.forEach((r) => expect(r).toBeLessThanOrEqual(1.3));
+      const cards = page.locator('#packs .pack');
+      await expect(cards).toHaveCount(PACKS.length + 1);
+      for (const [i, p] of PACKS.entries()) {
+        const c = cards.nth(i);
+        await expect(c.locator('.pn')).toHaveText(p.name);
+        await expect(c.locator('.pr')).toHaveText('Pide tu cotización');
+        await expect(c.getByRole('link', { name: 'Cotiza por WhatsApp' })).toBeVisible();
+        await expect(c).not.toContainText('$');
+      }
+      await expect(cards.nth(PACKS.length).locator('.pn')).toHaveText(CUSTOM_PACK.name);
       expect(errors).toEqual([]);
     });
 
@@ -92,7 +67,7 @@ for (const vp of [{ width: 1440, height: 900 }, { width: 1280, height: 680 }]) {
   });
 }
 
-test('WhatsApp precargado: cada "Elegir pack" lleva su pack y precios exactos', async ({ page }) => {
+test('WhatsApp precargado: cada "Cotiza por WhatsApp" lleva el nombre del pack, sin precios', async ({ page }) => {
   await open(page);
   const base = WA_URL.split('?')[0];
   const hrefs = await page.$$eval('#packs .pack', (cs) => cs.map((c) => ({ name: c.querySelector('.pn')?.textContent, href: c.querySelector('.btn')?.getAttribute('href') || '' })));
@@ -101,14 +76,13 @@ test('WhatsApp precargado: cada "Elegir pack" lleva su pack y precios exactos', 
     expect(hrefs[i].name).toBe(p.name);
     expect(h.startsWith(base + '?')).toBe(true);
     expect(h).toContain(encodeURIComponent(p.name));
-    expect(h).toContain(encodeURIComponent(p.setup));
-    expect(h).toContain(encodeURIComponent(p.monthly));
+    expect(h).not.toContain(encodeURIComponent(p.setup));
+    expect(h).not.toContain(encodeURIComponent(p.monthly));
     expect(h.match(/[?&]text=/g)?.length, 'un solo parámetro text').toBe(1);
     const text = new URL(h).searchParams.get('text');
-    expect(text).toBe(`Hola, me interesa el pack ${p.name} (pago inicial ${p.setup} + ${p.monthly}/mes). ¿Conversamos?`);
+    expect(text).toBe(`Hola, me interesa el pack ${p.name}. ¿Conversamos?`);
   });
-  // Software a medida (desde $1.900.000 + desde $79.990): WhatsApp precargado
-  expect(new URL(hrefs[PACKS.length].href).searchParams.get('text')).toBe(`Hola, me interesa el pack ${CUSTOM_PACK.name} (pago inicial ${CUSTOM_PACK.setup} + ${CUSTOM_PACK.monthly}/mes). ¿Conversamos?`);
+  expect(new URL(hrefs[PACKS.length].href).searchParams.get('text')).toBe(`Hola, me interesa el pack ${CUSTOM_PACK.name}. ¿Conversamos?`);
   const cupo = await page.locator('#packs .founders .btn').getAttribute('href');
   expect(new URL(cupo!).searchParams.get('text')).toBe('Quiero reservar un cupo de Cliente Fundador');
   expect(cupo!.match(/[?&]text=/g)?.length).toBe(1);
@@ -129,12 +103,11 @@ test('sin violeta en /packs', async ({ page }) => {
 
 test.describe('packs reduced motion', () => {
   test.use({ reducedMotion: 'reduce', viewport: { width: 1440, height: 900 } });
-  test('precios y checks visibles de inmediato, sin animaciones', async ({ page }) => {
+  test('nombres y checks visibles de inmediato, sin animaciones', async ({ page }) => {
     await open(page);
     await page.waitForFunction(() => !!(window as unknown as { __gsap?: unknown }).__gsap);
     await forged(page);
-    const s = await shown(page);
-    PACKS.forEach((p, i) => { expect(s[i].odo[0].visual).toBe(AMOUNT(p.setup)); expect(s[i].odo[1].visual).toBe(AMOUNT(p.monthly)); });
+    for (const p of PACKS) await expect(page.locator('#packs .pack', { hasText: p.name }).first()).toBeVisible();
     const st = await page.evaluate(() => {
       const sec = document.querySelector('#packs')!;
       const g = (window as unknown as { __gsap: G }).__gsap;
@@ -192,7 +165,7 @@ test('/packs responde 200 a 390×844 sin errores de consola @mobile', async ({ p
   expect(errors).toEqual([]);
 });
 
-test('grupos Combinados / Solo marketing / Solo software: precios exactos, lanzamiento y WhatsApp precargado', async ({ page }) => {
+test('grupos Combinados / Solo marketing / Solo software: nombres, CTA y WhatsApp precargado sin precios', async ({ page }) => {
   const errors = await open(page, '/packs');
   await expect(page.getByRole('tab')).toHaveCount(3);
   for (const [id, list] of [['combinados', COMBO_PACKS], ['solo-marketing', MARKETING_PACKS]] as const) {
@@ -202,14 +175,12 @@ test('grupos Combinados / Solo marketing / Solo software: precios exactos, lanza
     for (const [i, p] of list.entries()) {
       const c = cards.nth(i);
       await expect(c.locator('.mkp-n')).toHaveText(p.name);
-      await expect(c.locator('.mkp-setup')).toHaveText(p.setup);
-      await expect(c.locator('.mkp-mo b')).toHaveText(p.launch ?? p.monthly);
-      if (p.launch) await expect(c.locator('.mkp-launch')).toContainText(`luego ${p.monthly}/mes`);
-      else await expect(c.locator('.mkp-launch')).toHaveCount(0);
+      await expect(c.locator('.mkp-ask')).toHaveText('Pide tu cotización');
+      await expect(c).not.toContainText('$');
       const h = (await c.locator('.mkp-btn').getAttribute('href'))!;
       expect(h.startsWith(WA_URL.split('?')[0] + '?')).toBe(true);
       expect(h.match(/[?&]text=/g)?.length).toBe(1);
-      expect(new URL(h).searchParams.get('text')).toBe(`Hola, me interesa el pack ${p.name} (pago inicial ${p.setup} + ${p.monthly}/mes). ¿Conversamos?`);
+      expect(new URL(h).searchParams.get('text')).toBe(`Hola, me interesa el pack ${p.name}. ¿Conversamos?`);
     }
     await expect(page.locator(`#${id} .fine`)).toContainText('pauta publicitaria');
   }

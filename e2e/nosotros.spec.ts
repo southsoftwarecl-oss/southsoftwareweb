@@ -1,8 +1,8 @@
 import { test, expect, type Page } from '@playwright/test';
 
 /** /nosotros — "Forjado" (5 actos). */
-const WHY_TITLES = ['Todo queda a tu nombre', 'Precio publicado', 'Sin permanencia', 'Trato directo', 'Seguridad desde el día uno', 'Hablas con quien programa'];
-const MANIFESTO = 'Creemos que cualquier pyme, esté donde esté, merece la misma calidad técnica que una gran empresa. Por eso publicamos nuestros precios, dejamos todo a tu nombre y te atiende quien programa.';
+const WHY_TITLES = ['Todo queda a tu nombre', 'Cotización clara', 'Sin permanencia', 'Trato directo', 'Seguridad desde el día uno', 'Hablas con quien programa'];
+const MANIFESTO = 'Creemos que cualquier pyme, esté donde esté, merece la misma calidad técnica que una gran empresa. Por eso cotizamos con claridad, dejamos todo a tu nombre y te atiende quien programa.';
 
 async function open(page: Page) {
   const errors: string[] = [];

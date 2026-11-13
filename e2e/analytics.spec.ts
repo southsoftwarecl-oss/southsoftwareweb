@@ -129,7 +129,7 @@ test.describe('Con GA4 (build de prueba)', () => {
     await open(page, '/packs');
     await page.getByRole('button', { name: 'Aceptar' }).click();
     await expect.poll(() => page.evaluate(() => typeof window.gtag)).toBe('function');
-    const link = page.locator('a[href*="wa.me"]', { hasText: 'Elegir pack' }).first();
+    const link = page.locator('a[href*="wa.me"]', { hasText: 'Cotiza por WhatsApp' }).first();
     await link.evaluate((a) => a.addEventListener('click', (e) => e.preventDefault(), { once: true }));
     await link.click();
     await page.evaluate(() => {
