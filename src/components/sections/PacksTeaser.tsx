@@ -14,7 +14,7 @@ export default function PacksTeaser({ n = 4 }: { n?: number }) {
         <div className="strip">
           <div className="strip-h">
             <div className="eyebrow" data-reveal><b>({String(n).padStart(2, '0')})</b>Nuestros packs</div>
-            <h2 className="h3" id="precios-t" data-split="words">Elige tu pack.<br /><span className="dim">Cotiza por WhatsApp.</span></h2>
+            <h2 className="h3" id="precios-t">Elige tu pack.<br /><span className="dim">Cotiza por<br />WhatsApp.</span></h2>
           </div>
           <ul className="strip-p" data-stagger>
             {items.map((p) => (

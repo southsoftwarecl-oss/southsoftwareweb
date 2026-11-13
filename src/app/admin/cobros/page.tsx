@@ -3,13 +3,14 @@ import { Suspense } from 'react';
 import AdminShell, { Empty } from '../Shell';
 import { IllCalendar } from '@/components/admin/Illustrations';
 import Simulador from './Simulador';
+import { CATALOG } from '@/lib/admin/catalog';
 
 export const metadata = { title: 'Cobros' };
 
 async function Sim() {
   await connection();
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Santiago' }).format(new Date());
-  return <Simulador today={today} />;
+  return <Simulador today={today} catalog={CATALOG} />;
 }
 
 export default function Cobros() {

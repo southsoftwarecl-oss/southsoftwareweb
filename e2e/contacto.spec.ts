@@ -35,18 +35,18 @@ test.describe('contacto · desktop 1440×900', () => {
     await page.getByLabel('Empresa').fill('Tienda Sur');
     await page.getByRole('radio', { name: 'E-commerce' }).click();
     await expect(page.locator('input[name=tipo]:checked')).toHaveValue('E-commerce');
-    await page.getByRole('radio', { name: 'Menos de $300.000' }).click();
+    await page.getByRole('radio', { name: 'Proyecto pequeño' }).click();
     await page.keyboard.press('ArrowRight');
-    await expect(page.locator('input[name=presupuesto]:checked')).toHaveValue('$300.000 – $700.000');
+    await expect(page.locator('input[name=presupuesto]:checked')).toHaveValue('Proyecto mediano');
     await page.keyboard.press('ArrowRight');
-    await expect(page.locator('input[name=presupuesto]:checked')).toHaveValue('$700.000 – $1.500.000');
+    await expect(page.locator('input[name=presupuesto]:checked')).toHaveValue('Proyecto grande');
     await page.keyboard.press('ArrowLeft');
-    await expect(page.locator('input[name=presupuesto]:checked')).toHaveValue('$300.000 – $700.000');
+    await expect(page.locator('input[name=presupuesto]:checked')).toHaveValue('Proyecto mediano');
     const card = brief(page);
     await expect(card).toContainText('Ana Pérez');
     await expect(card).toContainText('Tienda Sur');
     await expect(card).toContainText('tienda online (e-commerce)');
-    await expect(card).toContainText('$300.000 – $700.000');
+    await expect(card).toContainText('proyecto mediano');
     await page.getByLabel('Cuéntanos tu idea').fill('x'.repeat(200));
     await expect(card.locator('.bc-msg')).toHaveText('x'.repeat(140) + '…');
     // pregunta guía según el tipo
@@ -164,7 +164,7 @@ test.describe('contacto · sin JavaScript', () => {
     const form = page.locator('form.brief');
     await expect(form).toHaveAttribute('action', 'mailto:contacto@southsoftware.cl');
     await expect(form.locator('input[name=tipo]')).toHaveCount(7);
-    await expect(form.locator('input[name=presupuesto]')).toHaveCount(5);
+    await expect(form.locator('input[name=presupuesto]')).toHaveCount(4);
     await expect(page.locator('h1')).toContainText('Agenda una');
   });
 });

@@ -397,7 +397,7 @@ form.brief .ts{min-height:65px}
 .channels .h4{word-break:break-word}
 .nf .status i{background:var(--accent);box-shadow:0 0 0 3px rgba(var(--accent-rgb),.2)}
 @media (max-width:1024px){.phero .ph-l,.phero .ph-r{grid-column:1/-1;justify-self:start}.phero .ph-r{margin-top:28px}.srow .s-num,.srow .s-main,.srow .s-list{grid-column:1/-1}.srow .s-num{flex-direction:row;align-items:center;margin-bottom:24px}.srow .s-list{margin-top:28px}.manifesto .m-big,.manifesto .m-side{grid-column:1/-1}.manifesto .m-side{margin-top:40px}}
-@media (max-width:760px){.phero{padding:150px 0 64px}.phero h1{font-size:clamp(46px,13vw,64px)}.case-kv{grid-template-columns:1fr 1fr}.crumb{margin-bottom:32px}.page-top{height:64px}}
+@media (max-width:760px){.phero{padding:150px 0 64px}.phero h1{font-size:clamp(32px,8.5vw,48px)}.case-kv{grid-template-columns:1fr 1fr}.crumb{margin-bottom:32px}.page-top{height:64px}}
 
 /* ---- Movimiento reducido: sin bucles decorativos ---- */
 html.rm .marquee .track,html.rm .hero-meta .scroll i::after{animation:none}
@@ -447,6 +447,7 @@ html.rm .marquee .track,html.rm .hero-meta .scroll i::after{animation:none}
 .strip{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:24px;align-items:end;row-gap:32px}
 .strip-h{grid-column:1/5}
 .strip-h h2{font-family:var(--font-display);font-weight:500;font-size:clamp(34px,3.4vw,52px);line-height:1;letter-spacing:-.045em;margin-top:20px}
+@media (max-width:760px){.strip-h h2{font-size:clamp(28px,8vw,36px);line-height:1.1}}
 .strip-p{grid-column:5/13;list-style:none;display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
 .strip-p>li{background:var(--bg);padding:24px 26px;display:flex;flex-direction:column;gap:6px}
 .strip-p>li.feat{background:linear-gradient(180deg,rgba(var(--accent-rgb),.08),var(--bg) 70%)}

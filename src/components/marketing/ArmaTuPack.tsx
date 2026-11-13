@@ -2,7 +2,7 @@
 /** "Arma tu pack": pedido paso a paso (lógica en content/arma.ts; sin montos en pantalla). */
 import './marketing.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { CATEGORIES, DAYS, EXTRA_ITEMS, PLAN_ITEMS, SLOTS, itemById, quote, quoteMessage, type CatId, type Item } from '@/content/arma';
+import { CATEGORIES, DAYS, EXTRA_ITEMS, PLAN_ITEMS, SLOTS, itemById, selection, quoteMessage, type CatId, type Item } from '@/content/arma';
 import { ADS_NOTE, waLink } from '@/content/site';
 import { Btn } from '../ui';
 
@@ -35,7 +35,7 @@ export default function ArmaTuPack() {
     const ok = new Set(CATEGORIES.filter((c) => cats.includes(c.id)).flatMap((c) => c.items));
     return [...picked.filter((x) => ok.has(x)), ...(plan && cats.includes('marketing') ? [plan] : [])];
   }, [cats, picked, plan]);
-  const q = useMemo(() => quote(ids), [ids]);
+  const q = useMemo(() => selection(ids), [ids]);
 
   useEffect(() => { if (moved.current) head.current?.focus(); }, [step]);
   const go = (n: number) => { moved.current = true; setStep(n); };

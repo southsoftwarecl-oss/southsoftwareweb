@@ -1,7 +1,7 @@
 'use client';
 /**
  * Tarjeta "Tu brief": se compone mientras el usuario escribe.
- * "Hola, soy <nombre> de <empresa>. Necesito <tipo> con un presupuesto de <presupuesto>. <mensaje (140)>…"
+ * "Hola, soy <nombre> de <empresa>. Necesito <tipo> para un <presupuesto>. <mensaje (140)>…"
  * Los campos vacíos son líneas skeleton. aria-live="off": el resumen accesible se anuncia
  * solo al enviar (ver BriefStudio). Tras el envío muestra "Recibido ✓".
  */
@@ -13,7 +13,7 @@ type Enter = (el: Element) => void;
 
 export const clip = (s: string, n = 140) => (s.length > n ? s.slice(0, n).trimEnd() + '…' : s);
 export const budgetClause = (b: Budget | '') =>
-  b === 'Aún no lo sé' ? ['con un presupuesto ', 'aún por definir'] as const : ['con un presupuesto de ', b ? b.charAt(0).toLowerCase() + b.slice(1) : ''] as const;
+  b === 'Aún no lo sé' ? ['con un presupuesto ', 'aún por definir'] as const : ['para un ', b ? b.toLowerCase() : ''] as const;
 
 /** Texto plano del brief (WhatsApp y resumen accesible). */
 export function briefText(d: BriefData) {

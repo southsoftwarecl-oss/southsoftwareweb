@@ -30,7 +30,7 @@ export type Need = (typeof NEEDS)[number]['v'];
 export type Size = (typeof SIZES)[number]['v'];
 export type When = (typeof WHENS)[number]['v'];
 
-export type PackCard = { name: string; setup: string | null; monthly: string | null; includes: string[]; quote: boolean };
+export type PackCard = { name: string; includes: string[]; quote: boolean };
 
 /** Nombre del pack (debe existir en PACKS) según la necesidad y el tamaño. null → tarjeta "a medida · cotización". */
 export function packNameFor(need: Need, size: Size | null): string | null {
@@ -45,14 +45,13 @@ export function packNameFor(need: Need, size: Size | null): string | null {
   }
 }
 
-/** Tarjeta de resultado con valores EXACTOS de PACKS (o la de software a medida, sin precio). */
+/** Tarjeta de resultado con el pack de PACKS (o la de software a medida). */
 export function packFor(need: Need, size: Size | null): PackCard {
   const name = packNameFor(need, size);
   const p = name ? PACKS.find((x) => x.name === name) : undefined;
-  if (p) return { name: p.name, setup: p.setup, monthly: p.monthly, includes: p.includes, quote: false };
-  // Sin pack con precio: se cotiza. Los 4 includes son los del servicio "Software a medida" (SERVICES).
+  if (p) return { name: p.name, includes: p.includes, quote: false };
   const s = SERVICES.find((x) => x.slug === 'software-a-medida')!;
-  return { name: 'Software a medida', setup: null, monthly: null, includes: s.includes, quote: true };
+  return { name: 'Software a medida', includes: s.includes, quote: true };
 }
 
 export function waHref(pack: string, answers: string[]) {

@@ -1,11 +1,11 @@
 import { expect, test, type Page } from '@playwright/test';
-import { clp, quote, quoteMessage } from '../src/content/arma';
-import { CUSTOM_PACK, MARKETING_ONBOARDING, MARKETING_PACKS, PACKS } from '../src/content/site';
+import { quoteMessage } from '../src/content/arma';
+import { clp, quote } from '../src/lib/admin/arma-quote';
+import { MARKETING_ONBOARDING_PRICE, packPrice } from '../src/lib/admin/pack-prices';
 
 /** "Arma tu pack" (/packs#arma-tu-pack): totales en vivo, regla combo y WhatsApp precargado. */
 const n = (v: string) => Number(v.replace(/[^\d]/g, ''));
-const P = (name: string) => PACKS.find((p) => p.name === name)!;
-const M = (name: string) => MARKETING_PACKS.find((p) => p.name === name)!;
+const P = (name: string) => packPrice(name);
 
 async function open(page: Page) {
   const errors: string[] = [];
@@ -17,19 +17,19 @@ async function open(page: Page) {
 const sec = (page: Page) => page.locator('#arma-tu-pack');
 const wa = async (page: Page) => new URL((await sec(page).locator('.atp-cta').getAttribute('href'))!).searchParams.get('text');
 
-test('lógica de precios: solo de site.ts, combo 15 % y onboarding cobrado', () => {
+test('lógica de precios: pack-prices.ts, combo 15 % y onboarding cobrado', () => {
   const a = quote(['landing']);
   expect(a.setup).toBe(n(P('Emprende').setup)); expect(a.monthly).toBe(n(P('Emprende').monthly)); expect(a.combo).toBe(false);
   const b = quote(['pro', 'onboarding']);
-  expect(b.setup).toBe(n(MARKETING_ONBOARDING.price)); expect(b.monthly).toBe(n(M('Marketing Pro').monthly)); expect(b.combo).toBe(false);
+  expect(b.setup).toBe(n(MARKETING_ONBOARDING_PRICE)); expect(b.monthly).toBe(n(P('Marketing Pro').monthly)); expect(b.combo).toBe(false);
   const c = quote(['sitio-pyme', 'pro', 'onboarding']);
-  expect(c.combo).toBe(true); expect(c.setup).toBe(n(P('Pyme').setup) + n(MARKETING_ONBOARDING.price));
+  expect(c.combo).toBe(true); expect(c.setup).toBe(n(P('Pyme').setup) + n(MARKETING_ONBOARDING_PRICE));
   expect(c).not.toHaveProperty('onboardingFree');
-  expect(c.monthly).toBe(Math.round((n(P('Pyme').monthly) + n(M('Marketing Pro').monthly)) * 0.85));
+  expect(c.monthly).toBe(Math.round((n(P('Pyme').monthly) + n(P('Marketing Pro').monthly)) * 0.85));
   const d = quote(['a-medida', 'meta-ads']);
   expect(d.from).toBe(true); expect(d.combo).toBe(true);
-  expect(d.setup).toBe(n(CUSTOM_PACK.setup));
-  expect(d.monthly).toBe(Math.round((n(CUSTOM_PACK.monthly) + n(M('Solo Ads').monthly)) * 0.85));
+  expect(d.setup).toBe(n(P('Software a medida').setup));
+  expect(d.monthly).toBe(Math.round((n(P('Software a medida').monthly) + n(P('Solo Ads').monthly)) * 0.85));
   expect(clp(1234567)).toBe('$1.234.567');
 });
 
@@ -55,7 +55,7 @@ test('flujo paso a paso: web + marketing, combo, onboarding y WhatsApp sin monto
   await expect(sec(page).getByRole('radio', { name: 'Marketing Básico' })).not.toBeChecked();
   await sec(page).getByLabel('Onboarding de marketing').check();
   const q = quote(['sitio-pyme', 'pro', 'onboarding']);
-  expect(q.setup).toBe(n(P('Pyme').setup) + n(MARKETING_ONBOARDING.price));
+  expect(q.setup).toBe(n(P('Pyme').setup) + n(MARKETING_ONBOARDING_PRICE));
   await expect(sec(page).locator('.atp-combo')).toBeVisible();
   await expect(sec(page).locator('.atp-combo')).toContainText('15 %');
   // atrás conserva estado

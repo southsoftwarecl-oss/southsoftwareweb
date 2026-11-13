@@ -108,54 +108,51 @@ export const MARKETING_SERVICES: { slug: string; title: string; desc: string; in
     includes: ['Diseño de posts y carruseles', 'Edición de reels', 'Textos y llamados a la acción', 'Línea gráfica coherente'] },
 ];
 
-/** Packs: precios exactos (CLP, valores brutos). */
-/** Packs que se muestran en la franja de precios del home (por nombre, deben existir en PACKS). */
+/** Packs que se muestran en la franja del home (por nombre, deben existir en PACKS). */
 export const HOME_PACKS = ['Emprende', 'Pyme', 'E-commerce'] as const;
 
 /** Límite de productos del pack Vitrina Digital (cambiar solo aquí). */
 export const VITRINA_MAX_PRODUCTS = 100;
 
-export const PACKS: { name: string; setup: string; monthly: string; featured?: boolean; includes: string[] }[] = [
-  { name: 'Emprende', setup: '$149.990', monthly: '$19.990', includes: ['Landing de 1 página adaptada a celular', 'Botón de WhatsApp, mapa y formulario', 'Dominio .cl a tu nombre', 'Hosting, SSL y soporte por WhatsApp'] },
-  { name: 'Pyme', setup: '$349.990', monthly: '$34.990', featured: true, includes: ['Sitio de hasta 6 secciones', 'SEO local para tu ciudad', '2 correos corporativos', 'Respaldo semanal y reporte mensual'] },
-  { name: 'Vitrina Digital', setup: '$549.990', monthly: '$49.990', includes: ['Todo lo del Sitio pyme: hasta 6 secciones, SEO local y 2 correos corporativos', 'Catálogo autoadministrable desde un panel simple', `Hasta ${VITRINA_MAX_PRODUCTS} productos o vehículos con fotos y ficha detallada`, 'Filtros por categoría y precio, y buscador', 'Cotización o pedido por WhatsApp con el producto precargado', 'Formulario de cotización que llega a tu correo', 'SEO por producto (enlace propio y vista en Google y redes) y píxel de Meta instalado', 'Respaldo diario, reporte mensual y soporte en 24 h'] },
-  { name: 'E-commerce', setup: '$699.990', monthly: '$59.990', includes: ['Tienda con Webpay o Mercado Pago', 'Carga inicial de hasta 50 productos', 'Despacho, retiro y correos automáticos', 'Parches de seguridad y monitoreo'] },
-  { name: 'App', setup: 'desde $1.490.000', monthly: 'desde $99.990', includes: ['MVP iOS/Android o PWA', 'Login, backend y notificaciones push', 'Publicación en las tiendas', 'Pago por hitos 30/30/30/10'] },
-  { name: 'Blindaje Digital', setup: '$249.990', monthly: '$29.990', includes: ['Auditoría de vulnerabilidades de tu web y escaneo mensual', 'Correo blindado: SPF, DKIM y DMARC contra suplantación y spam', 'HTTPS y cabeceras de seguridad (SSL, HSTS, CSP) bien configuradas', 'Respaldos automáticos probados con restauración real', 'Formularios protegidos contra spam y bots', 'Revisión de accesos: usuarios, contraseñas, verificación en dos pasos y permisos', 'Informe ejecutivo, corrección de hallazgos críticos y alertas por WhatsApp'] },
-  { name: 'Datos', setup: 'desde $390.000', monthly: 'desde $39.990', includes: ['Dashboard con 1–2 fuentes de datos', 'Hasta 8 indicadores clave', 'Actualización automática', 'Capacitación incluida'] },
+/** Packs públicos: nombre, qué incluye y destacado. Los montos viven en lib/admin/pack-prices.ts. */
+export const PACKS: { name: string; featured?: boolean; includes: string[] }[] = [
+  { name: 'Emprende', includes: ['Landing de 1 página adaptada a celular', 'Botón de WhatsApp, mapa y formulario', 'Dominio .cl a tu nombre', 'Hosting, SSL y soporte por WhatsApp'] },
+  { name: 'Pyme', featured: true, includes: ['Sitio de hasta 6 secciones', 'SEO local para tu ciudad', '2 correos corporativos', 'Respaldo semanal y reporte mensual'] },
+  { name: 'Vitrina Digital', includes: ['Todo lo del Sitio pyme: hasta 6 secciones, SEO local y 2 correos corporativos', 'Catálogo autoadministrable desde un panel simple', `Hasta ${VITRINA_MAX_PRODUCTS} productos o vehículos con fotos y ficha detallada`, 'Filtros por categoría y precio, y buscador', 'Cotización o pedido por WhatsApp con el producto precargado', 'Formulario de cotización que llega a tu correo', 'SEO por producto (enlace propio y vista en Google y redes) y píxel de Meta instalado', 'Respaldo diario, reporte mensual y soporte en 24 h'] },
+  { name: 'E-commerce', includes: ['Tienda con Webpay o Mercado Pago', 'Carga inicial de hasta 50 productos', 'Despacho, retiro y correos automáticos', 'Parches de seguridad y monitoreo'] },
+  { name: 'App', includes: ['MVP iOS/Android o PWA', 'Login, backend y notificaciones push', 'Publicación en las tiendas', 'Pago por hitos 30/30/30/10'] },
+  { name: 'Blindaje Digital', includes: ['Auditoría de vulnerabilidades de tu web y escaneo mensual', 'Correo blindado: SPF, DKIM y DMARC contra suplantación y spam', 'HTTPS y cabeceras de seguridad (SSL, HSTS, CSP) bien configuradas', 'Respaldos automáticos probados con restauración real', 'Formularios protegidos contra spam y bots', 'Revisión de accesos: usuarios, contraseñas, verificación en dos pasos y permisos', 'Informe ejecutivo, corrección de hallazgos críticos y alertas por WhatsApp'] },
+  { name: 'Datos', includes: ['Dashboard con 1–2 fuentes de datos', 'Hasta 8 indicadores clave', 'Actualización automática', 'Capacitación incluida'] },
 ];
 
-/**
- * Packs combinados (web/app + marketing) y solo marketing: valores EXACTOS de precios/packs-marketing.md.
- * `launch` = precio de lanzamiento mensual por los 3 primeros meses. La pauta publicitaria va siempre aparte.
- */
-export type MktPack = { name: string; tag?: string; setup: string; monthly: string; launch: string | null; featured?: boolean; includes: string[]; ideal?: string };
+/** Packs combinados (web/app + marketing) y solo marketing. Montos en lib/admin/pack-prices.ts. */
+export type MktPack = { name: string; tag?: string; featured?: boolean; includes: string[]; ideal?: string };
 export const COMBO_PACKS: MktPack[] = [
-  { name: 'Despega', tag: 'Emprende + Marketing Básico', setup: '$149.990', monthly: '$189.990', launch: '$169.990',
+  { name: 'Despega', tag: 'Emprende + Marketing Básico',
     includes: ['Landing de 1 página, WhatsApp, dominio, hosting y SSL', '2 redes, 8 posts y 4 historias al mes', 'Respuestas en 48 h', 'Reporte mensual'], ideal: 'Emprendedor que parte de cero' },
-  { name: 'Crece', tag: 'Pyme + Marketing Pro', setup: '$349.990', monthly: '$329.990', launch: '$299.990', featured: true,
+  { name: 'Crece', tag: 'Pyme + Marketing Pro', featured: true,
     includes: ['Sitio de 6 secciones, SEO local y 2 correos', '12 piezas al mes (2 reels) e historias semanales', 'Respuestas en 24 h', 'Gestión de 1 campaña de Meta Ads'], ideal: 'Pyme de servicios que quiere clientes constantes' },
-  { name: 'Vitrina + Leads', tag: 'Vitrina Digital + Ads', setup: '$549.990', monthly: '$269.990', launch: '$239.990',
+  { name: 'Vitrina + Leads', tag: 'Vitrina Digital + Ads',
     includes: ['Vitrina Digital con catálogo autoadministrable', 'Campañas Meta de leads a WhatsApp o formulario', 'Píxel de Meta', 'Reporte de leads'], ideal: 'Automotoras, corredoras y venta por catálogo' },
-  { name: 'Vende', tag: 'E-commerce + Marketing Pro + Ads', setup: '$699.990', monthly: '$479.990', launch: '$429.990',
+  { name: 'Vende', tag: 'E-commerce + Marketing Pro + Ads',
     includes: ['Tienda con Webpay o Mercado Pago, 50 productos', 'Marketing Pro', 'Catálogo de Meta y remarketing'], ideal: 'Tienda que quiere vender online' },
-  { name: 'Total', tag: 'Web + App + Marketing Full', setup: 'desde $1.790.000', monthly: 'desde $599.990', launch: 'desde $549.990',
+  { name: 'Total', tag: 'Web + App + Marketing Full',
     includes: ['Sitio Pyme', 'App MVP/PWA con pago por hitos', 'Marketing Full con lanzamiento de la app'], ideal: 'Negocio que lanza una app o plataforma' },
 ];
-/** Onboarding único de los planes solo marketing (se cobra también en los combinados). */
-export const MARKETING_ONBOARDING = { price: '$99.990', includes: 'Auditoría de redes, perfil y bio, píxel de Meta y GA4' };
+/** Onboarding único de los planes solo marketing (se cobra también en los combinados). El monto está en pack-prices.ts. */
+export const MARKETING_ONBOARDING = { includes: 'Auditoría de redes, perfil y bio, píxel de Meta y GA4' };
 export const MARKETING_PACKS: MktPack[] = [
-  { name: 'Marketing Básico', setup: '$99.990', monthly: '$189.990', launch: '$149.990',
+  { name: 'Marketing Básico',
     includes: ['Instagram + Facebook', '8 posts y 4 historias al mes', 'Respuestas en 48 h', 'Reporte mensual'] },
-  { name: 'Marketing Pro', setup: '$99.990', monthly: '$349.990', launch: '$299.990', featured: true,
+  { name: 'Marketing Pro', featured: true,
     includes: ['Instagram + Facebook', '12 piezas al mes (2 reels) e historias semanales', 'Respuestas en 24 h', 'Gestión de 1 campaña de Meta Ads (pauta según acuerdo)'] },
-  { name: 'Marketing Full / Captación', setup: '$99.990', monthly: '$549.990', launch: '$489.990',
+  { name: 'Marketing Full / Captación',
     includes: ['Instagram + Facebook + TikTok', '16 piezas al mes (4 reels)', 'Meta Ads y landing de captación', 'Seguimiento de leads por WhatsApp y reunión mensual'] },
-  { name: 'Solo Ads', setup: '$99.990', monthly: '$149.990', launch: null,
+  { name: 'Solo Ads',
     includes: ['Gestión de Meta Ads (Facebook e Instagram)', 'Hasta 3 campañas', 'Pauta según acuerdo', 'Comisión sobre la pauta cuando corresponde'] },
 ];
 /** Software a medida (pack opcional de la propuesta). */
-export const CUSTOM_PACK = { name: 'Software a medida', setup: 'desde $1.900.000', monthly: 'desde $79.990' };
+export const CUSTOM_PACK = { name: 'Software a medida' };
 export const ADS_NOTE = 'La pauta publicitaria (lo que se paga a Meta) va siempre aparte.';
 
 /** Proyectos / casos. `metrics` son PLACEHOLDER hasta que cada cliente valide cifras reales. */
@@ -258,7 +255,7 @@ export const WHY = [
 
 /** Opciones del formulario (deben coincidir con la validación del servidor en lib/contact-schema.ts). */
 export const PROJECT_TYPES = ['Sitio web', 'E-commerce', 'App móvil', 'Software a medida', 'Software de escritorio', 'Seguridad informática', 'Ciencia de datos'] as const;
-export const BUDGETS = ['Menos de $300.000', '$300.000 – $700.000', '$700.000 – $1.500.000', 'Más de $1.500.000', 'Aún no lo sé'] as const;
+export const BUDGETS = ['Proyecto pequeño', 'Proyecto mediano', 'Proyecto grande', 'Aún no lo sé'] as const;
 
 export const FOUNDERS = {
   title: 'Clientes Fundadores — 10 cupos',

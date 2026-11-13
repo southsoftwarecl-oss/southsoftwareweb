@@ -22,7 +22,7 @@ const STEPS = 11; // 0–9 + un 0 final (el 0 también rueda una vuelta)
 
 type Reel = { el: HTMLElement; to: number };
 
-/** Envuelve "$349.990" en columnas; devuelve las columnas y una función que restaura el texto original. */
+/** Envuelve un monto en columnas; devuelve las columnas y una función que restaura el texto original. */
 function wrapOdo(el: HTMLElement): { reels: Reel[]; restore: () => void } {
   const v = el.dataset.odo || el.textContent || '';
   const sr = document.createElement('span'); sr.className = 'sr'; sr.textContent = v;

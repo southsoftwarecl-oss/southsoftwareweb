@@ -1,21 +1,21 @@
 'use client';
 import { useState } from 'react';
-import { CATALOG } from '@/lib/admin/catalog';
 import { clp, fmtDate, schedule } from '@/lib/admin/billing';
+import type { CatalogPack } from '@/lib/admin/catalog';
 
-export default function Simulador({ today }: { today: string }) {
+export default function Simulador({ today, catalog }: { today: string; catalog: CatalogPack[] }) {
   const [slug, setSlug] = useState('vitrina-digital');
   const [start, setStart] = useState(today);
   const [founders, setFounders] = useState(false);
   const [launch, setLaunch] = useState('');
   const [day, setDay] = useState('');
-  const pack = CATALOG.find((p) => p.slug === slug)!;
+  const pack = catalog.find((p) => p.slug === slug)!;
   const rows = start ? schedule(pack, start, { founders, months: 6, launch: launch || start, billingDay: day ? Number(day) : null }) : [];
   return (
     <div>
       <div className="adm-form">
         <div className="adm-field"><label htmlFor="sim-pack">Pack</label>
-          <select id="sim-pack" value={slug} onChange={(e) => setSlug(e.target.value)}>{CATALOG.map((p) => <option key={p.slug} value={p.slug}>{p.name}</option>)}</select></div>
+          <select id="sim-pack" value={slug} onChange={(e) => setSlug(e.target.value)}>{catalog.map((p) => <option key={p.slug} value={p.slug}>{p.name}</option>)}</select></div>
         <div className="adm-field"><label htmlFor="sim-start">Fecha de alta</label><input id="sim-start" type="date" value={start} onChange={(e) => setStart(e.target.value)} /></div>
         <div className="adm-field"><label htmlFor="sim-launch">Fecha de lanzamiento</label><input id="sim-launch" type="date" value={launch} onChange={(e) => setLaunch(e.target.value)} /></div>
         <div className="adm-field"><label htmlFor="sim-day">Día de cobro</label>

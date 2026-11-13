@@ -2,7 +2,8 @@
  * Calendario de cobros (cálculo puro, sin BD). Reglas confirmadas por Mathias (22‑10‑2026): mensualidades desde el
  * lanzamiento + 1 mes, en el día de cobro elegido por el cliente (1–28; por defecto el día del lanzamiento).
  */
-import { FOUNDERS_PROMO, type CatalogPack } from './catalog';
+import { FOUNDERS_PROMO } from './founders';
+import type { CatalogPack } from './catalog';
 
 export type Charge = { date: string | null; concept: string; amount: number; kind: 'inicial' | 'mensual' | 'hito' };
 

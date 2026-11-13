@@ -12,7 +12,7 @@ async def fill(pg, slow=55):
   await pg.get_by_label('Empresa').click(); await pg.keyboard.type('Tienda Sur', delay=slow)
   await pg.get_by_label('Email', exact=True).click(); await pg.keyboard.type('ana@tiendasur.cl', delay=slow // 2)
   await pg.get_by_role('radio', name='E-commerce').click(); await pg.wait_for_timeout(500)
-  await pg.get_by_role('radio', name='$300.000 – $700.000').click(); await pg.wait_for_timeout(350)
+  await pg.get_by_role('radio', name='Proyecto mediano').click(); await pg.wait_for_timeout(350)
   await pg.keyboard.press('ArrowRight'); await pg.wait_for_timeout(600)
   await pg.get_by_label('Cuéntanos tu idea').click()
   await pg.keyboard.type('Vendemos ropa outdoor hecha en Chile, unos 80 productos.', delay=slow // 2)

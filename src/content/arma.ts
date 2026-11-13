@@ -1,59 +1,45 @@
 /**
- * "Arma tu pack": precios tomados SOLO de PACKS, CUSTOM_PACK, MARKETING_PACKS y MARKETING_ONBOARDING (site.ts).
- * Regla combo (elegida por Mathias: 15 %): si eliges al menos un servicio de software y al menos
- * un servicio mensual de marketing (plan o Meta Ads), la mensualidad total baja 15 %. El onboarding de marketing se cobra siempre.
- * El pago inicial de software no tiene descuento. La pauta publicitaria (lo que se paga a Meta) va siempre aparte.
+ * "Arma tu pack" (cliente): ítems, categorías y mensaje de WhatsApp, SIN montos.
+ * La cotización con precios vive en lib/admin/arma-quote.ts (solo servidor/admin).
+ * Regla combo (15 %): software + marketing mensual. El onboarding se cobra siempre.
  */
-import { CUSTOM_PACK, MARKETING_ONBOARDING, MARKETING_PACKS, PACKS } from './site';
+import { MARKETING_ONBOARDING, MARKETING_PACKS, PACKS } from './site';
 
 export const COMBO_DISCOUNT = 0.15;
 export const COMBO_RULE = 'Combo software + marketing: 15 % de descuento en la mensualidad total. El onboarding de marketing se cobra aparte.';
 
-const num = (v: string) => Number(v.replace(/[^\d]/g, ''));
-const from = (v: string) => /^desde/i.test(v.trim());
-export const clp = (n: number) => '$' + String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-
-export type Item = { id: string; label: string; setup: number; monthly: number; from: boolean; group: 'software' | 'plan' | 'extra'; note: string };
-const pk = (name: string) => PACKS.find((p) => p.name === name)!;
-const sw = (id: string, label: string, p: { setup: string; monthly: string }, note: string): Item =>
-  ({ id, label, setup: num(p.setup), monthly: num(p.monthly), from: from(p.setup) || from(p.monthly), group: 'software', note });
+export type Item = { id: string; label: string; group: 'software' | 'plan' | 'extra'; note: string };
 const n0 = (name: string) => PACKS.find((p) => p.name === name)!.includes[0];
 const mk = (name: string) => MARKETING_PACKS.find((p) => p.name === name)!;
 
 export const SOFTWARE_ITEMS: Item[] = [
-  sw('landing', 'Landing', pk('Emprende'), n0('Emprende')),
-  sw('sitio-pyme', 'Sitio pyme', pk('Pyme'), n0('Pyme')),
-  sw('catalogo', 'Vitrina Digital', pk('Vitrina Digital'), 'Catálogo autoadministrable con filtros y cotización por WhatsApp'),
-  sw('ecommerce', 'E-commerce', pk('E-commerce'), n0('E-commerce')),
-  sw('app', 'App', pk('App'), n0('App')),
-  sw('seguridad', 'Seguridad', pk('Blindaje Digital'), 'Blindaje Digital: web y correo protegidos, con monitoreo'),
-  sw('datos', 'Datos', pk('Datos'), n0('Datos')),
-  sw('a-medida', 'Software a medida', CUSTOM_PACK, 'Sistema interno, reservas o portal'),
+  { id: 'landing', label: 'Landing', group: 'software', note: n0('Emprende') },
+  { id: 'sitio-pyme', label: 'Sitio pyme', group: 'software', note: n0('Pyme') },
+  { id: 'catalogo', label: 'Vitrina Digital', group: 'software', note: 'Catálogo autoadministrable con filtros y cotización por WhatsApp' },
+  { id: 'ecommerce', label: 'E-commerce', group: 'software', note: n0('E-commerce') },
+  { id: 'app', label: 'App', group: 'software', note: n0('App') },
+  { id: 'seguridad', label: 'Seguridad', group: 'software', note: 'Blindaje Digital: web y correo protegidos, con monitoreo' },
+  { id: 'datos', label: 'Datos', group: 'software', note: n0('Datos') },
+  { id: 'a-medida', label: 'Software a medida', group: 'software', note: 'Sistema interno, reservas o portal' },
 ];
-const plan = (id: string, label: string, name: string): Item => ({ id, label, setup: 0, monthly: num(mk(name).monthly), from: false, group: 'plan', note: mk(name).includes[1] });
+const plan = (id: string, label: string, name: string): Item => ({ id, label, group: 'plan', note: mk(name).includes[1] });
 export const PLAN_ITEMS: Item[] = [plan('basico', 'Marketing Básico', 'Marketing Básico'), plan('pro', 'Marketing Pro', 'Marketing Pro'), plan('full', 'Marketing Full / Captación', 'Marketing Full / Captación')];
 export const EXTRA_ITEMS: Item[] = [
-  { id: 'meta-ads', label: 'Meta Ads (Facebook e Instagram)', setup: 0, monthly: num(mk('Solo Ads').monthly), from: false, group: 'extra', note: 'Hasta 3 campañas en Facebook e Instagram' },
-  { id: 'onboarding', label: 'Onboarding de marketing', setup: num(MARKETING_ONBOARDING.price), monthly: 0, from: false, group: 'extra', note: MARKETING_ONBOARDING.includes },
+  { id: 'meta-ads', label: 'Meta Ads (Facebook e Instagram)', group: 'extra', note: 'Hasta 3 campañas en Facebook e Instagram' },
+  { id: 'onboarding', label: 'Onboarding de marketing', group: 'extra', note: MARKETING_ONBOARDING.includes },
 ];
 export const ALL_ITEMS = [...SOFTWARE_ITEMS, ...PLAN_ITEMS, ...EXTRA_ITEMS];
 
-export type Quote = { items: Item[]; combo: boolean; setup: number; monthly: number; monthlyBase: number; from: boolean };
+export type Selection = { items: Item[]; combo: boolean };
 
-export function quote(ids: string[]): Quote {
+export function selection(ids: string[]): Selection {
   const items = ALL_ITEMS.filter((i) => ids.includes(i.id));
   const hasSw = items.some((i) => i.group === 'software');
   const hasMkt = items.some((i) => i.group === 'plan' || i.id === 'meta-ads');
-  const combo = hasSw && hasMkt;
-  const setup = items.reduce((s, i) => s + i.setup, 0);
-  const monthlyBase = items.reduce((s, i) => s + i.monthly, 0);
-  const monthly = combo ? Math.round(monthlyBase * (1 - COMBO_DISCOUNT)) : monthlyBase;
-  return { items, combo, setup, monthly, monthlyBase, from: items.some((i) => i.from) };
+  return { items, combo: hasSw && hasMkt };
 }
 
-export const fmt = (n: number, isFrom: boolean) => `${isFrom ? 'desde ' : ''}${clp(n)}`;
-
-export function quoteMessage(q: Quote, when = '') {
+export function quoteMessage(q: { items: { label: string }[]; combo: boolean }, when = '') {
   return `Hola, armé mi pack en la web: ${q.items.map((i) => i.label).join(', ')}.${q.combo ? ' Aplica descuento combo 15 %.' : ''}${when ? ` Me acomoda la reunión el ${when}.` : ''} ¿Conversamos?`;
 }
 

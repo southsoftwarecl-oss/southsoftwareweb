@@ -44,7 +44,7 @@ export const TYPE_PHRASE: Record<ProjectType, string> = {
 
 /** Cómo se lee el presupuesto dentro de "con un presupuesto de …". */
 export const budgetPhrase = (b: Budget) =>
-  b === 'Aún no lo sé' ? 'con un presupuesto aún por definir' : `con un presupuesto de ${b.charAt(0).toLowerCase()}${b.slice(1)}`;
+  b === 'Aún no lo sé' ? 'con un presupuesto aún por definir' : `para un ${b.toLowerCase()}`;
 
 /**
  * Packs de referencia por tipo (nombres EXACTOS de PACKS).

@@ -5,7 +5,8 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { leadSchema } from '@/lib/lead-schema';
 import { hashIp, saveLead } from '@/lib/admin/leads';
-import { quote, ALL_ITEMS } from '@/content/arma';
+import { ALL_ITEMS } from '@/content/arma';
+import { quote } from '@/lib/admin/arma-quote';
 import { packBySlug, CATALOG } from '@/lib/admin/catalog';
 
 const hits = new Map<string, number[]>();
@@ -36,7 +37,7 @@ export async function POST(req: NextRequest) {
     if (!ids.length) return res(422);
     const q = quote(ids);
     setup = q.setup; monthly = q.monthly;
-    builder = { items: ids, labels: q.items.map((i) => i.label), combo: q.combo, monthlyBase: q.monthlyBase, from: q.from, when: d.when || null, priceSource: 'site.ts' };
+    builder = { items: ids, labels: q.items.map((i) => i.label), combo: q.combo, monthlyBase: q.monthlyBase, from: q.from, when: d.when || null, priceSource: 'pack-prices.ts' };
   } else if (d.channel === 'elegir_pack') {
     const c = CATALOG.find((x) => x.name === d.pack) || (d.pack ? packBySlug(d.pack) : undefined);
     if (!c) return res(422);

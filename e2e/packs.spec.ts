@@ -76,11 +76,11 @@ test('WhatsApp precargado: cada "Cotiza por WhatsApp" lleva el nombre del pack, 
     expect(hrefs[i].name).toBe(p.name);
     expect(h.startsWith(base + '?')).toBe(true);
     expect(h).toContain(encodeURIComponent(p.name));
-    expect(h).not.toContain(encodeURIComponent(p.setup));
-    expect(h).not.toContain(encodeURIComponent(p.monthly));
+    expect(h).not.toMatch(/149\.990|19\.990|349\.990|699\.990|549\.990/);
     expect(h.match(/[?&]text=/g)?.length, 'un solo parámetro text').toBe(1);
     const text = new URL(h).searchParams.get('text');
     expect(text).toBe(`Hola, me interesa el pack ${p.name}. ¿Conversamos?`);
+    expect(text).not.toMatch(/\$/);
   });
   expect(new URL(hrefs[PACKS.length].href).searchParams.get('text')).toBe(`Hola, me interesa el pack ${CUSTOM_PACK.name}. ¿Conversamos?`);
   const cupo = await page.locator('#packs .founders .btn').getAttribute('href');
