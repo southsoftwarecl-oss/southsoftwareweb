@@ -7,7 +7,7 @@ import { useDemo } from './useDemo';
 import { isReduced, useReducedMotion } from '../hooks';
 
 // valores de EJEMPLO (no son datos de clientes)
-const ROWS = [['Ventas del mes', '1.240'], ['Pedidos', '318'], ['Ticket medio', '$3.900'], ['Stock crítico', '12'], ['Clientes nuevos', '46']];
+const ROWS = [['Ventas del mes', '1.240'], ['Pedidos', '318'], ['Entregas a tiempo', '98 %'], ['Stock crítico', '12'], ['Clientes nuevos', '46']];
 const SERIES = [22, 38, 30, 52, 64, 58, 80];
 const PTS = SERIES.map((v, i) => `${(i / (SERIES.length - 1)) * 100},${100 - v}`).join(' ');
 

@@ -23,11 +23,12 @@ const Line = ({ l, tokens = true }: { l: Tok[]; tokens?: boolean }) => (
   <>{l.length ? l.map(([c, t, k], j) => <span key={j} className={c || undefined} data-tok={tokens ? k : undefined}>{t}</span>) : ' '}</>
 );
 /* Datos de ejemplo (ilustrativos, no son clientes ni métricas reales) */
-const ITEMS: [string, number][] = [['Pernos 8 mm × 100', 12400], ['Taladro percutor', 54900], ['Guantes de trabajo', 6200]];
+// cantidades de EJEMPLO (sin montos: el sitio no publica precios)
+const ITEMS: [string, number][] = [['Pernos 8 mm × 100', 4], ['Taladro percutor', 1], ['Guantes de trabajo', 6]];
 const TOTAL = ITEMS.reduce((s, [, p]) => s + p, 0);
-const clp = (n: number) => '$' + n.toLocaleString('es-CL');
-const KPIS: [string, number, string][] = [['Pedidos', 128, ''], ['Ticket promedio', 18400, '$'], ['Clientes', 64, '']];
-const ROWS: [string, string, string][] = [['#1042', 'Retiro', '$31.800'], ['#1041', 'Despacho', '$12.600'], ['#1040', 'Despacho', '$47.300'], ['#1039', 'Retiro', '$9.900']];
+const qty = (n: number) => Math.round(n).toLocaleString('es-CL') + ' u.';
+const KPIS: [string, number, string][] = [['Pedidos', 128, ''], ['Entregas a tiempo', 98, ' %'], ['Clientes', 64, '']];
+const ROWS: [string, string, string][] = [['#1042', 'Retiro', 'Confirmado'], ['#1041', 'Despacho', 'En camino'], ['#1040', 'Despacho', 'Entregado'], ['#1039', 'Retiro', 'Entregado']];
 const SIDE = ['Inicio', 'Pedidos', 'Clientes', 'Productos', 'Ajustes'];
 const CHART = 'M0,82 C30,74 50,78 80,58 S130,62 160,44 S220,38 250,24 S290,16 300,12';
 const Blk = ({ className = '', children, ...r }: React.HTMLAttributes<HTMLDivElement>) => (
@@ -42,7 +43,7 @@ const Chart = ({ id }: { id: string }) => (
   </svg>
 );
 const Kpi = ({ k }: { k: (typeof KPIS)[number] }) => (
-  <Blk className="kpi"><span>{k[0]}</span><b data-kpi={k[1]} data-pre={k[2]}>{k[2] === '$' ? clp(k[1]) : k[1]}</b></Blk>
+  <Blk className="kpi"><span>{k[0]}</span><b data-kpi={k[1]} data-suf={k[2]}>{k[1]}{k[2]}</b></Blk>
 );
 
 const STEPS = [
@@ -87,15 +88,15 @@ export default function Story() {
                   <div className="form">
                     <div className="frow"><span className="lbl w" data-dest="cliente">Cliente</span><Blk className="inp"><span className="w">Ferretería Austral (ejemplo)</span></Blk></div>
                     <div className="frow"><span className="lbl w" data-dest="items">Ítems</span>
-                      <div className="items">{ITEMS.map(([n, p]) => <Blk className="it" key={n}><span className="w">{n}</span><span className="w">{clp(p)}</span></Blk>)}</div></div>
-                    <div className="frow tot"><span className="lbl w" data-dest="total">Total</span><b className="sum" data-sum={TOTAL}>{clp(TOTAL)}</b></div>
+                      <div className="items">{ITEMS.map(([n, p]) => <Blk className="it" key={n}><span className="w">{n}</span><span className="w">{qty(p)}</span></Blk>)}</div></div>
+                    <div className="frow tot"><span className="lbl w" data-dest="total">Total</span><b className="sum" data-sum={TOTAL}>{qty(TOTAL)}</b></div>
                     <button type="button" tabIndex={-1} className="cta" data-dest="notificar"><span className="w">Notificar por WhatsApp</span></button>
                   </div>
                   <div className="dash">
                     <div className="kpis">{KPIS.map((k) => <Kpi k={k} key={k[0]} />)}</div>
                     <Blk className="chart"><span>Pedidos / semana · datos de ejemplo</span><Chart id="sg-d" /></Blk>
                     <Blk className="table">
-                      <div className="tr new"><i className="hi" /><span>#1043</span><span>Despacho</span><span>{clp(TOTAL)}</span></div>
+                      <div className="tr new"><i className="hi" /><span>#1043</span><span>Despacho</span><span>Pedido confirmado</span></div>
                       {ROWS.slice(0, 3).map((r) => <div className="tr" key={r[0]}>{r.map((c) => <span key={c}>{c}</span>)}</div>)}
                     </Blk>
                   </div>
@@ -116,8 +117,8 @@ export default function Story() {
             <div className="mwin"><div className="mside">{SIDE.map((s, i) => <Ico i={i} key={s} />)}</div>
               <div className="mmain">
                 <Blk className="m-b"><small>Cliente</small> Ferretería Austral (ejemplo)</Blk>
-                {ITEMS.map(([n, p]) => <Blk className="m-b m-it" key={n}><span>{n}</span><span>{clp(p)}</span></Blk>)}
-                <div className="m-tot"><small>Total</small><b data-sum={TOTAL}>{clp(TOTAL)}</b></div>
+                {ITEMS.map(([n, p]) => <Blk className="m-b m-it" key={n}><span>{n}</span><span>{qty(p)}</span></Blk>)}
+                <div className="m-tot"><small>Total</small><b data-sum={TOTAL}>{qty(TOTAL)}</b></div>
                 <span className="cta m-cta">Notificar por WhatsApp</span>
               </div></div></div>
           <div className="card c-dash" data-card={2}><div className="mtop"><i /><i /><i /><span>Panel de pedidos <em className="live">●</em> En vivo</span></div>

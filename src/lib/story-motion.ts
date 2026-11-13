@@ -14,7 +14,9 @@
 import { gsap, ScrollTrigger, SplitText, Flip } from '@/lib/gsap';
 
 type Lenis = { scrollTo: (t: number, o?: { duration?: number }) => void } | null;
-const clp = (n: number) => '$' + Math.round(n).toLocaleString('es-CL');
+/** Unidades del pedido de ejemplo (sin montos: el sitio no publica precios). */
+const qty = (n: number) => Math.round(n).toLocaleString('es-CL') + ' u.';
+const kpiText = (k: HTMLElement, v: number) => String(Math.round(v)) + (k.dataset.suf || '');
 const LABELS = { codigo: 0, interfaz: 0.36, producto: 0.68, fin: 1 };
 /** duración de una vuelta completa (s). Antes era scrub de scroll (pin 180vh, ~80vh de scroll ≈ 14 s a ritmo
  * de lectura); ahora ~1.4x más lento y constante. */
@@ -37,18 +39,18 @@ export function startStory(story: HTMLElement, STATIC: boolean, getLenis: () => 
     ScrollTrigger.create({ trigger: cards[0], start: 'top 80%', once: true, onEnter: () => {
       gsap.to(chars, { visibility: 'visible', duration: 0.001, stagger: 1 / 40, ease: 'none', delay: 0.3 }); } });
     const ui = cards[1];
-    const sum = $('[data-sum]', ui); const total = +(sum.dataset.sum || 0); sum.textContent = clp(0);
+    const sum = $('[data-sum]', ui); const total = +(sum.dataset.sum || 0); sum.textContent = qty(0);
     ScrollTrigger.create({ trigger: ui, start: 'top 80%', once: true, onEnter: () => {
       gsap.fromTo($$('.m-b,.m-tot,.m-cta', ui), { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.9, stagger: 0.07, ease: 'south', delay: 0.15 });
-      const o = { v: 0 }; gsap.to(o, { v: total, duration: 1.2, ease: 'south', delay: 0.5, onUpdate: () => { sum.textContent = clp(o.v); } });
+      const o = { v: 0 }; gsap.to(o, { v: total, duration: 1.2, ease: 'south', delay: 0.5, onUpdate: () => { sum.textContent = qty(o.v); } });
     } });
     const dash = cards[2];
-    const kp = $$('[data-kpi]', dash); kp.forEach((k) => { k.textContent = k.dataset.pre ? clp(0) : '0'; });
+    const kp = $$('[data-kpi]', dash); kp.forEach((k) => { k.textContent = kpiText(k, 0); });
     const line = $('.chart-svg .line', dash), area = $('.chart-svg .area', dash);
     gsap.set(line, { strokeDashoffset: 1 }); gsap.set(area, { opacity: 0 });
     ScrollTrigger.create({ trigger: dash, start: 'top 80%', once: true, onEnter: () => {
       kp.forEach((k) => { const end = +(k.dataset.kpi || 0); const o = { v: 0 };
-        gsap.to(o, { v: end, duration: 1.2, ease: 'south', delay: 0.2, onUpdate: () => { k.textContent = k.dataset.pre ? clp(o.v) : String(Math.round(o.v)); } }); });
+        gsap.to(o, { v: end, duration: 1.2, ease: 'south', delay: 0.2, onUpdate: () => { k.textContent = kpiText(k, o.v); } }); });
       gsap.to(line, { strokeDashoffset: 0, duration: 1.2, ease: 'south', delay: 0.2 });
       gsap.to(area, { opacity: 1, duration: 1, ease: 'south', delay: 0.6 });
     } });
@@ -81,8 +83,8 @@ export function startStory(story: HTMLElement, STATIC: boolean, getLenis: () => 
   gsap.set(chars, { visibility: 'hidden' });
   titleLines.slice(1).forEach((l) => gsap.set(l, { yPercent: 110 }));
   gsap.set(uiWords, { yPercent: 110 });
-  const kp = $$('.sdev [data-kpi]'); kp.forEach((k) => { k.textContent = k.dataset.pre ? clp(0) : '0'; });
-  const sum = $('.sdev .sum'), TOTAL = +(sum.dataset.sum || 0); sum.textContent = clp(0);
+  const kp = $$('.sdev [data-kpi]'); kp.forEach((k) => { k.textContent = kpiText(k, 0); });
+  const sum = $('.sdev .sum'), TOTAL = +(sum.dataset.sum || 0); sum.textContent = qty(0);
   gsap.set($('.sdev .chart-svg .line'), { strokeDashoffset: 1 }); gsap.set($('.sdev .chart-svg .area'), { opacity: 0 });
 
   // cachés (onRefresh)
@@ -168,7 +170,7 @@ export function startStory(story: HTMLElement, STATIC: boolean, getLenis: () => 
     .to($$('.sdev .form .bs,.sdev .side>.bs,.sdev .head>.bs'), { opacity: 1, duration: 0.06, stagger: 0.012, ease: 'south' }, 0.42)
     .to(uiWords, { yPercent: 0, duration: 0.05, stagger: 0.006, ease: 'south' }, 0.395);
   const o = { v: 0 };
-  tl.to(o, { v: TOTAL, duration: 0.1, ease: 'south', onUpdate: () => { sum.textContent = clp(o.v); } }, 0.5)
+  tl.to(o, { v: TOTAL, duration: 0.1, ease: 'south', onUpdate: () => { sum.textContent = qty(o.v); } }, 0.5)
     .to(cta, { scale: 0.96, duration: 0.015, ease: 'south' }, 0.6)
     .to(cta, { scale: 1, duration: 0.03, ease: 'mercury' }, 0.615);
 
@@ -193,7 +195,7 @@ export function startStory(story: HTMLElement, STATIC: boolean, getLenis: () => 
   /* ---- Paso 3: producto (.68 → 1) ---- */
   tl.fromTo($$('.sdev .dash .blk'), { z: -60, transformPerspective: 1600 }, { z: 0, duration: 0.1, stagger: 0.015, ease: 'mercury' }, 0.68);
   kp.forEach((k, i) => { const end = +(k.dataset.kpi || 0), v = { v: 0 };
-    tl.to(v, { v: end, duration: 0.14, ease: 'south', onUpdate: () => { k.textContent = k.dataset.pre ? clp(v.v) : String(Math.round(v.v)); } }, 0.72 + i * 0.01); });
+    tl.to(v, { v: end, duration: 0.14, ease: 'south', onUpdate: () => { k.textContent = kpiText(k, v.v); } }, 0.72 + i * 0.01); });
   const trs = $$('.sdev .tr');
   tl.fromTo($('.sdev .chart-svg .line'), { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.18, ease: 'south' }, 0.72)
     .to($('.sdev .chart-svg .area'), { opacity: 1, duration: 0.14, ease: 'south' }, 0.78)
