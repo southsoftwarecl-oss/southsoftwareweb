@@ -113,19 +113,8 @@ function Liquid({ lines, font, cfg, tokens, onFirst }: { lines: Lines; font: str
     camR: 13, orbit: 0, rec: false, simT: 0, tilt: new THREE.Vector2(), tiltOn: false, dust: null as Dust | null,
   });
 
-  // tamaño vigente (lo lee el motor al crearse en diferido; el efecto de resize de abajo cubre los cambios)
-  const sizeRef = useRef({ w: size.width, h: size.height, dpr: viewport.dpr });
-  useEffect(() => { sizeRef.current = { w: size.width, h: size.height, dpr: viewport.dpr }; }, [size.width, size.height, viewport.dpr]);
-
   // motor: se crea/destruye con el nivel de calidad
   useEffect(() => {
-    // Se arma en una tarea propia, justo después de que R3F creó el contexto WebGL: así "crear el canvas" y
-    // "crear el motor" (texturas, simulación GPGPU, polvo) no forman una sola tarea larga en el hilo principal.
-    // Mismo resultado visual: el canvas sigue invisible (opacity 0) hasta los cuadros de calentamiento.
-    let on = true, dispose: (() => void) | null = null;
-    const id = window.setTimeout(() => { if (on) dispose = init(); }, 0);
-    return () => { on = false; clearTimeout(id); dispose?.(); };
-  function init() {
     const st = S.current;
     let env: THREE.WebGLRenderTarget | null = null, matcap: THREE.Texture | null = null;
     if (cfg.matcap) matcap = makeMatcap(tokens);
@@ -148,17 +137,10 @@ function Liquid({ lines, font, cfg, tokens, onFirst }: { lines: Lines; font: str
       if (!alive) return;
       engine.applyTargets(r, RT.static || st.intro.v > 0.5 ? 'text' : 'scatter');
       engine.points.visible = true;
-      // precompila los programas de la escena (evita el tirón de compilación en el primer cuadro visible).
-      // compileAsync: con KHR_parallel_shader_compile (GPUs reales) el driver compila en paralelo y el hilo principal
-      // no se bloquea esperando; sin la extensión se usa el compile() síncrono de antes (sin aviso en consola).
-      const warm = () => {
-        if (!alive) return;
-        st.warm = 0; invalidate(); // useFrame cuenta WARM_FRAMES cuadros reales y recién ahí avisa (onFirst)
-        st.onFirst = () => { if (alive) onFirst(); };
-      };
-      let p: Promise<unknown> | null = null;
-      try { if (gl.extensions.has('KHR_parallel_shader_compile')) p = gl.compileAsync(scene, camera); else gl.compile(scene, camera); } catch { /* opcional */ }
-      if (p) p.then(warm, warm); else warm();
+      // precompila los programas de la escena (evita el tirón de compilación en el primer cuadro visible)
+      try { gl.compile(scene, camera); } catch { /* opcional */ }
+      st.warm = 0; invalidate(); // useFrame cuenta WARM_FRAMES cuadros reales y recién ahí avisa (onFirst)
+      st.onFirst = () => { if (alive) onFirst(); };
     };
     engine.points.visible = false;
     const run = () => {
@@ -177,13 +159,11 @@ function Liquid({ lines, font, cfg, tokens, onFirst }: { lines: Lines; font: str
       ripO: st.ripO, ripT: 9, ripA: 0, mouseUv: st.mouseUv, liquid: 0.85, rUv: 0.1, static: RT.static,
       a: 0, b: 0, u: 0, burst: 0, sweep: -9,
     };
-    const sz = sizeRef.current; engine.resize(sz.w, sz.h, sz.dpr); invalidate();
     return () => {
       alive = false; worker?.terminate(); grp?.remove(engine.points); engine.dispose(); st.engine = null;
       scene.remove(dust.points); dust.dispose(); st.dust = null;
       env?.dispose(); matcap?.dispose();
     };
-  }
   }, [gl, scene, camera, cfg, tokens, lines, font, invalidate, onFirst]);
 
 

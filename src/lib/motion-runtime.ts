@@ -17,13 +17,6 @@ import { startStory } from '@/lib/story-motion';
 import { startPacks } from '@/lib/packs-motion';
 
 let lenis: Lenis | null = null;
-
-/** Cede el hilo principal entre pasos de trabajo (scheduler.yield si existe; si no, una tarea nueva). */
-type Sched = { yield?: () => Promise<void> };
-const yieldToMain = () => {
-  const sc = (globalThis as { scheduler?: Sched }).scheduler;
-  return sc?.yield ? sc.yield() : new Promise<void>((r) => setTimeout(r, 0));
-};
 let routeCount = 0;
 
 export function startGlobal(): () => void {
@@ -149,13 +142,8 @@ export function startRoute(root: HTMLElement): () => void {
        (y≈50) y dejarlo ahí para siempre. clearProps devuelve el control al CSS (hover) al terminar. */
     const REVEAL_END = { opacity: 1, y: 0, clearProps: 'opacity,transform,translate,rotate,scale' } as const;
 
-    /* ---- resto de la página (bajo el pliegue): en idle, para no alargar la hidratación ----
-       Se arma en varios pasos cortos, cediendo el hilo principal entre cada uno (antes era UNA tarea de ~250 ms
-       en móvil = bloqueo/TBT). Mismo orden de creación de ScrollTriggers que antes; el refresh va al final. */
-    const steps: (() => void)[] = [];
-    const step = (fn: () => void) => steps.push(() => ctx.add(fn));
-    steps.push(() => split(false));
-    step(() => {
+    /* ---- resto de la página (bajo el pliegue): en idle, para no alargar la hidratación ---- */
+    const rest = () => { if (!alive) return; split(false); ctx.add(() => {
       if (!STATIC) {
         $$('[data-reveal]').forEach((el) =>
           gsap.fromTo(el, el.closest('.hero, .phero') && innerWidth < 760 ? { y: 24 } : { opacity: 0, y: 40 }, { ...REVEAL_END, duration: 1.2, scrollTrigger: { trigger: el, start: 'top 88%' } }));
@@ -172,9 +160,7 @@ export function startRoute(root: HTMLElement): () => void {
         // entrada suave que termina en su sitio: la palabra nunca queda bajo la barra ©
         if (giant) gsap.fromTo(giant, { yPercent: 14, opacity: 0.35 }, { yPercent: 0, opacity: 1, ease: 'none', scrollTrigger: { trigger: giant, start: 'top bottom', end: 'max', scrub: true } });
       }
-    });
 
-    step(() => {
       /* ---- contadores (solo datos reales) ---- */
       $$('[data-count]').forEach((el) => {
         const end = +(el.dataset.count || 0), pad = +(el.dataset.pad || 0);
@@ -185,20 +171,14 @@ export function startRoute(root: HTMLElement): () => void {
         ScrollTrigger.create({ trigger: el, start: 'top 90%', once: true,
           onEnter: () => { gsap.to(o, { v: end, duration: 2, ease: 'power3.out', onUpdate: () => { el.textContent = f(o.v); } }); } });
       });
-    });
 
-    step(() => {
       /* ---- historia v3 "Del commit al cliente" (ver lib/story-motion.ts) ---- */
       const story = root.querySelector<HTMLElement>('.story');
       if (story) off.push(startStory(story, STATIC, () => lenis));
-    });
 
-    step(() => {
       /* ---- packs v3 "Forja de cromo" (ver lib/packs-motion.ts) ---- */
       root.querySelectorAll<HTMLElement>('[data-forja]').forEach((g) => off.push(startPacks(g, STATIC)));
-    });
 
-    step(() => {
       /* ---- línea de proceso que se dibuja ---- */
       const tlEl = root.querySelector('.tl');
       if (tlEl) {
@@ -212,9 +192,7 @@ export function startRoute(root: HTMLElement): () => void {
           });
         }
       }
-    });
 
-    step(() => {
       /* ---- spotlight en tarjetas de servicio ---- */
       $$('.svc .item,.spot').forEach((c) => listen(c, 'pointermove', ((e: PointerEvent) => {
         const r = c.getBoundingClientRect(); c.style.setProperty('--mx', e.clientX - r.left + 'px'); c.style.setProperty('--my', e.clientY - r.top + 'px');
@@ -239,22 +217,13 @@ export function startRoute(root: HTMLElement): () => void {
       }
     });
 
-    steps.push(() => {
-      ScrollTrigger.refresh();
-      // recalcula posiciones cuando terminan de cargar las imágenes (una sola vez, con debounce)
-      let rt = 0;
-      const onImg = () => { clearTimeout(rt); rt = window.setTimeout(() => ScrollTrigger.refresh(), 120); };
-      $$<HTMLImageElement>('img').forEach((img) => { if (!img.complete) { img.addEventListener('load', onImg, { once: true }); off.push(() => img.removeEventListener('load', onImg)); } });
-      off.push(() => clearTimeout(rt));
-    });
-
-    const rest = async () => {
-      for (const fn of steps) {
-        if (!alive) return;
-        fn();
-        await yieldToMain();
-      }
-    };
+    ScrollTrigger.refresh();
+    // recalcula posiciones cuando terminan de cargar las imágenes (una sola vez, con debounce)
+    let rt = 0;
+    const onImg = () => { clearTimeout(rt); rt = window.setTimeout(() => ScrollTrigger.refresh(), 120); };
+    $$<HTMLImageElement>('img').forEach((img) => { if (!img.complete) { img.addEventListener('load', onImg, { once: true }); off.push(() => img.removeEventListener('load', onImg)); } });
+    off.push(() => clearTimeout(rt));
+  };
 
     type RIC = (cb: () => void, o?: { timeout: number }) => number;
     const ric = (window as Window & { requestIdleCallback?: RIC }).requestIdleCallback;
@@ -264,7 +233,7 @@ export function startRoute(root: HTMLElement): () => void {
       // /nosotros "Forjado": módulo propio, cargado solo en esa ruta
       const forge = root.querySelector<HTMLElement>('.forge');
       if (forge) import('@/lib/nosotros-motion').then((m) => { if (alive) off.push(m.startNosotros(forge, { STATIC, animateHero })); });
-      if (ric) ric(() => { void rest(); }, { timeout: 300 }); else window.setTimeout(() => { void rest(); }, 60);
+      if (ric) ric(rest, { timeout: 300 }); else window.setTimeout(rest, 60);
     });
     const onLoad = () => ScrollTrigger.refresh();
     if (document.readyState !== 'complete') { window.addEventListener('load', onLoad, { once: true }); off.push(() => window.removeEventListener('load', onLoad)); }
