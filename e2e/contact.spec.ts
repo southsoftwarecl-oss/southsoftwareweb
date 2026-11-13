@@ -238,12 +238,12 @@ test.describe('Instagram (@southsoftwarecl) y Página de Facebook oficiales', ()
   test('footer, /contacto y JSON-LD sameAs; sin otras redes', async ({ page }) => {
     for (const path of ['/', '/contacto']) {
       await page.goto(path);
-      const ft = page.locator('footer').getByRole('link', { name: 'Instagram de South Software (@southsoftwarecl)' });
+      const ft = page.locator('footer').getByRole('link', { name: '@southsoftwarecl en Instagram (South Software)' });
       await expect(ft).toHaveAttribute('href', IG);
       await expect(ft).toHaveAttribute('target', '_blank');
       await expect(ft).toHaveAttribute('rel', 'me noopener');
       await expect(ft.locator('svg')).toHaveCount(1);
-      const fb = page.locator('footer').getByRole('link', { name: 'Página de Facebook de South Software' });
+      const fb = page.locator('footer').getByRole('link', { name: 'Facebook: Página de South Software' });
       await expect(fb).toHaveAttribute('href', FB);
       await expect(fb).toHaveAttribute('rel', 'me noopener');
       // ninguna otra red social (perfiles inexistentes)
@@ -253,10 +253,10 @@ test.describe('Instagram (@southsoftwarecl) y Página de Facebook oficiales', ()
       const org = ld.map((t) => JSON.parse(t)).find((j) => j['@id']?.endsWith('/#org'));
       expect(org?.sameAs).toEqual([IG, FB]);
     }
-    const ch = page.locator('.channels').getByRole('link', { name: 'Instagram de South Software (@southsoftwarecl)' });
+    const ch = page.locator('.channels').getByRole('link', { name: '@southsoftwarecl en Instagram (South Software)' });
     await expect(ch).toHaveAttribute('href', IG);
     await expect(ch).toHaveAttribute('rel', 'me noopener');
     await expect(ch).toBeVisible();
-    await expect(page.locator('.channels').getByRole('link', { name: 'Página de Facebook de South Software' })).toHaveAttribute('href', FB);
+    await expect(page.locator('.channels').getByRole('link', { name: 'Facebook: Página de South Software' })).toHaveAttribute('href', FB);
   });
 });

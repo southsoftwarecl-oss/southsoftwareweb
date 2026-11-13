@@ -1,4 +1,5 @@
-/** Link al Instagram oficial (BRAND.instagram) con ícono; rel="me" lo vincula como perfil propio. */
+/** Link al Instagram oficial (BRAND.instagram) con ícono; rel="me" lo vincula como perfil propio.
+ *  El nombre accesible empieza con el texto visible (WCAG 2.5.3 "Label in Name"). */
 import { BRAND } from '@/content/site';
 
 export function InstagramIcon() {
@@ -12,7 +13,7 @@ export function InstagramIcon() {
 export default function InstagramLink({ className = '' }: { className?: string }) {
   return (
     <a className={`ig-link ${className}`.trim()} href={BRAND.instagram.url} target="_blank" rel="me noopener"
-      aria-label={`Instagram de South Software (${BRAND.instagram.handle})`}>
+      aria-label={`${BRAND.instagram.handle} en Instagram (South Software)`}>
       <InstagramIcon /><span>{BRAND.instagram.handle}</span>
     </a>
   );

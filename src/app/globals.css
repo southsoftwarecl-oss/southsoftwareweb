@@ -256,6 +256,8 @@ html.capture .tl .rail b{transform:none}
 @media (max-width:760px){.wrap{width:calc(100% - 40px)}.nav nav{display:none}.svc{grid-template-columns:1fr}.svc .item{min-height:auto}.svc .more{opacity:1;max-height:none;transform:none;margin-top:12px}.counters{grid-template-columns:1fr}.counter{padding-left:0!important;border-right:0!important;border-bottom:1px solid var(--line)}.tl .rail,.tl .st .node{left:6px}.tl .st{grid-template-columns:1fr;padding-left:36px}.tl .st .c,.tl .st:nth-child(odd) .c{grid-column:1;text-align:left}.stack{grid-template-columns:1fr 1fr}form.brief{grid-template-columns:1fr}.ft .about,.ft .col{grid-column:1/-1!important;margin-bottom:30px}.wa-float span{display:none}.founders{flex-direction:column;align-items:flex-start}}
 .sw-mask,.sl-mask{padding-bottom:.14em!important;margin-bottom:-.14em!important;padding-right:.04em}
 .wa-float{transform:translateY(160%)}.wa-float.show{transform:none}
+/* aviso de cookies abierto (móvil, a todo el ancho): el botón flotante se sube sobre él (--cookie-h, ver Analytics.tsx) */
+@media (max-width:760px){.wa-float{bottom:calc(24px + var(--cookie-h,0px))}}
 /* hero layout helpers */
 .hx{position:relative;z-index:2;width:100%}
 .hx-bottom{margin-top:auto;padding:140px 0 112px}

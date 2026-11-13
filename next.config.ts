@@ -52,14 +52,25 @@ const nextConfig: NextConfig = {
   // Source maps públicos: facilitan auditoría y depuración (Lighthouse: valid-source-maps)
   productionBrowserSourceMaps: true,
   reactStrictMode: true,
-  images: { formats: ['image/avif', 'image/webp'] },
+  // minimumCacheTTL: las imágenes optimizadas (/_next/image) se cachean 7 días también en el navegador
+  // (antes salían con max-age=0 y cada visita revalidaba cada imagen).
+  images: { formats: ['image/avif', 'image/webp'], minimumCacheTTL: 604800 },
   turbopack: {
     rules: {
       '*.css': { loaders: ['@tailwindcss/turbopack'], as: '*.css' },
     },
   },
   async headers() {
-    return [{ source: '/(.*)', headers: securityHeaders }];
+    // Archivos de /public sin hash en el nombre: 1 día en caché + 7 días sirviendo la copia mientras revalida
+    // (antes max-age=0). Los de /_next/static ya son inmutables (los pone Next).
+    const assetCache = [{ key: 'Cache-Control', value: 'public, max-age=86400, stale-while-revalidate=604800' }];
+    return [
+      { source: '/(.*)', headers: securityHeaders },
+      { source: '/cases/:path*', headers: assetCache },
+      { source: '/brand/:path*', headers: assetCache },
+      { source: '/email/:path*', headers: assetCache },
+      { source: '/:file(favicon\\.ico|favicon\\.svg|apple-touch-icon\\.png|icon-\\d+\\.png)', headers: assetCache },
+    ];
   },
 };
 

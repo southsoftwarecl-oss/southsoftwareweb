@@ -46,7 +46,8 @@ export const trackLead = (form: string) => window.dispatchEvent(new CustomEvent(
 export function packFromWhatsApp(href: string): string | undefined {
   try {
     const text = new URL(href).searchParams.get('text') || '';
-    const m = /\bpack\s+(.+?)\s*\(/i.exec(text);
+    // "…el pack Pyme (detalle)" (selector de servicios) o "…el pack Pyme. ¿Conversamos?" (tarjetas sin precio)
+    const m = /\bpack\s+(.+?)\s*(?:\(|\.(?:\s|$)|¿|$)/i.exec(text);
     if (m) return m[1];
     if (/cliente fundador/i.test(text)) return 'Cliente Fundador';
   } catch { /* href inválido */ }

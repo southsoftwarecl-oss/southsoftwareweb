@@ -5,6 +5,7 @@ import './admin.css';
 export const metadata: Metadata = {
   title: { default: 'Panel', template: '%s · Panel South Software' },
   robots: { index: false, follow: false, nocache: true, googleBot: { index: false, follow: false } },
+  alternates: { canonical: null }, // el panel no hereda el canonical del home
 };
 
 // Lee la preferencia (claro / oscuro / sistema) y la aplica al contenedor antes de pintar. Script estático, sin datos de usuario.

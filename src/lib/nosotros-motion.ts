@@ -45,7 +45,8 @@ export function startNosotros(root: HTMLElement, { STATIC, animateHero }: Opts):
     const hero = $('.fhero');
     if (hero && !STATIC && animateHero) {
       const paths = $$<SVGPathElement>('.cmap-k path, .cmap-c path', hero);
-      gsap.set(paths, { strokeDasharray: 1, strokeDashoffset: 1 });
+      // el mapa puede no tener trazos (tier bajo / móvil): sin objetivo, GSAP avisa "target not found"
+      if (paths.length) gsap.set(paths, { strokeDasharray: 1, strokeDashoffset: 1 });
       const clock = $('.fh-clock', hero); gsap.set(clock, { opacity: 0 });
       const h1 = $('.fh-title', hero)!; const words = $$('.fw', h1);
       const useFilter = tier !== 'low';
@@ -69,7 +70,7 @@ export function startNosotros(root: HTMLElement, { STATIC, animateHero }: Opts):
         }
         gsap.to(lines, { yPercent: 0, duration: 1.1, ease: 'south', stagger: 0.08, delay: 0.45 });
         // costa de norte a sur: el orden del DOM ya va de lo más largo a lo más corto; stagger suave
-        gsap.to(paths, { strokeDashoffset: 0, duration: 2.4, ease: 'south', stagger: { amount: 1.2 }, delay: 0.1 });
+        if (paths.length) gsap.to(paths, { strokeDashoffset: 0, duration: 2.4, ease: 'south', stagger: { amount: 1.2 }, delay: 0.1 });
         gsap.to(clock, { opacity: 1, duration: 0.8, delay: 1.2 });
       }));
     }

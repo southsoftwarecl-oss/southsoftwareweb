@@ -5,7 +5,8 @@ import HeroCanvas from '@/components/three/HeroCanvas';
 import { Btn } from '@/components/ui';
 import { michromaFamily } from '@/lib/fonts';
 
-export const metadata = { title: 'Página no encontrada', robots: { index: false } };
+// sin canonical heredado del layout (apuntaba al home desde cualquier URL inexistente)
+export const metadata = { title: 'Página no encontrada', robots: { index: false }, alternates: { canonical: null } };
 
 const LINES = [{ text: '404', size: 300, y: 200 }];
 

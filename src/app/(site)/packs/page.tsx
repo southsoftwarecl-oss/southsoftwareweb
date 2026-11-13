@@ -13,7 +13,7 @@ import { packsJsonLd, pageMeta } from '@/lib/seo';
 
 export const metadata = pageMeta({
   title: 'Packs de desarrollo web y marketing en Chile',
-  description: 'Packs de desarrollo web, software y marketing digital: combinados, solo marketing o solo software. Elige tu pack y cotiza por WhatsApp hoy.',
+  description: 'Packs de desarrollo web, software y marketing digital: combinados, solo marketing o solo software. Elige tu pack y cotízalo por WhatsApp hoy.',
   path: '/packs',
 });
 

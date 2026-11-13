@@ -1,0 +1,5 @@
+# Falsos positivos revisados: credenciales DESECHABLES solo para e2e (mock local de Supabase y panel de prueba). Producción usa env de Vercel.
+5f12f29ddeb3ab8bca01741999638102e034f86d:e2e/mock-supabase.mjs:generic-api-key:7
+9b38ec5616a500ff9cc54b16326dac1af89ba3bb:e2e/mock-supabase.mjs:generic-api-key:7
+d893069d0631b066dffab9630fc4f286b45311ef:playwright.config.ts:generic-api-key:19
+21eeda3c562e191578adabaa7de23ea68ed94d6b:playwright.config.ts:generic-api-key:19

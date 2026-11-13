@@ -89,6 +89,17 @@ export default function Analytics({ gaId }: { gaId: string }) {
     }
   }, [granted, consent, gaId]);
 
+  // Mientras el aviso está abierto, publica su alto en --cookie-h: la barra fija de "Arma tu pack" y el botón
+  // flotante de WhatsApp se suben por encima del aviso en vez de quedar tapados (ver globals.css / marketing.css).
+  useEffect(() => {
+    const el = dialog.current, root = document.documentElement;
+    if (!open || !el) { root.style.removeProperty('--cookie-h'); return; }
+    const set = () => root.style.setProperty('--cookie-h', `${Math.ceil(el.getBoundingClientRect().height + parseFloat(getComputedStyle(el).bottom || '0'))}px`);
+    set();
+    const ro = new ResizeObserver(set); ro.observe(el);
+    return () => { ro.disconnect(); root.style.removeProperty('--cookie-h'); };
+  }, [open]);
+
   // Eventos de conversión (solo con consentimiento).
   useEffect(() => {
     if (!granted) return;
@@ -101,7 +112,8 @@ export default function Analytics({ gaId }: { gaId: string }) {
       if (isWhatsApp(href)) {
         const pack = packFromWhatsApp(href);
         gtag('event', 'whatsapp_click', { pack, page_path, link_text: label.slice(0, 100) });
-        if (/elegir pack/i.test(label)) gtag('event', 'select_pack', { pack, page_path });
+        // CTA de una tarjeta de pack ("Cotiza por WhatsApp" desde que no hay precios; antes "Elegir pack")
+        if (pack && /elegir pack|cotiza por whatsapp/i.test(label)) gtag('event', 'select_pack', { pack, page_path });
       } else if (href.startsWith('mailto:')) {
         gtag('event', 'email_click', { page_path });
       } else if (href.startsWith('tel:')) {

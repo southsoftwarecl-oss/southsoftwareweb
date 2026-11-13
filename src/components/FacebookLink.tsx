@@ -12,7 +12,7 @@ export function FacebookIcon() {
 export default function FacebookLink({ className = '', label = true }: { className?: string; label?: boolean }) {
   return (
     <a className={`ig-link ${className}`.trim()} href={BRAND.facebook.url} target="_blank" rel="me noopener"
-      aria-label="Página de Facebook de South Software">
+      aria-label={label ? 'Facebook: Página de South Software' : 'Página de Facebook de South Software'}>
       <FacebookIcon />{label && <span>Facebook</span>}
     </a>
   );
